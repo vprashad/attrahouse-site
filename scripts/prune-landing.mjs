@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 const dist = new URL('../dist/', import.meta.url).pathname;
 const mode = process.env.SITE_MODE === 'shop' ? 'shop' : 'landing';
-const KEEP = new Set(['index.html', '404.html', '_astro', 'favicon.svg']);
+const KEEP = new Set(['index.html', '404.html', '_astro', 'favicon.svg', '_headers']);
 
 if (mode === 'landing') {
   for (const name of readdirSync(dist)) if (!KEEP.has(name)) rmSync(join(dist, name), { recursive: true, force: true });

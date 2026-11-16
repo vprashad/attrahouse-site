@@ -1,0 +1,4 @@
+# Until launch: keep every page out of search engines, on workers.dev and on previews.
+# Remove this rule at launch (it is on the launch checklist).
+/*
+  X-Robots-Tag: noindex
