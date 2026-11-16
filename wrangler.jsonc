@@ -10,10 +10,12 @@
     "run_worker_first": ["/api/*"]
   },
   // Viveg creates the database in Cloudflare (Storage & databases > D1 > Create, name "attrahouse-stock")
-  // and pastes its ID here. Until then, /api/* returns 404 because SITE_MODE is "landing".
+  // and sends Claude its ID to paste here. The ID is not a secret.
   "d1_databases": [
     { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "REPLACE_WITH_D1_DATABASE_ID", "migrations_dir": "migrations" }
   ],
   "triggers": { "crons": ["*/5 * * * *"] },
-  "vars": { "SITE_MODE": "landing", "CHECKOUT_ENABLED": "false" }
+  "vars": { "CHECKOUT_ENABLED": "false" },
+  // .sql files are bundled as text so the Worker can create its own tables.
+  "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }]
 }

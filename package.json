@@ -5,8 +5,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/prune-landing.mjs",
-    "build:shop": "SITE_MODE=shop npm run build",
+    "build": "node scripts/build.mjs",
+    "build:shop": "SITE_MODE=shop node scripts/build.mjs",
     "check:content": "node scripts/check-placeholders.mjs",
     "test": "node --test test/*.test.js",
     "preview": "wrangler dev",
@@ -20,5 +20,7 @@
   "devDependencies": {
     "wrangler": "4.156.1"
   },
-  "engines": { "node": ">=22.5" }
+  "engines": {
+    "node": ">=22.5"
+  }
 }

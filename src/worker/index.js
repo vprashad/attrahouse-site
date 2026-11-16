@@ -1,7 +1,19 @@
 // Cloudflare Worker for attrahouse.com.
 // Static pages are served from the Astro build (env.ASSETS). Only /api/* reaches this code.
 import catalogue from '../data/products.json';
-import { readStock, createHold, validateItems, priceItems, seedStock } from './stock.js';
+import { readStock, createHold, validateItems, priceItems, seedStock, releaseExpired } from './stock.js';
+import { SITE_MODE } from './mode.js';
+import schema from '../../migrations/0001_stock.sql';
+
+// Create the tables on first use, so the database needs no setup by hand. Safe to repeat.
+let ready = null;
+function ensureSchema(db) {
+  if (!ready) {
+    const stmts = schema.split(';').map((s) => s.replace(/--.*$/gm, '').trim()).filter(Boolean);
+    ready = db.batch(stmts.map((s) => db.prepare(s))).catch((e) => { ready = null; throw e; });
+  }
+  return ready;
+}
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
@@ -12,8 +24,9 @@ export default {
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
 
     // Before launch the site is a landing page only: no shop, no stock, no checkout.
-    if (env.SITE_MODE !== 'shop') return json({ error: 'not_found' }, 404);
+    if (SITE_MODE !== 'shop') return json({ error: 'not_found' }, 404);
 
+    await ensureSchema(env.DB);
     const now = Date.now();
     if (url.pathname === '/api/stock' && request.method === 'GET') {
       await seedStock(env.DB, catalogue, now);
@@ -37,8 +50,8 @@ export default {
 
   // Every 5 minutes: put units from unpaid, expired holds back on sale.
   async scheduled(_event, env) {
-    if (env.SITE_MODE !== 'shop') return;
-    const { releaseExpired } = await import('./stock.js');
+    if (SITE_MODE !== 'shop') return;
+    await ensureSchema(env.DB);
     await releaseExpired(env.DB, Date.now());
   },
 };
