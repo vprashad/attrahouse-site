@@ -1,0 +1,31 @@
+---
+import '@fontsource/fredoka/500.css';
+import '@fontsource/fredoka/600.css';
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/600.css';
+import '@fontsource/nunito/800.css';
+import '../styles/site.css';
+interface Props { title: string; description: string; lang?: 'en' | 'ms'; noindex?: boolean }
+const { title, description, lang = 'en', noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang={lang === 'ms' ? 'ms-MY' : 'en-MY'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#F7F1E6" />
+    {noindex && <meta name="robots" content="noindex" />}
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

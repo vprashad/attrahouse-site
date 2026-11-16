@@ -1,0 +1,63 @@
+---
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Art from './Art.astro';
+import ProductCard from './ProductCard.astro';
+import StockTag from './StockTag.astro';
+import catalogue from '../data/products.json';
+import { rm } from '../lib/site.js';
+const products = catalogue.products.filter((p) => !p.group);
+const bundle = products.find((p) => p.featured);
+const rest = products.filter((p) => !p.featured);
+const holders = catalogue.groups.holders;
+---
+<Header />
+<main>
+  <section class="snap" id="snap" aria-label="Magnetic watermelon"><div class="stage"><div class="wrap sg">
+    <div class="words">
+      <h1>Play food that snaps apart and back again</h1>
+      <p class="lead">Life-size fruit and vegetables that pull apart along hidden magnets. Made in small batches in Malaysia, for ages 3 and up.</p>
+      <div class="row"><a class="btn main" href="#sets">Shop the sets</a></div>
+      <ul class="clicks" id="snap-marks">
+        <li class="mk" style="--c:var(--red)">Magnets, not velcro</li>
+        <li class="mk" style="--c:var(--orange)">Life-size pieces</li>
+        <li class="mk" style="--c:var(--green)">Colour printed in, nothing to peel</li>
+      </ul>
+    </div>
+    <div class="fw"><Art name="watermelon" /><span class="standin">Stand-in drawing</span></div>
+  </div><div class="cue" id="snap-cue" aria-hidden="true">Scroll ↓</div></div></section>
+
+  <section class="band" id="sets"><div class="wrap sec">
+    <h2>Four sets, or all of them in one box</h2>
+    {bundle && (
+      <div class="bundle">
+        <div class="tile big" style="--t:var(--ink)"><span>Photo: the whole bundle laid out, box open</span></div>
+        <div class="col">
+          <h3 class="lbl">The gift pick</h3><b class="h1">{bundle.name}</b><p>{bundle.note}.</p>
+          <div class="row"><span class="pr big">{rm(bundle.priceSen)}</span><span class="tag">Save {rm(bundle.separateTotalSen - bundle.priceSen)}</span><StockTag sku={bundle.sku} /></div>
+          <p class="sm">{rm(bundle.separateTotalSen)} if you buy the four separately.</p>
+          <div class="row"><a class="btn main" href={`/${bundle.sku}/`}>See the Bundle</a></div>
+        </div>
+      </div>
+    )}
+    <div class="grid cards">{rest.map((p) => <ProductCard p={p} />)}</div>
+    <div class="grid cards">
+      <a class="card" href="/holders/">
+        <div class="tile" style="--t:var(--yellow)"><span>Photo goes here</span></div>
+        <b>{holders.name}</b><span class="pr">Any 2 for {rm(holders.pairPriceSen)}</span>
+        <span><StockTag sku="pouch-holder" /> <StockTag sku="juicebox-holder" /></span>
+      </a>
+    </div>
+  </div></section>
+
+  <section><div class="wrap sec two">
+    <div class="col"><h2>What parents should know before play starts</h2>
+      <div class="row"><span class="tag">Ages 3+</span></div>
+      <p>The sets are for children aged 3 and up.</p>
+      <p class="sm">[Plain summary of how the magnets are fixed and what parents should check, from Compliance and R&amp;D]</p></div>
+    <div class="msg safe"><div class="row"><span class="tag warn">Warning</span></div><b>[Magnet warning wording, from Compliance]</b><span>[Material and testing statements, each with its evidence, from Compliance and R&amp;D]</span></div>
+  </div></section>
+</main>
+<Footer />
+<script is:inline src="/js/snap.js" defer></script>
+<script is:inline src="/js/stock.js" defer></script>

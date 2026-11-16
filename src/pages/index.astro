@@ -1,0 +1,9 @@
+---
+import Base from '../layouts/Base.astro';
+import Landing from '../components/Landing.astro';
+import Home from '../components/Home.astro';
+import { SITE_MODE } from '../lib/site.js';
+---
+<Base title="Attra House" description="Magnetic play food, 3D-printed in Malaysia." noindex={SITE_MODE === 'shop'}>
+  {SITE_MODE === 'shop' ? <Home /> : <Landing />}
+</Base>

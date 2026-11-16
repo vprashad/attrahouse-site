@@ -1,0 +1,13 @@
+---
+import StockTag from './StockTag.astro';
+import { rm } from '../lib/site.js';
+interface Props { p: any; href?: string }
+const { p, href = `/${p.sku}/` } = Astro.props;
+---
+<a class="card" href={href}>
+  <div class="tile" style={`--t:var(--${p.tile})`}><span>Photo goes here</span></div>
+  <b>{p.name}</b>
+  <span class="pr">{rm(p.priceSen)}</span>
+  {p.note && <span class="sm">{p.note}</span>}
+  <span><StockTag sku={p.sku} /></span>
+</a>

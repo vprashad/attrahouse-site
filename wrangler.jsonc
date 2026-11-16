@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "attrahouse-site",
+  "main": "src/worker/index.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  // Viveg creates the database in Cloudflare (Storage & databases > D1 > Create, name "attrahouse-stock")
+  // and pastes its ID here. Until then, /api/* returns 404 because SITE_MODE is "landing".
+  "d1_databases": [
+    { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "REPLACE_WITH_D1_DATABASE_ID", "migrations_dir": "migrations" }
+  ],
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "vars": { "SITE_MODE": "landing", "CHECKOUT_ENABLED": "false" }
+}

@@ -1,0 +1,44 @@
+// Cloudflare Worker for attrahouse.com.
+// Static pages are served from the Astro build (env.ASSETS). Only /api/* reaches this code.
+import catalogue from '../data/products.json';
+import { readStock, createHold, validateItems, priceItems, seedStock } from './stock.js';
+
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
+
+    // Before launch the site is a landing page only: no shop, no stock, no checkout.
+    if (env.SITE_MODE !== 'shop') return json({ error: 'not_found' }, 404);
+
+    const now = Date.now();
+    if (url.pathname === '/api/stock' && request.method === 'GET') {
+      await seedStock(env.DB, catalogue, now);
+      return json({ lowStockAt: catalogue.lowStockAt, items: await readStock(env.DB, catalogue.lowStockAt, now) });
+    }
+
+    if (url.pathname === '/api/hold' && request.method === 'POST') {
+      // Off until HitPay is connected: an open hold endpoint would let anyone lock stock.
+      if (env.CHECKOUT_ENABLED !== 'true') return json({ error: 'checkout_not_open' }, 403);
+      let body;
+      try { body = await request.json(); } catch { return json({ error: 'bad_request' }, 400); }
+      const v = validateItems(body && body.items, catalogue);
+      if (v.error) return json({ error: v.error }, 400);
+      const r = await createHold(env.DB, v.items, now, () => crypto.randomUUID());
+      if (!r.ok) return json({ error: r.reason, skus: r.skus }, 409);
+      return json({ holdId: r.holdId, expiresAt: r.expiresAt, totalSen: priceItems(v.items, catalogue) });
+    }
+
+    return json({ error: 'not_found' }, 404);
+  },
+
+  // Every 5 minutes: put units from unpaid, expired holds back on sale.
+  async scheduled(_event, env) {
+    if (env.SITE_MODE !== 'shop') return;
+    const { releaseExpired } = await import('./stock.js');
+    await releaseExpired(env.DB, Date.now());
+  },
+};

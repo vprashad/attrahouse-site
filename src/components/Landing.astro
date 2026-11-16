@@ -1,0 +1,10 @@
+---
+// Pre-launch page (SITE_MODE=landing): logo, one line, Instagram. No shop, no prices, no form.
+import Logo from './Logo.astro';
+import company from '../data/company.json';
+---
+<main class="wrap landing">
+  <Logo size={96} word={56} />
+  <h1>Magnetic play food, 3D-printed in Malaysia.</h1>
+  <p><a class="link" href={company.instagram} rel="noopener">Follow @attrahouse on Instagram</a></p>
+</main>

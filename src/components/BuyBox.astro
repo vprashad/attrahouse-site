@@ -1,0 +1,21 @@
+---
+// Buy button while in stock; the set's waitlist form once it is sold out.
+import { CHECKOUT_OPEN } from '../lib/site.js';
+interface Props { sku: string; name: string }
+const { sku, name } = Astro.props;
+---
+<div class="buybox col" data-buy-for={sku}>
+  <div class="row">
+    <button class="btn main" type="button" data-add={sku} disabled={!CHECKOUT_OPEN}>Add to basket</button>
+  </div>
+  {!CHECKOUT_OPEN && <p class="sm">Checkout opens at launch.</p>}
+</div>
+<div class="col" data-wait-for={sku} hidden>
+  <p><b>This batch has sold out.</b> Leave your email and we will message you when the {name} is back.</p>
+  <form class="wl" data-waitlist={sku} novalidate>
+    <label for={`${sku}-em`}>Email<input id={`${sku}-em`} type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+    <label class="ck" for={`${sku}-cs`}><input id={`${sku}-cs`} type="checkbox" required /><span>[Consent wording and privacy notice link, from Compliance, in English and BM]</span></label>
+    <button class="btn main" type="submit">Tell me when it's back</button>
+    <p class="sm" data-wl-msg hidden>The waitlist is not connected yet.</p>
+  </form>
+</div>

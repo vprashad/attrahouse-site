@@ -1,0 +1,12 @@
+---
+// The stand-in snap drawings. Replaced by real photos of the printed pieces later.
+import watermelon from './art/watermelon.html?raw';
+import orange from './art/orange.html?raw';
+import apple from './art/apple.html?raw';
+import carrot from './art/carrot.html?raw';
+import corn from './art/corn.html?raw';
+const art = { watermelon, orange, apple, carrot, corn } as const;
+interface Props { name: keyof typeof art }
+const { name } = Astro.props;
+---
+<Fragment set:html={art[name]} />

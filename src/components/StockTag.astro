@@ -1,0 +1,6 @@
+---
+// Filled in by /js/stock.js from /api/stock. Empty (and hidden) until the live number arrives.
+interface Props { sku: string }
+const { sku } = Astro.props;
+---
+<span class="tag" data-stock={sku} aria-live="polite"></span>

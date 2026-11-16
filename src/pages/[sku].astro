@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Art from '../components/Art.astro';
+import StockTag from '../components/StockTag.astro';
+import BuyBox from '../components/BuyBox.astro';
+import ProductCard from '../components/ProductCard.astro';
+import catalogue from '../data/products.json';
+import { rm } from '../lib/site.js';
+
+export function getStaticPaths() {
+  return catalogue.products.filter((p) => !p.group).map((p) => ({ params: { sku: p.sku }, props: { p } }));
+}
+const { p } = Astro.props;
+const others = catalogue.products.filter((x) => !x.group && x.sku !== p.sku && (x.sku === 'chefs-knife-block' || x.featured)).slice(0, 2);
+---
+<Base title={`${p.name} · Attra House`} description={`${p.name}: magnetic play food, 3D-printed in Malaysia.`} noindex>
+  <Header />
+  <main>
+    <section><div class="wrap sec two top">
+      <div class="col">
+        {p.art
+          ? <button class="tapstage" type="button" aria-pressed="false" aria-label={`Pull the ${p.art} apart or snap it together`}><Art name={p.art} /><span class="standin">Tap to slice · stand-in drawing</span></button>
+          : <div class="tile big" style={`--t:var(--${p.tile})`}><span>Photo goes here</span></div>}
+        <div class="thumbs">
+          <div class="tile" style={`--t:var(--${p.tile})`}><span>All pieces on white</span></div>
+          <div class="tile" style={`--t:var(--${p.tile})`}><span>In a child's hands</span></div>
+          <div class="tile" style={`--t:var(--${p.tile})`}><span>The box</span></div>
+        </div>
+      </div>
+      <div class="col">
+        <a class="link" href="/#sets">← All sets</a>
+        <h1>{p.name}</h1>
+        <div class="row"><span class="pr big">{rm(p.priceSen)}</span><StockTag sku={p.sku} /></div>
+        {p.note && <p>{p.note}.</p>}
+        <BuyBox sku={p.sku} name={p.name} />
+      </div>
+    </div></section>
+    <section class="band"><div class="wrap sec"><h2>What is in the box</h2><p class="sm">[Every piece with a photo and its name in English and BM, from Production]</p></div></section>
+    <section><div class="wrap sec two">
+      <div class="col"><h2>Key details</h2><dl class="kv"><dt>Age</dt><dd>3 and up</dd><dt>Material</dt><dd>[From R&amp;D]</dd><dt>Box size</dt><dd>[From Production]</dd><dt>Weight</dt><dd>[From Production]</dd></dl></div>
+      <div class="col"><h2>Price and delivery</h2><div class="price"><span>{p.name}</span><span>{rm(p.priceSen)}</span><span>Delivery, Peninsular Malaysia</span><span>[Finance]</span><span>Delivery, Sabah, Sarawak, Labuan</span><span>[Finance]</span><span class="tot">You pay</span><span class="tot">[Finance]</span></div></div>
+    </div></section>
+    <section class="band"><div class="wrap sec"><div class="msg safe"><div class="row"><span class="tag warn">Warning</span><span class="tag">Ages 3+</span></div><b>[Magnet warning wording, from Compliance]</b></div></div></section>
+    {others.length > 0 && <section><div class="wrap sec"><h2>Goes well with</h2><div class="grid cards">{others.map((o) => <ProductCard p={o} />)}</div></div></section>}
+  </main>
+  <Footer />
+  {p.art && <script is:inline src="/js/snap.js" defer></script>}
+  <script is:inline src="/js/stock.js" defer></script>
+</Base>

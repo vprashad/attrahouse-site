@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import StockTag from '../components/StockTag.astro';
+import catalogue from '../data/products.json';
+import { rm, CHECKOUT_OPEN } from '../lib/site.js';
+const g = catalogue.groups.holders;
+const items = catalogue.products.filter((p) => p.group === 'holders');
+---
+<Base title="Pouch and juice-box holders · Attra House" description="Any 2 holders for RM29." noindex>
+  <Header />
+  <main><section><div class="wrap sec two top">
+    <div class="tile big" style="--t:var(--yellow)"><span>Photo goes here</span></div>
+    <div class="col">
+      <a class="link" href="/#sets">← All sets</a>
+      <h1>{g.name}</h1>
+      <p class="pr big">Any 2 for {rm(g.pairPriceSen)}</p>
+      <p>Two pouch holders, two juice-box holders, or one of each.</p>
+      <dl class="kv">{items.map((p) => <><dt>{p.name}</dt><dd><StockTag sku={p.sku} /></dd></>)}</dl>
+      <button class="btn main" type="button" disabled={!CHECKOUT_OPEN}>Add 2 to basket</button>
+      {!CHECKOUT_OPEN && <p class="sm">Checkout opens at launch.</p>}
+    </div>
+  </div></section></main>
+  <Footer />
+  <script is:inline src="/js/stock.js" defer></script>
+</Base>

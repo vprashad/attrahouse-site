@@ -1,0 +1,12 @@
+---
+import mark from './art/logo.svg.html?raw';
+interface Props { size?: number; word?: number; dark?: boolean; href?: string }
+const { size = 40, word = 24, dark = false, href } = Astro.props;
+let svg = mark.replace('width="40" height="44"', `width="${size}" height="${Math.round(size * 1.1)}"`);
+if (dark) svg = svg.replace('<g fill="var(--ink)">', '<g fill="var(--cream)">');
+const Tag = href ? 'a' : 'span';
+---
+<Tag class="lock" href={href} style="gap:10px;text-decoration:none;color:inherit" aria-label={href ? 'Attra House home' : undefined}>
+  <Fragment set:html={svg} />
+  <span class="wm" style={`--s:${word}px`}><b>attra</b><small>House</small></span>
+</Tag>
