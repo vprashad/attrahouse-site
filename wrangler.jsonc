@@ -12,7 +12,7 @@
   // Viveg creates the database in Cloudflare (Storage & databases > D1 > Create, name "attrahouse-stock")
   // and sends Claude its ID to paste here. The ID is not a secret.
   "d1_databases": [
-    { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "REPLACE_WITH_D1_DATABASE_ID", "migrations_dir": "migrations" }
+    { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "014a8adf-ff78-4f85-a077-8b94c037d122", "migrations_dir": "migrations" }
   ],
   "triggers": { "crons": ["*/5 * * * *"] },
   "vars": { "CHECKOUT_ENABLED": "false" },
