@@ -1,9 +1,9 @@
 // Cloudflare Worker for attrahouse.com.
 // Static pages come from the Astro build (env.ASSETS). Only /api/* and /admin/* reach this code.
 import catalogue from '../data/products.json';
-import { readStock, seedStock, releaseExpired } from './stock.js';
-import { startCheckout, confirmOrder, publicOrder } from './orders.js';
-import { verifySignature, apiKey, webhookSalt } from './hitpay.js';
+import { readStock, seedStock, releaseExpired, validateItems } from './stock.js';
+import { startCheckout, confirmOrder, publicOrder, validateCustomer } from './orders.js';
+import { verifySignature, apiKey, webhookSalt, isLive } from './hitpay.js';
 import { accessUser } from './access.js';
 import { handleAdmin } from './admin.js';
 import { SITE_MODE } from './mode.js';
@@ -48,9 +48,14 @@ export default {
 
     if (url.pathname === '/api/checkout' && request.method === 'POST') {
       if (env.CHECKOUT_ENABLED !== 'true') return json({ error: 'checkout_not_open' }, 403);
-      if (!apiKey(env)) return json({ error: 'payment_unavailable' }, 503);
       let body;
       try { body = await request.json(); } catch { return json({ error: 'bad_request' }, 400); }
+      // Check the buyer's details first, so mistakes are reported even when payment is not set up.
+      const v = validateItems(body?.items, catalogue);
+      if (v.error) return json({ error: v.error }, 400);
+      const c = validateCustomer(body?.customer);
+      if (c.error) return json({ error: c.error }, 400);
+      if (!apiKey(env)) { console.error('No HitPay key for', isLive(env) ? 'live' : 'sandbox'); return json({ error: 'payment_not_configured' }, 503); }
       const r = await startCheckout(deps, body);
       return json(r.body, r.status);
     }

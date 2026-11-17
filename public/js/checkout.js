@@ -9,6 +9,7 @@
     name_missing: 'Enter your full name.', email_invalid: 'Check your email address.', phone_invalid: 'Enter a phone number we can reach you on.',
     address_missing: 'Enter your full delivery address.', region_missing: 'Choose where we are delivering to.', holders_in_pairs: 'Holders come in twos.',
     empty_basket: 'Your basket is empty.', checkout_not_open: 'Checkout opens at launch.', payment_unavailable: 'Payment is not available right now. Nothing was charged. Please try again in a few minutes, or message us on WhatsApp.',
+    payment_not_configured: 'Test payments are not set up on this preview yet: the HitPay sandbox key is missing. Nothing was charged.',
     delivery_fees_not_set: 'Delivery fees are not set yet, so we cannot take orders right now.', bad_request: 'Something went wrong. Please try again.',
   };
 
@@ -64,6 +65,8 @@
     e.preventDefault();
     var err = document.getElementById('co-err'), btn = document.getElementById('co-pay');
     function fail(m) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; }
+    var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing']];
+    for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]]); } }
     if (!document.getElementById('co-cs').checked) return fail('Tick the box to agree to the terms and privacy notice.');
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
