@@ -16,6 +16,15 @@
   ],
   "triggers": { "crons": ["*/5 * * * *"] },
   "vars": { "CHECKOUT_ENABLED": "false" },
+  // Settings for preview links (any branch except main). Before launch, previews share the
+  // stock database on purpose. LAUNCH CHECKLIST: give previews their own database before
+  // the first real sale, so tests on a preview can never change real stock.
+  "previews": {
+    "vars": { "CHECKOUT_ENABLED": "false" },
+    "d1_databases": [
+      { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "014a8adf-ff78-4f85-a077-8b94c037d122" }
+    ]
+  },
   // .sql files are bundled as text so the Worker can create its own tables.
   "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }]
 }
