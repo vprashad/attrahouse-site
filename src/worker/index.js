@@ -3,7 +3,7 @@
 import catalogue from '../data/products.json';
 import { readStock, seedStock, releaseExpired } from './stock.js';
 import { startCheckout, confirmOrder, publicOrder } from './orders.js';
-import { verifySignature } from './hitpay.js';
+import { verifySignature, apiKey, webhookSalt } from './hitpay.js';
 import { accessUser } from './access.js';
 import { handleAdmin } from './admin.js';
 import { SITE_MODE } from './mode.js';
@@ -48,7 +48,7 @@ export default {
 
     if (url.pathname === '/api/checkout' && request.method === 'POST') {
       if (env.CHECKOUT_ENABLED !== 'true') return json({ error: 'checkout_not_open' }, 403);
-      if (!env.HITPAY_API_KEY) return json({ error: 'payment_unavailable' }, 503);
+      if (!apiKey(env)) return json({ error: 'payment_unavailable' }, 503);
       let body;
       try { body = await request.json(); } catch { return json({ error: 'bad_request' }, 400); }
       const r = await startCheckout(deps, body);
@@ -65,7 +65,8 @@ export default {
 
     if (url.pathname === '/api/hitpay-webhook' && request.method === 'POST') {
       const raw = await request.text();
-      if (env.HITPAY_WEBHOOK_SALT && !(await verifySignature(env.HITPAY_WEBHOOK_SALT, raw, request.headers.get('Hitpay-Signature') || ''))) {
+      const salt = webhookSalt(env);
+      if (salt && !(await verifySignature(salt, raw, request.headers.get('Hitpay-Signature') || ''))) {
         return json({ error: 'bad_signature' }, 401);
       }
       let data = {};

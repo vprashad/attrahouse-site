@@ -5,8 +5,17 @@
 const SANDBOX = 'https://api.sandbox.hit-pay.com';
 
 function base(env) { return (env.HITPAY_BASE || SANDBOX).replace(/\/$/, ''); }
+/** True only when talking to HitPay's live API. */
+export function isLive(env) { return base(env) === 'https://api.hit-pay.com'; }
+/**
+ * Keys are named by the account they belong to, so a sandbox key can never be sent to the
+ * live API or the other way round: HITPAY_API_KEY_SANDBOX / HITPAY_API_KEY_LIVE, and the same
+ * for HITPAY_WEBHOOK_SALT_SANDBOX / HITPAY_WEBHOOK_SALT_LIVE.
+ */
+export function apiKey(env) { return isLive(env) ? env.HITPAY_API_KEY_LIVE : env.HITPAY_API_KEY_SANDBOX; }
+export function webhookSalt(env) { return isLive(env) ? env.HITPAY_WEBHOOK_SALT_LIVE : env.HITPAY_WEBHOOK_SALT_SANDBOX; }
 function headers(env) {
-  return { 'X-BUSINESS-API-KEY': env.HITPAY_API_KEY, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' };
+  return { 'X-BUSINESS-API-KEY': apiKey(env), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' };
 }
 export const senToAmount = (sen) => (sen / 100).toFixed(2);
 

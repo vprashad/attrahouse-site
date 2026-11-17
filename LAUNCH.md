@@ -13,7 +13,7 @@ Nothing here is done until it is ticked and Viveg has said go.
 ## Switches (Claude, with Viveg)
 - [ ] Give previews their own D1 database, so a test on a preview can never change real stock
 - [ ] Reset every product to the real for-sale quantity
-- [ ] Production vars: `CHECKOUT_ENABLED=true`, `LIVE_PAYMENTS=true`, `HITPAY_BASE=https://api.hit-pay.com`; live `HITPAY_API_KEY` and `HITPAY_WEBHOOK_SALT` added as secrets by Viveg
+- [ ] Production vars: `CHECKOUT_ENABLED=true`, `LIVE_PAYMENTS=true`, `HITPAY_BASE=https://api.hit-pay.com`; `HITPAY_API_KEY_LIVE` and `HITPAY_WEBHOOK_SALT_LIVE` added as Production secrets by Viveg
 - [ ] HitPay live webhook endpoint `https://attrahouse.com/api/hitpay-webhook`, event `payment_request.completed`
 - [ ] Turnstile bot check on checkout
 - [ ] Cloudflare Access on `/admin/` (and `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD` set)

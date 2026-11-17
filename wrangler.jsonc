@@ -21,8 +21,8 @@
   // stock database on purpose. LAUNCH CHECKLIST: give previews their own database before
   // the first real sale, so tests on a preview can never change real stock.
   "previews": {
-    // Previews take test payments through the HitPay sandbox. HITPAY_API_KEY and
-    // HITPAY_WEBHOOK_SALT are secrets Viveg adds in Cloudflare; they are never in this file.
+    // Previews take test payments through the HitPay sandbox. HITPAY_API_KEY_SANDBOX and
+    // HITPAY_WEBHOOK_SALT_SANDBOX are secrets Viveg adds in Cloudflare; they are never in this file.
     "vars": { "CHECKOUT_ENABLED": "true", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR", "HITPAY_BASE": "https://api.sandbox.hit-pay.com" },
     "d1_databases": [
       { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "014a8adf-ff78-4f85-a077-8b94c037d122" }

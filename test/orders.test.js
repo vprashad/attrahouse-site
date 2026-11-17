@@ -33,7 +33,7 @@ async function setup() {
   db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
   await seedStock(db, catalogue, T0);
   const hp = fakeHitPay();
-  const deps = { db, env: { HITPAY_API_KEY: 'test', CURRENCY: 'MYR' }, fetchFn: hp.fetchFn, now: T0, newId: ids, origin: 'https://preview.example', catalogue };
+  const deps = { db, env: { HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_API_KEY_LIVE: 'live-key', CURRENCY: 'MYR' }, fetchFn: hp.fetchFn, now: T0, newId: ids, origin: 'https://preview.example', catalogue };
   return { db, hp, deps };
 }
 const avail = (db, sku) => ({ ...db.raw.prepare('SELECT available, sold FROM stock WHERE sku = ?').get(sku) });
@@ -129,4 +129,13 @@ test('webhook signature: HMAC-SHA256 of the raw body with the salt', async () =>
   assert.equal(await verifySignature('salt123', body, sig), true);
   assert.equal(await verifySignature('salt123', body + ' ', sig), false);
   assert.equal(await verifySignature('', body, sig), false);
+});
+
+test('the sandbox key only goes to the sandbox, the live key only to live', async () => {
+  const { apiKey } = await import('../src/worker/hitpay.js');
+  const keys = { HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_API_KEY_LIVE: 'live-key' };
+  assert.equal(apiKey({ ...keys }), 'sandbox-key'); // no base set: sandbox
+  assert.equal(apiKey({ ...keys, HITPAY_BASE: 'https://api.sandbox.hit-pay.com' }), 'sandbox-key');
+  assert.equal(apiKey({ ...keys, HITPAY_BASE: 'https://api.hit-pay.com' }), 'live-key');
+  assert.equal(apiKey({ HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_BASE: 'https://api.hit-pay.com' }), undefined);
 });
