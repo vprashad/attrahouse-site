@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import StockTag from '../components/StockTag.astro';
 import catalogue from '../data/products.json';
-import { rm, CHECKOUT_OPEN } from '../lib/site.js';
+import { rm } from '../lib/site.js';
 const g = catalogue.groups.holders;
 const items = catalogue.products.filter((p) => p.group === 'holders');
 ---
@@ -17,11 +17,25 @@ const items = catalogue.products.filter((p) => p.group === 'holders');
       <h1>{g.name}</h1>
       <p class="pr big">Any 2 for {rm(g.pairPriceSen)}</p>
       <p>Two pouch holders, two juice-box holders, or one of each.</p>
-      <dl class="kv">{items.map((p) => <><dt>{p.name}</dt><dd><StockTag sku={p.sku} /></dd></>)}</dl>
-      <button class="btn main" type="button" disabled={!CHECKOUT_OPEN}>Add 2 to basket</button>
-      {!CHECKOUT_OPEN && <p class="sm">Checkout opens at launch.</p>}
+      <div class="buybox col">
+        {items.map((p) => (
+          <label for={`q-${p.sku}`}>{p.name} <StockTag sku={p.sku} />
+            <select id={`q-${p.sku}`} data-sku={p.sku} data-holder>{[0,1,2,3,4,5,6].map((n) => <option value={n} selected={n === (p.sku === 'pouch-holder' ? 1 : 1)}>{n}</option>)}</select>
+          </label>
+        ))}
+        <p class="sm" id="h-note">2 holders: RM29</p>
+        <button class="btn main" type="button" id="h-add" data-add={items.map((p) => `?q-${p.sku}`).join(',')} data-needs-checkout disabled>Add to basket</button>
+        <p class="sm" data-checkout-closed hidden>Checkout opens at launch.</p>
+        <p class="sm" data-added hidden>Added. <a class="link" href="/basket/">View basket</a></p>
+      </div>
     </div>
   </div></section></main>
   <Footer />
   <script is:inline src="/js/stock.js" defer></script>
+  <script is:inline>
+  (function(){var sel=[].slice.call(document.querySelectorAll('select[data-holder]')),note=document.getElementById('h-note'),btn=document.getElementById('h-add');
+  function up(){var n=sel.reduce(function(t,s){return t+ +s.value;},0),ok=n>0&&n%2===0;note.textContent=ok?n+' holders: RM'+(n/2*29):'Pick an even number: any 2 for RM29.';btn.dataset.pairs=ok?'1':'';if(!ok)btn.setAttribute('aria-disabled','true');else btn.removeAttribute('aria-disabled');}
+  sel.forEach(function(s){s.addEventListener('change',up);});up();
+  btn.addEventListener('click',function(e){if(!btn.dataset.pairs){e.stopImmediatePropagation();}},true);})();
+  </script>
 </Base>

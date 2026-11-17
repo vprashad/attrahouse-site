@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import catalogue from '../data/products.json';
+const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) => ({ sku, name, priceSen, group })), groups: catalogue.groups, delivery: catalogue.delivery };
+---
+<Base title="Basket · Attra House" description="Your basket." noindex>
+  <Header />
+  <main><section><div class="wrap sec">
+    <h1>Basket</h1>
+    <p id="bk-empty" hidden>Your basket is empty. <a class="link" href="/#sets">See the sets</a></p>
+    <div id="bk-full" hidden>
+      <div class="bk-list" id="bk-list"></div>
+      <p class="err" id="bk-pairs" hidden>Holders come in twos: add or remove one so you have an even number.</p>
+      <div class="two" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s7);align-items:start;margin-top:var(--s6)">
+        <form class="wl" id="co" novalidate>
+          <h2>Delivery details</h2>
+          <label for="co-name">Full name<input id="co-name" type="text" autocomplete="name" required /></label>
+          <label for="co-email">Email <i>For your order confirmation.</i><input id="co-email" type="email" autocomplete="email" required /></label>
+          <label for="co-phone">Phone <i>The courier may call this number.</i><input id="co-phone" type="tel" autocomplete="tel" required /></label>
+          <label for="co-address">Delivery address<textarea id="co-address" autocomplete="street-address" required></textarea></label>
+          <fieldset class="reg"><legend>Delivering to</legend>
+            <label><input type="radio" name="region" value="peninsular" checked /> Peninsular Malaysia</label>
+            <label><input type="radio" name="region" value="east" /> Sabah, Sarawak or Labuan</label>
+          </fieldset>
+          <label class="ck" for="co-cs"><input id="co-cs" type="checkbox" required /><span>[Terms of sale and privacy notice wording and links, from Compliance]</span></label>
+          <p class="err" id="co-err" role="alert" hidden></p>
+          <button class="btn main" type="submit" id="co-pay">Go to payment</button>
+          <p class="sm" id="co-closed" hidden>Checkout opens at launch.</p>
+        </form>
+        <div class="col">
+          <h2>Summary</h2>
+          <div class="bk-sum" id="bk-sum"></div>
+          <p class="testnote" id="bk-test" hidden>Test checkout: payments go to the HitPay sandbox and no real money moves. Delivery fees are not set yet, so delivery shows RM0.</p>
+          <p class="sm">You will pay on HitPay's secure page by FPX, DuitNow QR, card, e-wallet or pay later. We hold your items for 20 minutes while you pay.</p>
+        </div>
+      </div>
+    </div>
+  </div></section></main>
+  <Footer />
+  <script is:inline define:vars={{ cat }}>window.AH_CAT = cat;</script>
+  <script is:inline src="/js/checkout.js" defer></script>
+</Base>

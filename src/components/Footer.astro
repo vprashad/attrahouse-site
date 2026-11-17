@@ -8,4 +8,5 @@ import company from '../data/company.json';
   <div class="col"><a href={company.instagram} rel="noopener">Instagram @attrahouse</a><span>{company.email}</span><span>WhatsApp {company.whatsapp}</span></div>
   <div class="col"><span>{company.registeredName}</span><span>{company.registrationNumber}</span><span>{company.address}</span></div>
 </div></div></footer>
-<div class="bbar"><a class="btn main" href="/#sets">Shop the sets</a></div>
+<div class="bbar"><a class="btn main" href="/#sets">Shop the sets</a><a class="btn line" href="/basket/">Basket <span data-basket-count></span></a></div>
+<script is:inline src="/js/basket.js" defer></script>

@@ -7,7 +7,7 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/admin", "/admin/*"]
   },
   // Viveg creates the database in Cloudflare (Storage & databases > D1 > Create, name "attrahouse-stock")
   // and sends Claude its ID to paste here. The ID is not a secret.
@@ -15,12 +15,15 @@
     { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "014a8adf-ff78-4f85-a077-8b94c037d122", "migrations_dir": "migrations" }
   ],
   "triggers": { "crons": ["*/5 * * * *"] },
-  "vars": { "CHECKOUT_ENABLED": "false" },
+  // Live site: no buying until launch. HITPAY_BASE switches to https://api.hit-pay.com at launch.
+  "vars": { "CHECKOUT_ENABLED": "false", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR" },
   // Settings for preview links (any branch except main). Before launch, previews share the
   // stock database on purpose. LAUNCH CHECKLIST: give previews their own database before
   // the first real sale, so tests on a preview can never change real stock.
   "previews": {
-    "vars": { "CHECKOUT_ENABLED": "false" },
+    // Previews take test payments through the HitPay sandbox. HITPAY_API_KEY and
+    // HITPAY_WEBHOOK_SALT are secrets Viveg adds in Cloudflare; they are never in this file.
+    "vars": { "CHECKOUT_ENABLED": "true", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR", "HITPAY_BASE": "https://api.sandbox.hit-pay.com" },
     "d1_databases": [
       { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "014a8adf-ff78-4f85-a077-8b94c037d122" }
     ]

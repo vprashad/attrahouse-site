@@ -86,7 +86,7 @@ th{font:800 var(--t-label) var(--body);letter-spacing:.08em;text-transform:upper
 form{display:flex;flex-direction:column;gap:var(--s4);max-width:440px}
 label{font-weight:800;display:flex;flex-direction:column;gap:6px}
 label i{font-style:normal;font-weight:600;color:var(--brown);font-size:var(--t-small)}
-input[type=email],input[type=tel],select{font:600 17px var(--body);color:var(--ink);background:var(--white);border:1.5px solid var(--brown);border-radius:var(--r-field);padding:12px 14px;min-height:48px;width:100%}
+input[type=text],input[type=email],input[type=tel],select{font:600 17px var(--body);color:var(--ink);background:var(--white);border:1.5px solid var(--brown);border-radius:var(--r-field);padding:12px 14px;min-height:48px;width:100%}
 .bad input{border-color:var(--red);border-width:2px}
 .err{color:var(--red);font-weight:800;font-size:16px}
 .ck{flex-direction:row;align-items:flex-start;gap:12px;font-weight:600}
@@ -193,3 +193,37 @@ footer .col span{color:var(--sand)} footer .lock span,footer .wm b{color:var(--c
 /* ---- shop status tags ---- */
 .tag[data-stock]:empty{display:none}
 .buybox .msg{max-width:440px}
+
+/* ---- header actions, phone menu ---- */
+.hd-actions{gap:8px;flex-wrap:nowrap}
+.menu-btn{display:none;min-height:44px;padding:8px 16px}
+.basket-link{min-height:44px;padding:8px 16px}
+@media (max-width:820px){
+  header.site .hd-actions .btn{display:inline-flex}
+  .basket-link{display:none!important}
+  .menu-btn{display:inline-flex!important}
+  #main-nav{display:none;position:absolute;left:0;right:0;top:100%;background:var(--cream);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px var(--gr) 16px var(--gl)}
+  #main-nav.open{display:flex}
+  #main-nav a{padding:12px 0;font-size:18px;border-bottom:1px solid var(--line)}
+  header.site{position:sticky}
+  header.site .hd{position:relative}
+}
+/* ---- basket and order pages ---- */
+.bk-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+.bk-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px 20px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.bk-row b{font:600 var(--t-h3)/1.15 var(--display)}
+.step{display:inline-flex;align-items:center;border:1.5px solid var(--ink);border-radius:var(--r-pill)}
+.step button{appearance:none;border:0;background:none;font:800 18px var(--body);width:44px;height:44px;cursor:pointer;color:var(--ink)}
+.step button:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:999px}
+.step span{min-width:28px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}
+.bk-row .pr{font-weight:800;font-variant-numeric:tabular-nums;text-align:right;min-width:80px}
+.bk-row .rm{appearance:none;border:0;background:none;color:var(--brown);font:700 14px var(--body);text-decoration:underline;cursor:pointer;padding:6px 0;justify-self:start}
+.bk-sum{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;max-width:420px;font-variant-numeric:tabular-nums}
+.bk-sum .tot{font-weight:800;border-top:1.5px solid var(--ink);padding-top:8px}
+fieldset.reg{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+fieldset.reg legend{font-weight:800;margin-bottom:6px}
+fieldset.reg label{flex-direction:row;align-items:center;gap:10px;font-weight:600}
+textarea{font:600 17px var(--body);color:var(--ink);background:var(--white);border:1.5px solid var(--brown);border-radius:var(--r-field);padding:12px 14px;width:100%;min-height:96px}
+textarea:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.testnote{border:2px dashed var(--brown);border-radius:var(--r-field);padding:10px 14px;font-size:var(--t-small);font-weight:600}
+@media (max-width:560px){.bk-row{grid-template-columns:minmax(0,1fr) auto}.bk-row .pr{grid-column:2}.bk-row .step{grid-column:1}}

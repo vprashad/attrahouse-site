@@ -1,21 +1,126 @@
 {
-  "_source": "Prices: finance/prices.md (Finance, 10 Nov 2026). For-sale quantities: Viveg, 16 Nov 2026. SIRIM units are made separately and are not counted here. Grand Kitchen Bundle is its own stock. Holders sell as any 2 for RM29.",
+  "_source": "Prices: finance/prices.md (Finance, 10 Nov 2026). For-sale quantities: Viveg, 16 Nov 2026. SIRIM units are made separately and are not counted here. Grand Kitchen Bundle is its own stock. Holders: 27 pouch and 27 juice-box holders (Viveg, 17 Nov 2026), sold as any 2 for RM29.",
   "lowStockAt": 3,
   "currency": "MYR",
   "products": [
-    { "sku": "fruit-basket", "name": "Fruit Basket", "priceSen": 29900, "startStock": 10, "tile": "orange", "art": "orange", "note": "11 fruits · Knife sold separately", "knifeSeparate": true },
-    { "sku": "veggie-garden", "name": "Veggie Garden", "priceSen": 24900, "startStock": 10, "tile": "green", "art": "carrot", "note": "Knife sold separately", "knifeSeparate": true },
-    { "sku": "meal-time", "name": "Meal Time", "priceSen": 26900, "startStock": 5, "tile": "caramel", "art": null, "note": "Knife sold separately", "knifeSeparate": true },
-    { "sku": "chefs-knife-block", "name": "Chef's Knife Block", "priceSen": 6900, "startStock": 5, "tile": "sand", "art": null, "note": "Slices every food set" },
-    { "sku": "grand-kitchen-bundle", "name": "Grand Kitchen Bundle", "priceSen": 82900, "startStock": 5, "tile": "ink", "art": null, "note": "Fruit Basket, Veggie Garden, Meal Time and the Chef's Knife Block in one box", "featured": true, "separateTotalSen": 88600 },
-    { "sku": "pasta-set", "name": "Pasta Set", "priceSen": 13900, "startStock": 10, "tile": "yellow", "art": null, "note": "" },
-    { "sku": "pink-cake-set", "name": "Pink Cake Set", "priceSen": 16900, "startStock": 5, "tile": "sand", "art": null, "note": "" },
-    { "sku": "chocolate-cake-set", "name": "Chocolate Cake Set", "priceSen": 16900, "startStock": 5, "tile": "caramel", "art": null, "note": "" },
-    { "sku": "grocery-playset", "name": "Grocery Playset", "priceSen": 65900, "startStock": 5, "tile": "green", "art": null, "note": "" },
-    { "sku": "pouch-holder", "name": "Pouch holder", "group": "holders", "priceSen": null, "startStock": null, "tile": "yellow", "art": null, "note": "Any 2 holders for RM29" },
-    { "sku": "juicebox-holder", "name": "Juice-box holder", "group": "holders", "priceSen": null, "startStock": null, "tile": "yellow", "art": null, "note": "Any 2 holders for RM29" }
+    {
+      "sku": "fruit-basket",
+      "name": "Fruit Basket",
+      "priceSen": 29900,
+      "startStock": 10,
+      "tile": "orange",
+      "art": "orange",
+      "note": "11 fruits · Knife sold separately",
+      "knifeSeparate": true
+    },
+    {
+      "sku": "veggie-garden",
+      "name": "Veggie Garden",
+      "priceSen": 24900,
+      "startStock": 10,
+      "tile": "green",
+      "art": "carrot",
+      "note": "Knife sold separately",
+      "knifeSeparate": true
+    },
+    {
+      "sku": "meal-time",
+      "name": "Meal Time",
+      "priceSen": 26900,
+      "startStock": 5,
+      "tile": "caramel",
+      "art": null,
+      "note": "Knife sold separately",
+      "knifeSeparate": true
+    },
+    {
+      "sku": "chefs-knife-block",
+      "name": "Chef's Knife Block",
+      "priceSen": 6900,
+      "startStock": 5,
+      "tile": "sand",
+      "art": null,
+      "note": "Slices every food set"
+    },
+    {
+      "sku": "grand-kitchen-bundle",
+      "name": "Grand Kitchen Bundle",
+      "priceSen": 82900,
+      "startStock": 5,
+      "tile": "ink",
+      "art": null,
+      "note": "Fruit Basket, Veggie Garden, Meal Time and the Chef's Knife Block in one box",
+      "featured": true,
+      "separateTotalSen": 88600
+    },
+    {
+      "sku": "pasta-set",
+      "name": "Pasta Set",
+      "priceSen": 13900,
+      "startStock": 10,
+      "tile": "yellow",
+      "art": null,
+      "note": ""
+    },
+    {
+      "sku": "pink-cake-set",
+      "name": "Pink Cake Set",
+      "priceSen": 16900,
+      "startStock": 5,
+      "tile": "sand",
+      "art": null,
+      "note": ""
+    },
+    {
+      "sku": "chocolate-cake-set",
+      "name": "Chocolate Cake Set",
+      "priceSen": 16900,
+      "startStock": 5,
+      "tile": "caramel",
+      "art": null,
+      "note": ""
+    },
+    {
+      "sku": "grocery-playset",
+      "name": "Grocery Playset",
+      "priceSen": 65900,
+      "startStock": 5,
+      "tile": "green",
+      "art": null,
+      "note": ""
+    },
+    {
+      "sku": "pouch-holder",
+      "name": "Pouch holder",
+      "group": "holders",
+      "priceSen": null,
+      "startStock": 27,
+      "tile": "yellow",
+      "art": null,
+      "note": "Any 2 holders for RM29"
+    },
+    {
+      "sku": "juicebox-holder",
+      "name": "Juice-box holder",
+      "group": "holders",
+      "priceSen": null,
+      "startStock": 27,
+      "tile": "yellow",
+      "art": null,
+      "note": "Any 2 holders for RM29"
+    }
   ],
   "groups": {
-    "holders": { "name": "Pouch and juice-box holders", "pairPriceSen": 2900, "unitsPerPair": 2, "totalStock": 27, "_open": "Split of the 27 between pouch and juice-box holders not yet given (Viveg). startStock stays null until then; the build refuses to seed null stock." }
+    "holders": {
+      "name": "Pouch and juice-box holders",
+      "pairPriceSen": 2900,
+      "unitsPerPair": 2,
+      "totalStock": 54
+    }
+  },
+  "delivery": {
+    "_source": "Finance supplies these. null = not set yet: test checkouts charge RM0 delivery and say so; live checkout refuses to open while any is null.",
+    "peninsularSen": null,
+    "eastMalaysiaSen": null
   }
 }

@@ -1,16 +1,21 @@
 // Cloudflare Worker for attrahouse.com.
-// Static pages are served from the Astro build (env.ASSETS). Only /api/* reaches this code.
+// Static pages come from the Astro build (env.ASSETS). Only /api/* and /admin/* reach this code.
 import catalogue from '../data/products.json';
-import { readStock, createHold, validateItems, priceItems, seedStock, releaseExpired } from './stock.js';
+import { readStock, seedStock, releaseExpired } from './stock.js';
+import { startCheckout, confirmOrder, publicOrder } from './orders.js';
+import { verifySignature } from './hitpay.js';
+import { accessUser } from './access.js';
+import { handleAdmin } from './admin.js';
 import { SITE_MODE } from './mode.js';
-import schema from '../../migrations/0001_stock.sql';
+import schema1 from '../../migrations/0001_stock.sql';
+import schema2 from '../../migrations/0002_orders.sql';
 
-// Create the tables on first use, so the database needs no setup by hand. Safe to repeat.
+// Create the tables and starting stock on first use, so the database needs no setup by hand. Safe to repeat.
 let ready = null;
-function ensureSchema(db) {
+function ensureReady(db) {
   if (!ready) {
-    const stmts = schema.split(';').map((s) => s.replace(/--.*$/gm, '').trim()).filter(Boolean);
-    ready = db.batch(stmts.map((s) => db.prepare(s))).catch((e) => { ready = null; throw e; });
+    const stmts = (schema1 + ';' + schema2).split(';').map((s) => s.replace(/--.*$/gm, '').trim()).filter(Boolean);
+    ready = db.batch(stmts.map((s) => db.prepare(s))).then(() => seedStock(db, catalogue, Date.now())).catch((e) => { ready = null; throw e; });
   }
   return ready;
 }
@@ -21,37 +26,63 @@ const json = (body, status = 200) =>
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
+    const isApi = url.pathname.startsWith('/api/');
+    const isAdmin = url.pathname === '/admin' || url.pathname.startsWith('/admin/');
+    if (!isApi && !isAdmin) return env.ASSETS.fetch(request);
 
-    // Before launch the site is a landing page only: no shop, no stock, no checkout.
+    // Before launch the site is a landing page only: no shop, no stock, no checkout, no admin.
     if (SITE_MODE !== 'shop') return json({ error: 'not_found' }, 404);
-
-    await ensureSchema(env.DB);
+    await ensureReady(env.DB);
     const now = Date.now();
-    if (url.pathname === '/api/stock' && request.method === 'GET') {
-      await seedStock(env.DB, catalogue, now);
-      return json({ lowStockAt: catalogue.lowStockAt, items: await readStock(env.DB, catalogue.lowStockAt, now) });
+    const deps = { db: env.DB, env, fetchFn: fetch, now, newId: () => crypto.randomUUID(), origin: url.origin, catalogue };
+
+    if (isAdmin) {
+      const user = await accessUser(request, env);
+      if (!user) return new Response('Not found', { status: 404 });
+      return handleAdmin(request, env, catalogue, user);
     }
 
-    if (url.pathname === '/api/hold' && request.method === 'POST') {
-      // Off until HitPay is connected: an open hold endpoint would let anyone lock stock.
+    if (url.pathname === '/api/stock' && request.method === 'GET') {
+      return json({ lowStockAt: catalogue.lowStockAt, checkout: env.CHECKOUT_ENABLED === 'true', items: await readStock(env.DB, catalogue.lowStockAt, now) });
+    }
+
+    if (url.pathname === '/api/checkout' && request.method === 'POST') {
       if (env.CHECKOUT_ENABLED !== 'true') return json({ error: 'checkout_not_open' }, 403);
+      if (!env.HITPAY_API_KEY) return json({ error: 'payment_unavailable' }, 503);
       let body;
       try { body = await request.json(); } catch { return json({ error: 'bad_request' }, 400); }
-      const v = validateItems(body && body.items, catalogue);
-      if (v.error) return json({ error: v.error }, 400);
-      const r = await createHold(env.DB, v.items, now, () => crypto.randomUUID());
-      if (!r.ok) return json({ error: r.reason, skus: r.skus }, 409);
-      return json({ holdId: r.holdId, expiresAt: r.expiresAt, totalSen: priceItems(v.items, catalogue) });
+      const r = await startCheckout(deps, body);
+      return json(r.body, r.status);
+    }
+
+    if (url.pathname === '/api/order' && request.method === 'GET') {
+      const id = url.searchParams.get('id') || '';
+      if (!/^[0-9a-f-]{36}$/.test(id)) return json({ error: 'not_found' }, 404);
+      await confirmOrder(deps, id); // asks HitPay; records the sale if paid
+      const o = await publicOrder(env.DB, id);
+      return o ? json(o) : json({ error: 'not_found' }, 404);
+    }
+
+    if (url.pathname === '/api/hitpay-webhook' && request.method === 'POST') {
+      const raw = await request.text();
+      if (env.HITPAY_WEBHOOK_SALT && !(await verifySignature(env.HITPAY_WEBHOOK_SALT, raw, request.headers.get('Hitpay-Signature') || ''))) {
+        return json({ error: 'bad_signature' }, 401);
+      }
+      let data = {};
+      try { data = JSON.parse(raw); } catch { data = Object.fromEntries(new URLSearchParams(raw)); }
+      const ref = data.reference_number || data.payment_request?.reference_number;
+      // The webhook only prompts a check: confirmOrder asks HitPay directly before recording anything.
+      if (ref && /^[0-9a-f-]{36}$/.test(ref)) await confirmOrder(deps, ref);
+      return json({ ok: true });
     }
 
     return json({ error: 'not_found' }, 404);
   },
 
-  // Every 5 minutes: put units from unpaid, expired holds back on sale.
+  // Every 5 minutes on the live site: unpaid, expired holds go back on sale.
   async scheduled(_event, env) {
     if (SITE_MODE !== 'shop') return;
-    await ensureSchema(env.DB);
+    await ensureReady(env.DB);
     await releaseExpired(env.DB, Date.now());
   },
 };

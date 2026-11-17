@@ -17,7 +17,7 @@ test('seeds the for-sale numbers Viveg set, and skips products without one', asy
   assert.equal(avail(db, 'meal-time').available, 5);
   assert.equal(avail(db, 'grand-kitchen-bundle').available, 5);
   assert.equal(avail(db, 'pasta-set').available, 10);
-  assert.equal(avail(db, 'pouch-holder'), undefined); // split of the 27 not given yet
+  assert.equal(avail(db, 'pouch-holder').available, 27);
   await seedStock(db, catalogue, T0); // running again changes nothing
   assert.equal(avail(db, 'fruit-basket').available, 10);
 });
@@ -123,12 +123,6 @@ test('holders must come in twos, priced RM29 for any 2', () => {
   assert.equal(priceItems(ok.items, catalogue), 2900);
   const four = validateItems([{ sku: 'juicebox-holder', qty: 4 }, { sku: 'fruit-basket', qty: 1 }], catalogue);
   assert.equal(priceItems(four.items, catalogue), 2 * 2900 + 29900);
-});
-
-test('holders cannot be sold until their stock numbers are set', async () => {
-  const db = await fresh();
-  const r = await createHold(db, [{ sku: 'pouch-holder', qty: 2 }], T0, id);
-  assert.deepEqual(r, { ok: false, reason: 'sold_out', skus: ['pouch-holder'] });
 });
 
 test('rejects unknown products and silly quantities', () => {

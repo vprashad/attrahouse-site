@@ -17,7 +17,12 @@
   }
   fetch('/api/stock', { headers: { accept: 'application/json' } })
     .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (d) { if (d && d.items) apply(d.items); })
+    .then(function (d) {
+      if (!d) return;
+      if (d.items) apply(d.items);
+      [].forEach.call(document.querySelectorAll('[data-needs-checkout]'), function (b) { b.disabled = !d.checkout; });
+      [].forEach.call(document.querySelectorAll('[data-checkout-closed]'), function (el) { el.hidden = !!d.checkout; });
+    })
     .catch(function () { /* tags stay hidden; checkout re-checks stock anyway */ });
 
   [].forEach.call(document.querySelectorAll('form[data-waitlist]'), function (f) {
