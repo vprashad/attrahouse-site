@@ -13,7 +13,10 @@ Nothing here is done until it is ticked and Viveg has said go.
 ## Switches (Claude, with Viveg)
 - [ ] Give previews their own D1 database, so a test on a preview can never change real stock
 - [ ] Reset every product to the real for-sale quantity
-- [ ] Production vars: `CHECKOUT_ENABLED=true`, `LIVE_PAYMENTS=true`, `HITPAY_BASE=https://api.hit-pay.com`; `HITPAY_API_KEY_LIVE` and `HITPAY_WEBHOOK_SALT_LIVE` added as Production secrets by Viveg
+- [ ] Production vars: `CHECKOUT_ENABLED=true`, `LIVE_PAYMENTS=true`, `HITPAY_BASE=https://api.hit-pay.com`
+- [ ] Viveg adds `HITPAY_API_KEY_LIVE` and `HITPAY_WEBHOOK_SALT_LIVE` on the Production settings page, type **Secret** (not Variable), never in this repository
+- [ ] HitPay live Payment Methods: FPX on (not shown in the sandbox); "Paylater by Grab" off (6.5%, not chosen); DuitNow QR, cards, Touch 'n Go, GrabPay, ShopeePay/SPayLater, Atome on
+- [ ] Delete the sandbox test orders from the database (17 Nov onwards)
 - [ ] HitPay live webhook endpoint `https://attrahouse.com/api/hitpay-webhook`, event `payment_request.completed`
 - [ ] Turnstile bot check on checkout
 - [ ] Cloudflare Access on `/admin/` (and `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD` set)
