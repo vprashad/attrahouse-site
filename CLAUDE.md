@@ -1,5 +1,7 @@
 # Working on attrahouse.com
 
+Owner: the Deployment / IT team (from 17 Nov 2026). Start with `RUNBOOK.md` and `LAUNCH.md`; team handover docs are in the Attra House project under `deployment/`.
+
 - Prices come only from Finance (`finance/prices.md` in the Attra House project). Legal, safety and label wording come only from Compliance. Never invent either; leave a `[bracketed placeholder]` naming the owner.
 - No food set (Fruit Basket, Veggie Garden, Meal Time) is shown with a knife.
 - Do not show the MC mark or any registration number until Compliance supplies it.
