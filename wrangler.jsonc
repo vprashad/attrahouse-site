@@ -16,14 +16,16 @@
   ],
   "triggers": { "crons": ["*/5 * * * *"] },
   // Live site: no buying until launch. HITPAY_BASE switches to https://api.hit-pay.com at launch.
-  "vars": { "CHECKOUT_ENABLED": "false", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR" },
+  // Cloudflare Access for /admin (app "Attra House admin", 18 Nov 2026). Team domain and audience tag
+  // are identifiers, not secrets; kept here so a deploy never wipes them.
+  "vars": { "CHECKOUT_ENABLED": "false", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR", "ACCESS_TEAM_DOMAIN": "attrahouse.cloudflareaccess.com", "ACCESS_AUD": "0d1bc0a82e1d1d31e8fd53c7f3ccc7dc9f54f308433119e2a70f5703744d68fd" },
   // Settings for preview links (any branch except main). Before launch, previews share the
   // stock database on purpose. LAUNCH CHECKLIST: give previews their own database before
   // the first real sale, so tests on a preview can never change real stock.
   "previews": {
     // Previews take test payments through the HitPay sandbox. HITPAY_API_KEY_SANDBOX and
     // HITPAY_WEBHOOK_SALT_SANDBOX are secrets Viveg adds in Cloudflare; they are never in this file.
-    "vars": { "CHECKOUT_ENABLED": "true", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR", "HITPAY_BASE": "https://api.sandbox.hit-pay.com" },
+    "vars": { "CHECKOUT_ENABLED": "true", "LIVE_PAYMENTS": "false", "CURRENCY": "MYR", "HITPAY_BASE": "https://api.sandbox.hit-pay.com", "ACCESS_TEAM_DOMAIN": "attrahouse.cloudflareaccess.com", "ACCESS_AUD": "0d1bc0a82e1d1d31e8fd53c7f3ccc7dc9f54f308433119e2a70f5703744d68fd" },
     "d1_databases": [
       { "binding": "DB", "database_name": "attrahouse-stock", "database_id": "014a8adf-ff78-4f85-a077-8b94c037d122" }
     ]
