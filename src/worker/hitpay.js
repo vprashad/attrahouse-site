@@ -18,6 +18,16 @@ function headers(env) {
   return { 'X-BUSINESS-API-KEY': apiKey(env), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' };
 }
 export const senToAmount = (sen) => (sen / 100).toFixed(2);
+/**
+ * HitPay's amount back in sen, whatever form it comes in: "328.00", "2,880.00", 2880 or 2880.5.
+ * Returns null if it is not a clean money amount.
+ */
+export function amountToSen(amount) {
+  const s = String(amount ?? '').replace(/,/g, '').trim();
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  const [whole, frac = ''] = s.split('.');
+  return Number(whole) * 100 + Number(frac.padEnd(2, '0'));
+}
 
 /** Create a HitPay payment request. Returns { id, url } or throws. */
 export async function createPaymentRequest(env, fetchFn, o) {

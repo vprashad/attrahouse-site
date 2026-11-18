@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import catalogue from '../src/data/products.json' with { type: 'json' };
 import { seedStock } from '../src/worker/stock.js';
 import { startCheckout, confirmOrder, publicOrder, validateCustomer } from '../src/worker/orders.js';
-import { verifySignature } from '../src/worker/hitpay.js';
+import { verifySignature, amountToSen } from '../src/worker/hitpay.js';
 
 const T0 = Date.UTC(2026, 11, 1);
 let n = 0;
@@ -69,6 +69,26 @@ test('a completed payment for the wrong amount is not accepted', async () => {
   Object.assign(hp.prs.get('pr-1'), { status: 'completed', amount: '1.00' });
   assert.equal((await confirmOrder(deps, r.body.orderId)).status, 'awaiting_payment');
   assert.equal(avail(db, 'meal-time').sold, 0);
+});
+
+test('a completed payment is accepted whatever form HitPay writes the amount in (2,880.00, 2880, 2880.00)', async () => {
+  for (const amount of ['2,880.00', 2880, '2880', '2880.0']) {
+    const { db, hp, deps } = await setup();
+    const items = ['fruit-basket', 'veggie-garden', 'meal-time', 'chefs-knife-block', 'grand-kitchen-bundle', 'pasta-set', 'pink-cake-set', 'chocolate-cake-set', 'grocery-playset', 'pouch-holder', 'juicebox-holder'].map((sku) => ({ sku, qty: 1 }));
+    const r = await startCheckout(deps, { items, customer: buyer });
+    assert.equal(r.body.totalSen, 288000);
+    Object.assign(hp.prs.get('pr-1'), { status: 'completed', amount });
+    assert.equal((await confirmOrder(deps, r.body.orderId)).status, 'paid', `amount ${JSON.stringify(amount)}`);
+    assert.equal(avail(db, 'grand-kitchen-bundle').sold, 1);
+  }
+});
+
+test('amountToSen reads money amounts and rejects anything else', () => {
+  assert.equal(amountToSen('328.00'), 32800);
+  assert.equal(amountToSen('2,880.00'), 288000);
+  assert.equal(amountToSen(2880.5), 288050);
+  assert.equal(amountToSen('1.5'), 150);
+  for (const bad of ['', null, undefined, 'abc', '-5.00', '1.234', '1e3']) assert.equal(amountToSen(bad), null);
 });
 
 test('unpaid after 20 minutes: the order shows expired and the stock is back', async () => {

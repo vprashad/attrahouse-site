@@ -3,7 +3,7 @@
 // request is completed for the right amount; the buyer's redirect and the webhook are only
 // prompts to go and ask.
 import { createHold, releaseHold, markPaid, validateItems, priceItems } from './stock.js';
-import { createPaymentRequest, getPaymentRequest, senToAmount } from './hitpay.js';
+import { createPaymentRequest, getPaymentRequest, amountToSen } from './hitpay.js';
 
 const clean = (s, max) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -74,7 +74,9 @@ export async function confirmOrder(deps, orderId) {
   if (!o.payment_request_id) return { status: o.status };
   let pr;
   try { pr = await getPaymentRequest(env, fetchFn, o.payment_request_id); } catch (e) { console.error(String(e)); return { status: o.status }; }
-  const paid = String(pr.status).toLowerCase() === 'completed' && pr.amount === senToAmount(o.total_sen);
+  const completed = String(pr.status).toLowerCase() === 'completed';
+  const paid = completed && amountToSen(pr.amount) === o.total_sen;
+  if (completed && !paid) console.error(`hitpay_amount_mismatch order=${orderId} expected_sen=${o.total_sen} got=${JSON.stringify(pr.amount)}`);
   if (!paid) {
     const hold = await db.prepare('SELECT status FROM holds WHERE id = ?').bind(orderId).first();
     if (hold && hold.status === 'released' && o.status === 'awaiting_payment') {
