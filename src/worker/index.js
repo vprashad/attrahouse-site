@@ -9,13 +9,15 @@ import { handleAdmin } from './admin.js';
 import { SITE_MODE } from './mode.js';
 import schema1 from '../../migrations/0001_stock.sql';
 import schema2 from '../../migrations/0002_orders.sql';
+import schema3 from '../../migrations/0003_refunds.sql';
+import { addColumns } from './refunds.js';
 
 // Create the tables and starting stock on first use, so the database needs no setup by hand. Safe to repeat.
 let ready = null;
 function ensureReady(db) {
   if (!ready) {
     const stmts = (schema1 + ';' + schema2).split(';').map((s) => s.replace(/--.*$/gm, '').trim()).filter(Boolean);
-    ready = db.batch(stmts.map((s) => db.prepare(s))).then(() => seedStock(db, catalogue, Date.now())).catch((e) => { ready = null; throw e; });
+    ready = db.batch(stmts.map((s) => db.prepare(s))).then(() => addColumns(db, schema3)).then(() => seedStock(db, catalogue, Date.now())).catch((e) => { ready = null; throw e; });
   }
   return ready;
 }

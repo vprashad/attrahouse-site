@@ -39,14 +39,14 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 - Starting numbers: `src/data/products.json` (`startStock`), seeded once into D1 by `INSERT OR IGNORE`. Changing the file later does **not** change live numbers; use the private stock page or a D1 query.
 - Private page `/admin/` shows the **settings in use** (mode, buying, live payments, HitPay sandbox or live, whether each key is present, which stock database), then stock and orders, and sets numbers. Check the settings box after every settings change and before launch: anything in red needs fixing.
 - Private page `/admin/` is reached only through Cloudflare Access (application "Attra House admin", policy "Viveg only"). It answers 404 until Cloudflare Access protects it and `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` are set (the Worker verifies Access's signed token itself).
-- Restock: set the new number on `/admin/`. Refund: refund in HitPay, then add the unit back on `/admin/`.
+- Restock: set the new number on `/admin/`. Refund: refund in HitPay first, then on `/admin/` tick "I have refunded this in HitPay" on the order and press **Mark refunded**. For a paid order, also tick "Put the units back on sale" if the goods are coming back or were never sent. A second press does nothing.
 - Read numbers without the page: Cloudflare > Storage & databases > D1 > attrahouse-stock > Console: `SELECT sku, available, sold FROM stock;`
 
 ## Orders and payment
 
 - Checkout holds stock 20 minutes, writes an order, opens a HitPay payment request (`reference_number` = order id, `redirect_url` = `/order/?id=…`).
 - A sale is recorded only when HitPay's API reports the payment request `completed` for the exact amount. The redirect page and the webhook (`/api/hitpay-webhook`) only trigger that check.
-- `needs_refund`: paid after the hold expired and the stock had gone. Refund in HitPay.
+- `needs_refund`: paid after the hold expired and the stock had gone. Refund in HitPay, then Mark refunded (no units to put back). Refunded orders show "refunded" with the date and who marked it.
 - Sandbox test payment that works: DuitNow QR, scanned with a phone's camera app (not a banking app). Sandbox cards need a bank account in the sandbox, which was not added.
 
 ## When something breaks

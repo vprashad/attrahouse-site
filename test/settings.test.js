@@ -6,6 +6,7 @@ import catalogue from '../src/data/products.json' with { type: 'json' };
 import { seedStock } from '../src/worker/stock.js';
 import { runningSettings } from '../src/worker/settings.js';
 import { handleAdmin } from '../src/worker/admin.js';
+import { addColumns } from '../src/worker/refunds.js';
 
 const row = (rows, label) => rows.find((r) => r.label === label);
 const preview = { CHECKOUT_ENABLED: 'true', LIVE_PAYMENTS: 'false', CURRENCY: 'MYR', HITPAY_BASE: 'https://api.sandbox.hit-pay.com', STOCK_DB: 'attrahouse-stock-preview', HITPAY_API_KEY_SANDBOX: 'sk-test-secret-value', HITPAY_WEBHOOK_SALT_SANDBOX: 'salt-test-secret-value' };
@@ -38,6 +39,7 @@ test('mismatches are flagged: live payments on sandbox, missing key, live HitPay
 test('the private page shows the box and never the key or salt values', async () => {
   const db = makeD1();
   db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
+  await addColumns(db, readFileSync(new URL('../migrations/0003_refunds.sql', import.meta.url), 'utf8'));
   await seedStock(db, catalogue, Date.UTC(2026, 10, 18));
   const env = { ...preview, DB: db };
   const res = await handleAdmin(new Request('https://x.test/admin/'), env, catalogue, 'owner@example.com', 'shop');
