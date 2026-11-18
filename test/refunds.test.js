@@ -83,15 +83,20 @@ test('the private page needs the confirm tick, refuses posts from other sites, a
   assert.match(before, /Mark refunded/);
 
   const noTick = await (await handleAdmin(post({ order: 'o-late' }), env, catalogue, 'owner@example.com')).text();
-  assert.match(noTick, /tick &quot;I have refunded this in HitPay&quot; first|tick "I have refunded this in HitPay" first/);
+  assert.match(noTick, /tick &quot;I have refunded this buyer&quot; first|tick "I have refunded this buyer" first/);
   assert.equal(order(db, 'o-late').refunded_at, null);
 
-  const foreign = await handleAdmin(post({ order: 'o-late', confirm: 'yes' }, 'https://evil.example'), env, catalogue, 'owner@example.com');
+  const noHow = await (await handleAdmin(post({ order: 'o-late', confirm: 'yes' }), env, catalogue, 'owner@example.com')).text();
+  assert.match(noHow, /choose how the money went back/);
+  assert.equal(order(db, 'o-late').refunded_at, null);
+
+  const foreign = await handleAdmin(post({ order: 'o-late', confirm: 'yes', method: 'hitpay' }, 'https://evil.example'), env, catalogue, 'owner@example.com');
   assert.equal(foreign.status, 403);
   assert.equal(order(db, 'o-late').refunded_at, null);
 
-  const ok = await (await handleAdmin(post({ order: 'o-late', confirm: 'yes' }), env, catalogue, 'owner@example.com')).text();
+  const ok = await (await handleAdmin(post({ order: 'o-late', confirm: 'yes', method: 'bank_transfer' }), env, catalogue, 'owner@example.com')).text();
   assert.match(ok, /marked refunded/);
-  assert.match(ok, /Refunded .* by owner@example.com/);
+  assert.match(ok, /Refunded by bank transfer, .* by owner@example.com/);
+  assert.equal(db.raw.prepare("SELECT refund_method FROM orders WHERE id = 'o-late'").get().refund_method, 'bank_transfer');
   assert.ok(!/<button>Mark refunded<\/button>/.test(ok));
 });

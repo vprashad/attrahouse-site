@@ -39,7 +39,7 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 - Starting numbers: `src/data/products.json` (`startStock`), seeded once into D1 by `INSERT OR IGNORE`. Changing the file later does **not** change live numbers; use the private stock page or a D1 query.
 - Private page `/admin/` shows the **settings in use** (mode, buying, live payments, HitPay sandbox or live, whether each key is present, which stock database), then stock and orders, and sets numbers. Check the settings box after every settings change and before launch: anything in red needs fixing.
 - Private page `/admin/` is reached only through Cloudflare Access (application "Attra House admin", policy "Viveg only"). It answers 404 until Cloudflare Access protects it and `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` are set (the Worker verifies Access's signed token itself).
-- Restock: set the new number on `/admin/`. Refund: refund in HitPay first, then on `/admin/` tick "I have refunded this in HitPay" on the order and press **Mark refunded**. For a paid order, also tick "Put the units back on sale" if the goods are coming back or were never sent. A second press does nothing.
+- Restock: set the new number on `/admin/`. Refund: refund the buyer first (in HitPay where it allows; HitPay cannot refund DuitNow QR paid from a banking app, so those go back by bank transfer), then on `/admin/` tick "I have refunded this buyer", choose how, and press **Mark refunded**. For a paid order, also tick "Put the units back on sale" if the goods are coming back or were never sent. A second press does nothing.
 - Read numbers without the page: Cloudflare > Storage & databases > D1 > attrahouse-stock > Console: `SELECT sku, available, sold FROM stock;`
 
 ## Orders and payment

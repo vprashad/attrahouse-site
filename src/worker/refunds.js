@@ -10,22 +10,25 @@ export async function addColumns(db, sql) {
   }
 }
 
+export const REFUND_METHODS = { hitpay: 'In HitPay', bank_transfer: 'By bank transfer', other: 'Other way' };
+
 /** Orders that may be marked refunded. */
 export const refundable = (o) => (o.status === 'paid' || o.status === 'needs_refund') && !o.refunded_at;
 
 /**
- * Mark an order refunded. restock only applies to paid orders (a needs_refund order never took units).
+ * Mark an order refunded. method is how the money went back (REFUND_METHODS). restock only applies to paid orders (a needs_refund order never took units).
  * Returns { ok, reason, restocked }.
  */
-export async function markRefunded(db, orderId, user, now, restock) {
+export async function markRefunded(db, orderId, user, now, restock, method = 'hitpay') {
+  if (!Object.hasOwn(REFUND_METHODS, method)) return { ok: false, reason: 'bad_method' };
   const o = await db.prepare('SELECT id, status, items_json, refunded_at FROM orders WHERE id = ?').bind(orderId).first();
   if (!o) return { ok: false, reason: 'unknown_order' };
   if (o.refunded_at) return { ok: false, reason: 'already_refunded' };
   if (!refundable(o)) return { ok: false, reason: 'not_refundable' };
   const putBack = restock && o.status === 'paid';
   const stmts = [
-    db.prepare('UPDATE orders SET refunded_at = ?, refunded_by = ?, refund_restocked = ? WHERE id = ? AND refunded_at IS NULL')
-      .bind(now, user, putBack ? 1 : 0, orderId),
+    db.prepare('UPDATE orders SET refunded_at = ?, refunded_by = ?, refund_restocked = ?, refund_method = ? WHERE id = ? AND refunded_at IS NULL')
+      .bind(now, user, putBack ? 1 : 0, method, orderId),
   ];
   if (putBack) {
     // Only applies if the update above just happened (same id and timestamp), so a double submit cannot restock twice.
