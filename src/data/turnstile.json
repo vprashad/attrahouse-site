@@ -1,0 +1,5 @@
+{
+  "_note": "Cloudflare Turnstile widget \"Attra House checkout\" (created by Viveg 19 Nov 2026, mode Managed). The sitekey is public by design. The secret key is never here: it is the TURNSTILE_SECRET_KEY Secret in Cloudflare.",
+  "sitekey": "0x4AAAAAAGHPMvtsbVvWM6XU",
+  "action": "checkout"
+}

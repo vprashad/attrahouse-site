@@ -24,6 +24,7 @@ export function runningSettings(env, siteMode) {
       value: db === 'attrahouse-stock' ? 'attrahouse-stock (real stock)' : db === 'attrahouse-stock-preview' ? 'attrahouse-stock-preview (test stock)' : 'Not labelled',
       warn: !has(db) || (db === 'attrahouse-stock-preview' && live),
     },
+    { label: 'TURNSTILE_SECRET_KEY (bot check)', value: has(env.TURNSTILE_SECRET_KEY) ? 'Present' : 'Missing', warn: env.CHECKOUT_ENABLED === 'true' && !has(env.TURNSTILE_SECRET_KEY) },
     { label: 'Currency', value: env.CURRENCY || 'Not set', warn: env.CURRENCY !== 'MYR' },
   ];
 }

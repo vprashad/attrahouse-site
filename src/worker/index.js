@@ -11,6 +11,8 @@ import schema1 from '../../migrations/0001_stock.sql';
 import schema2 from '../../migrations/0002_orders.sql';
 import schema3 from '../../migrations/0003_refunds.sql';
 import { addColumns } from './refunds.js';
+import { checkBot } from './turnstile.js';
+import turnstile from '../data/turnstile.json';
 
 // Create the tables and starting stock on first use, so the database needs no setup by hand. Safe to repeat.
 let ready = null;
@@ -58,6 +60,8 @@ export default {
       const c = validateCustomer(body?.customer);
       if (c.error) return json({ error: c.error }, 400);
       if (!apiKey(env)) { console.error('No HitPay key for', isLive(env) ? 'live' : 'sandbox'); return json({ error: 'payment_not_configured' }, 503); }
+      const bot = await checkBot(env, fetch, { token: body?.turnstile, ip: request.headers.get('cf-connecting-ip'), hostname: url.hostname, action: turnstile.action });
+      if (bot) return json({ error: bot.error }, bot.status);
       const r = await startCheckout(deps, body);
       return json(r.body, r.status);
     }

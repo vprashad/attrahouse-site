@@ -29,8 +29,8 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 ## Keys and settings (Cloudflare dashboard)
 
 - Keys are **Secrets**, never plain Variables, never in the repository. A plain Variable added in the dashboard is replaced by the next deploy.
-- Preview keys live on the **preview's own** Settings page (switch the top selector to `preview`): `HITPAY_API_KEY_SANDBOX`, `HITPAY_WEBHOOK_SALT_SANDBOX`. Setting them under the main Worker's "Previews Base" did **not** reach the preview builds (17 Nov 2026).
-- Live keys at launch: `HITPAY_API_KEY_LIVE`, `HITPAY_WEBHOOK_SALT_LIVE` on the Production Settings page. The Worker sends the `_LIVE` key only to `https://api.hit-pay.com` and the `_SANDBOX` key only to the sandbox.
+- Preview keys live on the **preview's own** Settings page (switch the top selector to `preview`): `HITPAY_API_KEY_SANDBOX`, `HITPAY_WEBHOOK_SALT_SANDBOX` (the sandbox **webhook endpoint's own salt**, from its detail view in HitPay, not the API Keys page), `TURNSTILE_SECRET_KEY`. Setting them under the main Worker's "Previews Base" did **not** reach the preview builds (17 Nov 2026).
+- Live keys at launch: `HITPAY_API_KEY_LIVE`, `HITPAY_WEBHOOK_SALT_LIVE` (the live webhook endpoint's own salt) and `TURNSTILE_SECRET_KEY` on the Production Settings page. The Worker sends the `_LIVE` key only to `https://api.hit-pay.com` and the `_SANDBOX` key only to the sandbox.
 - Plain settings (`CHECKOUT_ENABLED`, `LIVE_PAYMENTS`, `CURRENCY`, `HITPAY_BASE`) come from `wrangler.jsonc`; change them there.
 - Build tokens: "Workers Builds" tokens created 17 Nov 2026 for Production and Previews. If builds fail on an API token error, Settings > Builds > API token > Create new token.
 
@@ -55,3 +55,9 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 - Runtime errors: turn on Logs in the Worker's Observability, reproduce, read the log.
 - "Payment is not available": HitPay refused or was unreachable. "Test payments are not set up": the `_SANDBOX` key is missing from the preview.
 - Shop stuck on "Checking stock": `/api/stock` failing; check Logs and the D1 binding.
+
+## Bot check (Cloudflare Turnstile)
+
+- Widget "Attra House checkout" (Managed mode). Sitekey (public) in `src/data/turnstile.json`; secret only as the `TURNSTILE_SECRET_KEY` Secret.
+- Checkout fails closed: no secret, no token, a bad token, a token for another hostname or action, or siteverify not answering means no payment page. The Settings in use box on `/admin` shows the secret as Present or Missing.
+- When `attrahouse.com` goes on the Worker, add it to the widget's hostnames in the Turnstile dashboard.

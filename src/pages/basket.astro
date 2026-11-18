@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import catalogue from '../data/products.json';
+import turnstile from '../data/turnstile.json';
 const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) => ({ sku, name, priceSen, group })), groups: catalogue.groups, delivery: catalogue.delivery };
 ---
 <Base title="Basket · Attra House" description="Your basket." noindex>
@@ -25,6 +26,7 @@ const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) 
             <label><input type="radio" name="region" value="east" /> Sabah, Sarawak or Labuan</label>
           </fieldset>
           <label class="ck" for="co-cs"><input id="co-cs" type="checkbox" required /><span>[Terms of sale and privacy notice wording and links, from Compliance]</span></label>
+          <div class="cf-turnstile" data-sitekey={turnstile.sitekey} data-action={turnstile.action} data-size="flexible" data-theme="light" data-callback="ahBotOk" data-expired-callback="ahBotExpired" data-error-callback="ahBotError"></div>
           <p class="err" id="co-err" role="alert" hidden></p>
           <button class="btn main" type="submit" id="co-pay">Go to payment</button>
           <p class="sm" id="co-closed" hidden>Checkout opens at launch.</p>
@@ -41,4 +43,5 @@ const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) 
   <Footer />
   <script is:inline define:vars={{ cat }}>window.AH_CAT = cat;</script>
   <script is:inline src="/js/checkout.js" defer></script>
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </Base>

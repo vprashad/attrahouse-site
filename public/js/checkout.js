@@ -10,8 +10,18 @@
     address_missing: 'Enter your full delivery address.', region_missing: 'Choose where we are delivering to.', holders_in_pairs: 'Holders come in twos.',
     empty_basket: 'Your basket is empty.', checkout_not_open: 'Checkout opens at launch.', payment_unavailable: 'Payment is not available right now. Nothing was charged. Please try again in a few minutes, or message us on WhatsApp.',
     payment_not_configured: 'Test payments are not set up on this preview yet: the HitPay sandbox key is missing. Nothing was charged.',
+    bot_check_failed: 'The security check did not go through. Nothing was charged. Please try again.',
+    bot_check_unavailable: 'The security check is not answering right now. Nothing was charged. Please try again in a minute.',
+    bot_check_not_configured: 'The security check is not set up on this preview yet. Nothing was charged.',
     delivery_fees_not_set: 'Delivery fees are not set yet, so we cannot take orders right now.', bad_request: 'Something went wrong. Please try again.',
   };
+
+  // Cloudflare Turnstile writes a one-time token into the form; each token works once, so reset after every try.
+  var botToken = '';
+  window.ahBotOk = function (t) { botToken = t; };
+  window.ahBotExpired = function () { botToken = ''; };
+  window.ahBotError = function () { botToken = ''; };
+  function botReset() { botToken = ''; try { if (window.turnstile) window.turnstile.reset(); } catch (e) {} }
 
   function items() { return B.read().filter(function (i) { return bySku[i.sku]; }); }
   function holders(list) { return list.filter(function (i) { return bySku[i.sku].group === 'holders'; }).reduce(function (n, i) { return n + i.qty; }, 0); }
@@ -64,14 +74,15 @@
   document.getElementById('co').addEventListener('submit', function (e) {
     e.preventDefault();
     var err = document.getElementById('co-err'), btn = document.getElementById('co-pay');
-    function fail(m) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; }
+    function fail(m, keepBot) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; if (!keepBot) botReset(); }
     var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing']];
-    for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]]); } }
-    if (!document.getElementById('co-cs').checked) return fail('Tick the box to agree to the terms and privacy notice.');
+    for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]], true); } }
+    if (!document.getElementById('co-cs').checked) return fail('Tick the box to agree to the terms and privacy notice.', true);
+    if (!botToken) return fail('Wait a moment for the security check above the button to finish, then try again.', true);
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
       name: document.getElementById('co-name').value, email: document.getElementById('co-email').value,
-      phone: document.getElementById('co-phone').value, address: document.getElementById('co-address').value, region: region() } };
+      phone: document.getElementById('co-phone').value, address: document.getElementById('co-address').value, region: region() }, turnstile: botToken };
     fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (x) {

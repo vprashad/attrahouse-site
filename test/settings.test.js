@@ -9,8 +9,8 @@ import { handleAdmin } from '../src/worker/admin.js';
 import { addColumns } from '../src/worker/refunds.js';
 
 const row = (rows, label) => rows.find((r) => r.label === label);
-const preview = { CHECKOUT_ENABLED: 'true', LIVE_PAYMENTS: 'false', CURRENCY: 'MYR', HITPAY_BASE: 'https://api.sandbox.hit-pay.com', STOCK_DB: 'attrahouse-stock-preview', HITPAY_API_KEY_SANDBOX: 'sk-test-secret-value', HITPAY_WEBHOOK_SALT_SANDBOX: 'salt-test-secret-value' };
-const launch = { CHECKOUT_ENABLED: 'true', LIVE_PAYMENTS: 'true', CURRENCY: 'MYR', HITPAY_BASE: 'https://api.hit-pay.com', STOCK_DB: 'attrahouse-stock', HITPAY_API_KEY_LIVE: 'sk-live-secret-value', HITPAY_WEBHOOK_SALT_LIVE: 'salt-live-secret-value' };
+const preview = { CHECKOUT_ENABLED: 'true', LIVE_PAYMENTS: 'false', CURRENCY: 'MYR', HITPAY_BASE: 'https://api.sandbox.hit-pay.com', STOCK_DB: 'attrahouse-stock-preview', HITPAY_API_KEY_SANDBOX: 'sk-test-secret-value', HITPAY_WEBHOOK_SALT_SANDBOX: 'salt-test-secret-value', TURNSTILE_SECRET_KEY: 'ts-test-secret-value' };
+const launch = { CHECKOUT_ENABLED: 'true', LIVE_PAYMENTS: 'true', CURRENCY: 'MYR', HITPAY_BASE: 'https://api.hit-pay.com', STOCK_DB: 'attrahouse-stock', HITPAY_API_KEY_LIVE: 'sk-live-secret-value', HITPAY_WEBHOOK_SALT_LIVE: 'salt-live-secret-value', TURNSTILE_SECRET_KEY: 'ts-live-secret-value' };
 
 test('preview settings read as sandbox and test stock, with no warnings', () => {
   const rows = runningSettings(preview, 'shop');
@@ -46,6 +46,6 @@ test('the private page shows the box and never the key or salt values', async ()
   const html = await res.text();
   assert.match(html, /Settings in use/);
   assert.match(html, /attrahouse-stock-preview \(test stock\)/);
-  assert.ok(!html.includes('sk-test-secret-value') && !html.includes('salt-test-secret-value'));
+  assert.ok(!html.includes('sk-test-secret-value') && !html.includes('salt-test-secret-value') && !html.includes('ts-test-secret-value'));
   assert.ok(!html.includes('Something below needs checking'));
 });
