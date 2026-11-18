@@ -1,11 +1,12 @@
 // The private stock and orders page. Server-rendered, no script needed.
 import { setAvailable, stockState } from './stock.js';
+import { runningSettings } from './settings.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const rm = (sen) => `RM${(sen / 100).toFixed(2)}`;
 const when = (ms) => new Date(ms).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', dateStyle: 'medium', timeStyle: 'short' });
 
-export async function handleAdmin(request, env, catalogue, user) {
+export async function handleAdmin(request, env, catalogue, user, siteMode = 'shop') {
   const url = new URL(request.url);
   const now = Date.now();
   let notice = '';
@@ -32,14 +33,19 @@ export async function handleAdmin(request, env, catalogue, user) {
   }).join('');
   const orows = orders.map((o) => `<tr><td>${when(o.created_at)}</td><td>${esc(o.status)}${o.test ? ' (test)' : ''}</td><td>${esc(o.name)}<br><small>${esc(o.email)} · ${esc(o.phone)}</small></td><td>${JSON.parse(o.items_json).map((i) => `${i.qty} × ${esc(i.sku)}`).join('<br>')}</td><td class="n">${rm(o.total_sen)}</td></tr>`).join('') || '<tr><td colspan="5">No orders yet.</td></tr>';
 
+  const settings = runningSettings(env, siteMode);
+  const srows = settings.map((r) => `<tr${r.warn ? ' class="warn"' : ''}><th scope="row">${esc(r.label)}</th><td>${esc(r.value)}${r.warn ? ' <strong>Check this</strong>' : ''}</td></tr>`).join('');
+  const anyWarn = settings.some((r) => r.warn);
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Stock and orders · Attra House</title>
 <style>:root{--bg:#F7F1E6;--fg:#2B2624;--line:#DDD3C2;--brown:#8A5A2B;--red:#C9382E;--yellow:#F3C64A}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
 main{max-width:980px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:20px}h1,h2{margin:0}
 .tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:620px}th,td{text-align:left;padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--brown)}
 .n{font-variant-numeric:tabular-nums}form{display:flex;gap:8px}input[type=number]{width:90px;font:inherit;padding:8px;border:1.5px solid var(--brown);border-radius:8px;background:#fff;color:var(--fg)}
 button{font:700 15px system-ui,sans-serif;background:var(--yellow);color:var(--fg);border:0;border-radius:999px;padding:8px 16px;min-height:40px;cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
-.notice{border:2px solid var(--fg);border-radius:12px;padding:10px 14px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}small{color:var(--brown)}</style></head>
+.set{min-width:0;max-width:640px;table-layout:fixed}.set th,.set td{overflow-wrap:anywhere}.set th{width:50%}.set th{text-transform:none;letter-spacing:0;font-size:15px;color:var(--fg);font-weight:600}.warn td,.warn th{color:var(--red)}.notice{border:2px solid var(--fg);border-radius:12px;padding:10px 14px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}small{color:var(--brown)}</style></head>
 <body><main><h1>Stock and orders</h1><p>Signed in as ${esc(user)}. Times are Malaysia time.</p>${notice ? `<p class="notice" role="status">${notice}</p>` : ''}
+<h2>Settings in use</h2><p><small>What this copy of the site is running with right now. Keys are never shown, only whether they are present.${anyWarn ? ' <strong>Something below needs checking.</strong>' : ''}</small></p>
+<div class="tw"><table class="set"><tbody>${srows}</tbody></table></div>
 <h2>Stock</h2><p><small>"Available" is what the shop can still sell. Units on a buyer's payment page are already taken off and come back if unpaid after 20 minutes.</small></p>
 <div class="tw"><table><thead><tr><th>Product</th><th>Available</th><th>Sold</th><th>Shop shows</th><th>Set a new number</th></tr></thead><tbody>${rows}</tbody></table></div>
 <h2>Latest orders</h2><p><small>Refunds are made in HitPay. After a refund, add the units back above.</small></p>

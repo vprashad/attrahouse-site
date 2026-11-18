@@ -39,7 +39,7 @@ export default {
     if (isAdmin) {
       const user = await accessUser(request, env);
       if (!user) return new Response('Not found', { status: 404 });
-      return handleAdmin(request, env, catalogue, user);
+      return handleAdmin(request, env, catalogue, user, SITE_MODE);
     }
 
     if (url.pathname === '/api/stock' && request.method === 'GET') {
