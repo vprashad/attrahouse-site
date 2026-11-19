@@ -3,6 +3,8 @@ import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Art from './Art.astro';
 import ProductCard from './ProductCard.astro';
+import QuickAdd from './QuickAdd.astro';
+import strings from '../data/strings.json';
 import StockTag from './StockTag.astro';
 import catalogue from '../data/products.json';
 import { rm } from '../lib/site.js';
@@ -10,6 +12,9 @@ const products = catalogue.products.filter((p) => !p.group);
 const bundle = products.find((p) => p.featured);
 const rest = products.filter((p) => !p.featured);
 const holders = catalogue.groups.holders;
+const priceOf = (sku) => catalogue.products.find((p) => p.sku === sku)?.priceSen ?? 0;
+// Worked out from the Bundle's contents, never typed (Design spec, 19 Nov 2026).
+const separateSen = bundle ? bundle.contains.reduce((t, s) => t + priceOf(s), 0) : 0;
 ---
 <Header />
 <main>
@@ -34,19 +39,25 @@ const holders = catalogue.groups.holders;
         <div class="tile big" style="--t:var(--ink)"><span>Photo: the whole bundle laid out, box open</span></div>
         <div class="col">
           <h3 class="lbl">The gift pick</h3><b class="h1">{bundle.name}</b><p>{bundle.note}.</p>
-          <div class="row"><span class="pr big">{rm(bundle.priceSen)}</span><span class="tag">Save {rm(bundle.separateTotalSen - bundle.priceSen)}</span><StockTag sku={bundle.sku} /></div>
-          <p class="sm">{rm(bundle.separateTotalSen)} if you buy the four separately.</p>
-          <div class="row"><a class="btn main" href={`/${bundle.sku}/`}>See the Bundle</a></div>
+          <div class="row"><span class="pr big">{rm(bundle.priceSen)}</span><span class="tag">Save {rm(separateSen - bundle.priceSen)}</span><StockTag sku={bundle.sku} /></div>
+          <p class="sm">{rm(separateSen)} if you buy the four separately.</p>
+          <p class="sm">{strings.bundlePerk}</p>
+          <QuickAdd sku={bundle.sku} name={bundle.name} href={`/${bundle.sku}/`} />
+          <div class="row"><a class="link" href={`/${bundle.sku}/`}>See what's in the Bundle</a></div>
         </div>
       </div>
     )}
     <div class="grid cards">{rest.map((p) => <ProductCard p={p} />)}</div>
     <div class="grid cards">
-      <a class="card" href="/holders/">
-        <div class="tile" style="--t:var(--yellow)"><span>Photo goes here</span></div>
-        <b>{holders.name}</b><span class="pr">Any 2 for {rm(holders.pairPriceSen)}</span>
+      <div class="card">
+        <a class="card-link" href="/holders/">
+          <div class="tile" style="--t:var(--yellow)"><span>Photo goes here</span></div>
+          <b>{holders.name}</b>
+        </a>
+        <span class="pr">Any 2 for {rm(holders.pairPriceSen)}</span>
         <span><StockTag sku="pouch-holder" /> <StockTag sku="juicebox-holder" /></span>
-      </a>
+        <QuickAdd holders name={holders.name} href="/holders/" />
+      </div>
     </div>
   </div></section>
 
@@ -61,3 +72,5 @@ const holders = catalogue.groups.holders;
 <Footer />
 <script is:inline src="/js/snap.js" defer></script>
 <script is:inline src="/js/stock.js" defer></script>
+<script is:inline src="/js/quickadd.js" defer></script>
+<div class="toast" id="qa-toast" role="status" aria-live="polite" hidden><span data-toast-msg></span> · <a class="link" href="/basket/">{strings.viewBasket.en}</a></div>

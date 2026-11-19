@@ -23,6 +23,21 @@
   window.ahBotError = function () { botToken = ''; };
   function botReset() { botToken = ''; try { if (window.turnstile) window.turnstile.reset(); } catch (e) {} }
 
+  // Bundle upgrade offer (Design spec, 19 Nov 2026). Asked at most once per visit.
+  var DECLINED = 'ah-bundle-answered';
+  function answered() { try { return sessionStorage.getItem(DECLINED) === '1'; } catch (e) { return false; } }
+  function setAnswered() { try { sessionStorage.setItem(DECLINED, '1'); } catch (e) {} }
+  var stockKnown = false, pendingSubmit = false;
+  function currentOffer() { return window.AHBundle && stockKnown ? window.AHBundle.offer(items(), cat, stock, answered()) : null; }
+  function paintOffer() {
+    var o = currentOffer(), box = document.getElementById('bk-offer');
+    box.hidden = !o;
+    if (!o) { pendingSubmit = false; return; }
+    document.getElementById('bk-offer-t').textContent = window.AHBundle.text(o);
+    document.getElementById('bk-offer-h').textContent = pendingSubmit ? 'Before you pay' : 'Upgrade to the Bundle';
+    document.getElementById('bk-offer-no').textContent = pendingSubmit ? 'No thanks, continue' : 'No thanks';
+  }
+
   function items() { return B.read().filter(function (i) { return bySku[i.sku]; }); }
   function holders(list) { return list.filter(function (i) { return bySku[i.sku].group === 'holders'; }).reduce(function (n, i) { return n + i.qty; }, 0); }
   function subtotal(list) {
@@ -60,6 +75,7 @@
     document.getElementById('bk-test').hidden = !test;
     document.getElementById('co-pay').disabled = odd || !checkoutOpen;
     document.getElementById('co-closed').hidden = checkoutOpen;
+    paintOffer();
   }
   function change(sku, by) {
     var b = B.read(); b.forEach(function (i) { if (i.sku === sku) i.qty = Math.max(0, Math.min(20, i.qty + by)); });
@@ -67,18 +83,34 @@
   }
 
   fetch('/api/stock').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-    if (d) { stock = d.items || {}; checkoutOpen = !!d.checkout; } render();
+    if (d) { stock = d.items || {}; checkoutOpen = !!d.checkout; stockKnown = true; } render();
   }).catch(render);
   document.querySelectorAll('input[name=region]').forEach(function (r) { r.addEventListener('change', render); });
 
+  document.getElementById('bk-offer-yes').addEventListener('click', function () {
+    var o = currentOffer(); if (!o) return;
+    B.write(window.AHBundle.apply(items(), o)); setAnswered(); pendingSubmit = false; render();
+    var done = document.getElementById('bk-offer-done'); done.hidden = false; done.scrollIntoView({ block: 'center' });
+  });
+  document.getElementById('bk-offer-no').addEventListener('click', function () {
+    var go = pendingSubmit; setAnswered(); pendingSubmit = false; render();
+    if (go) document.getElementById('co').requestSubmit();
+  });
+
   document.getElementById('co').addEventListener('submit', function (e) {
     e.preventDefault();
+    document.getElementById('bk-offer-done').hidden = true;
     var err = document.getElementById('co-err'), btn = document.getElementById('co-pay');
     function fail(m, keepBot) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; if (!keepBot) botReset(); }
     var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing']];
     for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]], true); } }
     if (!document.getElementById('co-cs').checked) return fail('Tick the box to agree to the terms and privacy notice.', true);
     if (!botToken) return fail('Wait a moment for the security check above the button to finish, then try again.', true);
+    if (currentOffer()) {
+      pendingSubmit = true; paintOffer();
+      var h = document.getElementById('bk-offer-h'); h.scrollIntoView({ block: 'center' }); h.focus();
+      return;
+    }
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
       name: document.getElementById('co-name').value, email: document.getElementById('co-email').value,

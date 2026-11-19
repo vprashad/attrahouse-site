@@ -51,7 +51,12 @@
       "art": null,
       "note": "Fruit Basket, Veggie Garden, Meal Time and the Chef's Knife Block in one box",
       "featured": true,
-      "separateTotalSen": 88600
+      "contains": [
+        "fruit-basket",
+        "veggie-garden",
+        "meal-time",
+        "chefs-knife-block"
+      ]
     },
     {
       "sku": "pasta-set",
@@ -122,5 +127,15 @@
     "_source": "Finance supplies these. null = not set yet: test checkouts charge RM0 delivery and say so; live checkout refuses to open while any is null.",
     "peninsularSen": null,
     "eastMalaysiaSen": null
+  },
+  "bundleOffer": {
+    "_source": "Design spec design/spec-quick-add-and-bundle-upgrade.md (19 Nov 2026): offer the Bundle when the basket has 2+ different of these sets and the Bundle is in stock. Amounts are always computed from the prices above.",
+    "bundle": "grand-kitchen-bundle",
+    "triggerSkus": [
+      "fruit-basket",
+      "veggie-garden",
+      "meal-time"
+    ],
+    "minDifferent": 2
   }
 }

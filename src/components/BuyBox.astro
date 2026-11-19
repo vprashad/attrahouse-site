@@ -10,7 +10,7 @@ const { sku, name } = Astro.props;
   <p class="sm" data-checkout-closed hidden>Checkout opens at launch.</p>
   <p class="sm" data-added hidden>Added. <a class="link" href="/basket/">View basket</a></p>
 </div>
-<div class="col" data-wait-for={sku} hidden>
+<div class="col" id="waitlist" data-wait-for={sku} hidden>
   <p><b>This batch has sold out.</b> Leave your email and we will message you when the {name} is back.</p>
   <form class="wl" data-waitlist={sku} novalidate>
     <label for={`${sku}-em`}>Email<input id={`${sku}-em`} type="email" autocomplete="email" placeholder="you@example.com" required /></label>

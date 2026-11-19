@@ -20,6 +20,9 @@
     .then(function (d) {
       if (!d) return;
       if (d.items) apply(d.items);
+      // Share the numbers with other scripts on the page (quick add).
+      window.AHStock = { items: d.items || {}, checkout: !!d.checkout };
+      document.dispatchEvent(new CustomEvent('ah:stock', { detail: window.AHStock }));
       [].forEach.call(document.querySelectorAll('[data-needs-checkout]'), function (b) { b.disabled = !d.checkout; });
       [].forEach.call(document.querySelectorAll('[data-checkout-closed]'), function (el) { el.hidden = !!d.checkout; });
     })

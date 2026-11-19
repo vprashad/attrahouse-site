@@ -1,0 +1,6 @@
+{
+  "_source": "Button and bar text for quick add and the Bundle offer, from the Design spec of 19 Nov 2026. EN from Design; BM from Marketing (placeholders until they supply it). Marketing may reword the EN.",
+  "addToBasket": { "en": "Add to basket", "ms": "[BM: Marketing]" },
+  "viewBasket": { "en": "View basket", "ms": "[BM: Marketing]" },
+  "bundlePerk": "[Bundle perk: Viveg / Finance]"
+}

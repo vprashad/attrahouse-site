@@ -1,0 +1,26 @@
+---
+// Add to basket on a home-page card. A separate control, outside the card's link.
+// Filled in by /js/quickadd.js from live stock. holders=true shows the pair chooser instead.
+import strings from '../data/strings.json';
+interface Props { sku?: string; name: string; href: string; holders?: boolean }
+const { sku, name, href, holders = false } = Astro.props;
+---
+{holders ? (
+  <div class="qa" data-qa-holders>
+    <button class="btn main qa-btn" type="button" data-qa-open aria-expanded="false" data-needs-checkout disabled>{strings.addToBasket.en}</button>
+    <div class="qa-pick" data-qa-pick hidden role="group" aria-label="Choose a pair of holders">
+      <button class="btn line" type="button" data-qa-pair="pouch-holder:2">2 pouch holders</button>
+      <button class="btn line" type="button" data-qa-pair="pouch-holder:1,juicebox-holder:1">1 of each</button>
+      <button class="btn line" type="button" data-qa-pair="juicebox-holder:2">2 juice-box holders</button>
+    </div>
+    <p class="qa-out" data-qa-out hidden><b>Sold out.</b> <a class="link" href={href}>Join the waitlist</a></p>
+  </div>
+) : (
+  <div class="qa" data-qa={sku} data-qa-name={name}>
+    <button class="btn main qa-btn" type="button" data-qa-add data-needs-checkout disabled>{strings.addToBasket.en}</button>
+    <div class="step qa-step" data-qa-step hidden>
+      <button type="button" data-qa-less aria-label={`One fewer ${name}`}>−</button><span data-qa-n aria-live="polite">1</span><button type="button" data-qa-more aria-label={`One more ${name}`}>+</button>
+    </div>
+    <p class="qa-out" data-qa-out hidden><b>Sold out.</b> <a class="link" href={`${href}#waitlist`}>Join the waitlist</a></p>
+  </div>
+)}

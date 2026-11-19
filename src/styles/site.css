@@ -227,3 +227,22 @@ textarea{font:600 17px var(--body);color:var(--ink);background:var(--white);bord
 textarea:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .testnote{border:2px dashed var(--brown);border-radius:var(--r-field);padding:10px 14px;font-size:var(--t-small);font-weight:600}
 @media (max-width:560px){.bk-row{grid-template-columns:minmax(0,1fr) auto}.bk-row .pr{grid-column:2}.bk-row .step{grid-column:1}}
+/* Quick add on home cards and the Bundle offer (Design spec, 19 Nov 2026) */
+.card-link{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit}
+.card-link:hover b{text-decoration:underline;text-underline-offset:4px}
+.card-link:focus-visible{outline:3px solid var(--ink);outline-offset:4px;border-radius:var(--r-tile)}
+.qa{display:flex;flex-direction:column;gap:var(--s2);margin-top:var(--s2)}
+.qa .qa-btn{justify-content:center;min-height:44px}
+.qa .qa-step{align-self:flex-start}
+.qa-pick{display:flex;flex-direction:column;gap:var(--s2)}
+.qa-pick .btn{justify-content:center;min-height:44px;padding:8px 14px}
+.qa-out{margin:0;font-size:var(--t-small)}
+.bundle .qa{max-width:320px}
+.toast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--cream);border-radius:var(--r-pill);padding:12px 20px;font-weight:700;font-size:var(--t-small);max-width:calc(100vw - 32px);transition:opacity .15s linear;opacity:1}
+.toast .link{color:var(--cream)}
+.toast.gone{opacity:0}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+.offer{border:2px solid var(--ink);border-radius:var(--r-tile);padding:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
+.offer h2{font-size:var(--t-h3)}
+.offer .row .btn{flex:1 1 auto;justify-content:center}
+@media (max-width:560px){.qa .qa-btn{width:100%}}

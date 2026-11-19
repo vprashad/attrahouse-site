@@ -4,7 +4,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import catalogue from '../data/products.json';
 import turnstile from '../data/turnstile.json';
-const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) => ({ sku, name, priceSen, group })), groups: catalogue.groups, delivery: catalogue.delivery };
+import strings from '../data/strings.json';
+const cat = { products: catalogue.products.map(({ sku, name, priceSen, group, contains }) => ({ sku, name, priceSen, group, contains })), groups: catalogue.groups, delivery: catalogue.delivery, bundleOffer: catalogue.bundleOffer };
 ---
 <Base title="Basket · Attra House" description="Your basket." noindex>
   <Header />
@@ -26,6 +27,16 @@ const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) 
             <label><input type="radio" name="region" value="east" /> Sabah, Sarawak or Labuan</label>
           </fieldset>
           <label class="ck" for="co-cs"><input id="co-cs" type="checkbox" required /><span>[Terms of sale and privacy notice wording and links, from Compliance]</span></label>
+          <div class="offer" id="bk-offer" hidden>
+            <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>
+            <p id="bk-offer-t"></p>
+            <p class="sm">{strings.bundlePerk}</p>
+            <div class="row">
+              <button class="btn main" type="button" id="bk-offer-yes">Upgrade to the Bundle</button>
+              <button class="btn line" type="button" id="bk-offer-no">No thanks</button>
+            </div>
+          </div>
+          <p class="sm" id="bk-offer-done" role="status" hidden>Upgraded to the Grand Kitchen Bundle. Check your new total, then press Go to payment.</p>
           <div class="cf-turnstile" data-sitekey={turnstile.sitekey} data-action={turnstile.action} data-size="flexible" data-theme="light" data-callback="ahBotOk" data-expired-callback="ahBotExpired" data-error-callback="ahBotError"></div>
           <p class="err" id="co-err" role="alert" hidden></p>
           <button class="btn main" type="submit" id="co-pay">Go to payment</button>
@@ -42,6 +53,7 @@ const cat = { products: catalogue.products.map(({ sku, name, priceSen, group }) 
   </div></section></main>
   <Footer />
   <script is:inline define:vars={{ cat }}>window.AH_CAT = cat;</script>
+  <script is:inline src="/js/bundle.js" defer></script>
   <script is:inline src="/js/checkout.js" defer></script>
   <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </Base>
