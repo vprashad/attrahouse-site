@@ -61,3 +61,7 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 - Widget "Attra House checkout" (Managed mode). Sitekey (public) in `src/data/turnstile.json`; secret only as the `TURNSTILE_SECRET_KEY` Secret.
 - Checkout fails closed: no secret, no token, a bad token, a token for another hostname or action, or siteverify not answering means no payment page. The Settings in use box on `/admin` shows the secret as Present or Missing.
 - When `attrahouse.com` goes on the Worker, add it to the widget's hostnames in the Turnstile dashboard.
+
+## DuitNow QR refunds (Compliance, 20 Nov 2026)
+
+HitPay cannot refund DuitNow QR paid from a banking app. Follow `compliance/website-legal-pages.md` section 2 in the Attra House project: email the address on the order from the business mailbox (EN/BM template there), ask only for order number, account holder's name, bank and account number, never store them in the site or its database, send the transfer from the company account, record the reference, then delete the email and empty Trash within 30 days. Then press Mark refunded on `/admin` with How = By bank transfer.

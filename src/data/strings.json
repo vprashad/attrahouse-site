@@ -1,6 +1,17 @@
 {
   "_source": "Button and bar text for quick add and the Bundle offer, from the Design spec of 19 Nov 2026. EN from Design; BM from Marketing (placeholders until they supply it). Marketing may reword the EN.",
-  "addToBasket": { "en": "Add to basket", "ms": "[BM: Marketing]" },
-  "viewBasket": { "en": "View basket", "ms": "[BM: Marketing]" },
-  "bundlePerk": "[Bundle perk: Viveg / Finance]"
+  "addToBasket": {
+    "en": "Add to basket",
+    "ms": "[BM: Marketing]"
+  },
+  "viewBasket": {
+    "en": "View basket",
+    "ms": "[BM: Marketing]"
+  },
+  "bundlePerk": "[Bundle perk: Viveg / Finance]",
+  "refundAfterSoldOut": {
+    "_source": "Compliance, compliance/website-legal-pages.md section 3, approved by Viveg 20 Nov 2026. {email} is replaced with the business email from company.json.",
+    "en": "Sorry, this item sold out before your payment reached us. We will refund the full amount you paid and start the refund within 7 working days. Card refunds usually take 5–10 working days to appear in your account after that; for FPX and e-wallets, the time depends on your bank or e-wallet. If you paid by DuitNow QR, we'll email you from {email} to ask for your bank details so we can refund you by bank transfer. We will never ask for your password, PIN or TAC/OTP.",
+    "ms": "Maaf, item ini telah habis dijual sebelum bayaran anda sampai kepada kami. Kami akan memulangkan jumlah penuh yang anda bayar dan memulakan bayaran balik dalam tempoh 7 hari bekerja. Bayaran balik kad biasanya mengambil masa 5–10 hari bekerja untuk dipaparkan dalam akaun anda selepas itu; bagi FPX dan e-dompet, tempohnya bergantung kepada bank atau e-dompet anda. Jika anda membayar melalui DuitNow QR, kami akan menghantar e-mel daripada {email} untuk meminta butiran bank anda supaya kami boleh membuat bayaran balik melalui pindahan bank. Kami tidak akan sekali-kali meminta kata laluan, PIN atau TAC/OTP anda."
+  }
 }

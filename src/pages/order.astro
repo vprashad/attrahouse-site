@@ -2,12 +2,15 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import strings from '../data/strings.json';
+import company from '../data/company.json';
+const refundText = strings.refundAfterSoldOut.en.replace('{email}', company.email);
 ---
 <Base title="Your order · Attra House" description="Order status." noindex>
   <Header />
   <main><section><div class="wrap sec">
     <h1 id="o-title">Checking your payment…</h1>
-    <p id="o-text" role="status">This takes a few seconds.</p>
+    <p id="o-text" role="status" data-refund={refundText}>This takes a few seconds.</p>
     <p class="testnote" id="o-test" hidden>Test order: no real money moved.</p>
     <p><a class="link" href="/#sets">Back to the shop</a></p>
   </div></section></main>
@@ -22,7 +25,7 @@ import Footer from '../components/Footer.astro';
         if(!o){return show('We could not find that order','If you paid, message us on WhatsApp with your email address and we will check.');}
         document.getElementById('o-test').hidden=!o.test;
         if(o.status==='paid'){ if(window.AHBasket) window.AHBasket.clear(); return show('Thank you. Your order is confirmed','We have your payment. [Dispatch time, from Production] A confirmation email follows once email is set up.'); }
-        if(o.status==='needs_refund'){return show('Your payment arrived after the item sold out','We are sorry. We will refund you in full. [Refund timing, from Finance]');}
+        if(o.status==='needs_refund'){return show('Your payment arrived after the item sold out',P.getAttribute('data-refund'));}
         if(o.status==='expired'){return show('This order was not paid in time','Your items went back on sale and nothing was charged. Your basket is still here if you want to try again.');}
         if(++tries<40){ setTimeout(check,3000); return show('Waiting for your payment','If you finished paying, this page updates by itself. If you closed the payment page, your items are held for 20 minutes.'); }
         show('Still waiting for your payment','If you paid, you will get a confirmation. If not, your items go back on sale after 20 minutes.');
