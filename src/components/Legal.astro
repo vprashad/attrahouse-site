@@ -1,0 +1,19 @@
+---
+// Legal pages. Wording is Compliance's (compliance/website-legal-pages.md); nothing here is written by Deployment.
+// [Square brackets] are details Compliance does not have yet; a STRICT launch build fails while any remain.
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+interface Props { title: string; source: string }
+const { title, source } = Astro.props;
+---
+<Base title={`${title} · Attra House`} description={`${title} for the Attra House shop.`} noindex>
+  <Header />
+  <main><section><div class="wrap sec legal">
+    <h1>{title}</h1>
+    <p class="testnote">Draft from Compliance ({source}), shown on the preview only. Details in [square brackets] are still to come, and a lawyer is to read this before launch.</p>
+    <slot />
+    <p class="sm"><a class="link" href="/terms/">Terms of Sale</a> · <a class="link" href="/returns/">Returns and Refunds</a> · <a class="link" href="/delivery/">Delivery</a> · <a class="link" href="/privacy/">Privacy Notice</a></p>
+  </div></section></main>
+  <Footer />
+</Base>

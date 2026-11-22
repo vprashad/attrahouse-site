@@ -36,9 +36,22 @@ test("Design's worked table (22 Nov): two sets get an offer for the missing one;
   if (bundle.priceSen === 81700) assert.deepEqual(rows.slice(0, 3).map(([s]) => offer(b(...s), cat, inStock, false).upgradeSen / 100), [269, 249, 299]);
 });
 
-test('no panel with all three sets in the basket (the automatic switch waits for Compliance wording), fewer than 2 sets, two copies of one set, or other items', () => {
-  assert.equal(offer(b(FB, VG, MT), cat, inStock, false), null);
-  assert.equal(offer(b(FB, VG, MT, KB), cat, inStock, false), null);
+test('all three sets in the basket: an offer to switch at the same price, never an automatic change (Viveg, 22 Nov evening)', () => {
+  for (const basket of [b(FB, VG, MT), b(FB, VG, MT, KB)]) {
+    const o = offer(basket, cat, inStock, false);
+    assert.equal(o.kind, 'switch');
+    assert.equal(o.upgradeSen, 0, 'same total');
+    const out = apply(basket, o);
+    assert.equal(out.find((i) => i.sku === bundle.sku).qty, 1);
+    assert.equal(out.some((i) => [FB, VG, MT].includes(i.sku)), false);
+    assert.equal(out.some((i) => i.sku === KB), basket.some((i) => i.sku === KB), 'a separate Knife Block Set stays');
+  }
+  assert.equal(text(offer(b(FB, VG, MT), cat, inStock, false), cat), `Switch to the Grand Kitchen Bundle and get a free Chef's Knife Block Set (worth ${rm(price(KB))})? Same price: ${rm(bundle.priceSen)}.`);
+  assert.equal(offer(b(FB, VG, MT), cat, inStock, true), null, 'not asked again after a no');
+  assert.equal(offer(b(FB, VG, MT), cat, { ...inStock, [KB]: { state: 'sold_out' } }, false), null, 'no switch offer when the free item is sold out');
+});
+
+test('no panel with fewer than 2 sets, two copies of one set, or other items', () => {
   assert.equal(offer(b(FB), cat, inStock, false), null);
   assert.equal(offer([{ sku: FB, qty: 2 }], cat, inStock, false), null);
   assert.equal(offer(b(FB, KB), cat, inStock, false), null);
@@ -61,10 +74,10 @@ test('taking the upgrade removes one of each matching set, adds one Bundle and k
 });
 
 test("wording is Compliance's, filled with computed amounts; no saving or 'was' figure anywhere", () => {
-  assert.equal(line(cat), `Fruit Basket, Veggie Garden and Meal Time for ${rm(bundle.priceSen)}, with a free Chef's Knife Block (worth ${rm(price(KB))}).`);
+  assert.equal(line(cat), `Fruit Basket, Veggie Garden and Meal Time for ${rm(bundle.priceSen)}, with a free Chef's Knife Block Set (worth ${rm(price(KB))}).`);
   assert.equal(conditions(cat), 'With the Grand Kitchen Bundle only. While stocks last.');
   assert.equal(text(offer(b(FB, VG), cat, inStock, false), cat),
-    `Add Meal Time for ${rm(price(MT))} and get the Grand Kitchen Bundle, with a free Chef's Knife Block (worth ${rm(price(KB))}).`);
+    `Add Meal Time for ${rm(price(MT))} and get the Grand Kitchen Bundle, with a free Chef's Knife Block Set (worth ${rm(price(KB))}).`);
   const shown = ['public/js/bundle.js', 'public/js/checkout.js', 'src/components/Home.astro', 'src/pages/basket.astro', 'src/pages/[sku].astro', 'src/components/ProductCard.astro', 'src/data/strings.json']
     .map((f) => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8').replace(/^\s*(\/\/|\/\*|\*|"_source").*$/gm, '')).join('\n');
   assert.doesNotMatch(shown, /Save \{?RM|Save \{rm|\bwas RM|separately\./i);

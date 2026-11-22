@@ -26,20 +26,25 @@
   /**
    * The upgrade offer for this basket, or null. stock is /api/stock's items ({sku: {state, left?}});
    * with no stock information the offer is not made.
-   * Made only while one or more of the Bundle's sets is still missing. With all of them in the basket
-   * the Design spec switches automatically; that waits for Compliance's notice wording, so nothing shows.
+   * kind 'add': one or more of the Bundle's sets is missing; the buyer pays for the missing set.
+   * kind 'switch': all the sets are already in the basket; same total, plus the free item. Offer only
+   * (Viveg, 22 Nov 2026): nothing changes unless the buyer says yes. Needs the free item in stock too.
    */
   function offer(items, cat, stock, declined) {
     var b = bundleOf(cat), rule = cat.bundleOffer;
     if (!b || declined || !stock) return null;
     var present = b.contains.filter(function (x) { return qtyOf(items, x) > 0; });
     var missing = b.contains.filter(function (x) { return qtyOf(items, x) === 0; });
-    if (present.length < rule.minDifferent || missing.length === 0) return null;
+    if (present.length < rule.minDifferent) return null;
     var s = stock[b.sku];
     if (!s || s.state === 'sold_out') return null;
     if (s.state === 'low' && s.left <= qtyOf(items, b.sku)) return null;
+    if (missing.length === 0) {
+      var f = stock[(b.free || [])[0]];
+      if ((b.free || []).length && (!f || f.state === 'sold_out')) return null;
+    }
     return {
-      kind: 'add', bundleSku: b.sku, bundleName: b.name,
+      kind: missing.length ? 'add' : 'switch', bundleSku: b.sku, bundleName: b.name,
       present: present, missing: missing,
       missingNames: missing.map(function (x) { return nameOf(cat, x); }),
       upgradeSen: b.priceSen - present.reduce(function (t, x) { return t + priceOf(cat, x); }, 0),
@@ -61,7 +66,7 @@
   function conditions(cat) { var f = facts(cat); return f ? fill(cat.bundleText.conditions, f) : ''; }
   function text(o, cat) {
     var f = facts(cat); f.missing = list(o.missingNames); f.upgrade = rm(o.upgradeSen);
-    return fill(cat.bundleText.upgrade, f);
+    return fill(o.kind === 'switch' ? cat.bundleText.switch : cat.bundleText.upgrade, f);
   }
 
   root.AHBundle = { offer: offer, apply: apply, text: text, line: line, conditions: conditions, facts: facts };

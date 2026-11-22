@@ -1,0 +1,49 @@
+---
+import Legal from '../components/Legal.astro';
+// Compliance's draft, section 4. Two edits Compliance's own notes call for:
+// 1. Cloudflare Web Analytics is not on (checked 22 Nov 2026), so that sentence and "and statistics" are deleted.
+// 2. The email tool is Brevo (Viveg, 22 Nov 2026), filling [email marketing tool].
+const tool = 'Brevo';
+---
+<Legal title="Privacy Notice" source="section 4, draft of 22 Nov 2026">
+  <p><b>Who we are.</b> Attra House Sdn. Bhd. ([company number]), [registered address] ("we", "us"). Contact: [business email].</p>
+  <h2>What we collect and why</h2>
+  <ul>
+    <li><b>When you order:</b> your name, email, phone number, delivery address, the items you buy and, if you choose, a gift message. We use these to take payment, pack and deliver your order, send order and delivery updates, handle returns, refunds and complaints, and keep the accounts and tax records the law requires.</li>
+    <li><b>Payments:</b> HitPay processes your payment. We receive the payment result and reference; we never see or store your full card or bank login details.</li>
+    <li><b>Refunds by bank transfer:</b> if you paid by DuitNow QR, we ask by email for your account holder's name, bank and account number, only to send your refund.</li>
+    <li><b>Marketing (optional):</b> if you tick the marketing box, we use your email and phone to send news and offers, and, if you give it, your child's birthday month to send a birthday offer.</li>
+    <li><b>Waitlist (optional):</b> if you ask us to tell you when an item is back, we use your email for that one message.</li>
+    <li><b>Website security:</b> our checkout uses Cloudflare Turnstile to block bots. It checks your browser and sends your IP address and browser details to Cloudflare.</li>
+  </ul>
+  <p><b>Where it comes from.</b> From you, and from HitPay (payment status) and our courier (delivery status).</p>
+  <p><b>Who we share it with.</b> Only service providers who help us run the shop: Cloudflare (website hosting, order storage and bot check), HitPay (payments), [courier] (delivery), Google (business email) and {tool} (marketing emails, if you opt in). Some of them store data outside Malaysia. We do not sell or rent your data. We may disclose data where the law requires it.</p>
+  <p><b>What is required.</b> Name, email, phone and delivery address are needed to fulfil an order; without them we cannot deliver it. Everything marked optional is optional.</p>
+  <p><b>Your choices.</b> Opt out of marketing at any time with the unsubscribe link or by emailing [business email]. You can ask to see or correct your data, or complain, at [business email].</p>
+  <p><b>How long we keep it.</b> Order and refund records for 7 years after the end of the year of the order, as the law requires; gift messages for 90 days after delivery; marketing contacts until you unsubscribe or 24 months after your last order or sign-up; waitlist emails until we tell you the item is back or 12 months; bank details sent for a refund are deleted within 30 days after the refund.</p>
+  <p><b>Security.</b> We keep your data with access limited to the people who need it. If a data breach is likely to cause you significant harm, we will tell you as the law requires.</p>
+  <p>Cloudflare's Turnstile privacy terms: <a class="link" href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">https://www.cloudflare.com/turnstile-privacy-policy/</a></p>
+  <p>This notice is in Bahasa Melayu and English. Last updated [date].</p>
+
+  <div lang="ms-MY" class="legal-ms">
+  <h2>Notis Privasi</h2>
+  <p><b>Siapa kami.</b> Attra House Sdn. Bhd. ([nombor syarikat]), [alamat berdaftar] ("kami"). Hubungi: [e-mel perniagaan].</p>
+  <h3>Data yang kami kumpul dan tujuannya</h3>
+  <ul>
+    <li><b>Apabila anda membuat pesanan:</b> nama, e-mel, nombor telefon, alamat penghantaran, item yang dibeli dan, jika anda pilih, mesej hadiah. Kami menggunakannya untuk menerima bayaran, membungkus dan menghantar pesanan anda, menghantar maklumat pesanan dan penghantaran, mengendalikan pemulangan, bayaran balik dan aduan, serta menyimpan rekod akaun dan cukai seperti yang dikehendaki oleh undang-undang.</li>
+    <li><b>Bayaran:</b> HitPay memproses bayaran anda. Kami menerima keputusan dan rujukan bayaran sahaja; kami tidak melihat atau menyimpan butiran penuh kad atau log masuk bank anda.</li>
+    <li><b>Bayaran balik melalui pindahan bank:</b> jika anda membayar melalui DuitNow QR, kami akan meminta nama pemegang akaun, nama bank dan nombor akaun anda melalui e-mel, hanya untuk menghantar bayaran balik.</li>
+    <li><b>Pemasaran (pilihan):</b> jika anda menanda kotak pemasaran, kami menggunakan e-mel dan nombor telefon anda untuk menghantar berita dan tawaran, dan, jika diberikan, bulan lahir anak anda untuk menghantar tawaran hari jadi.</li>
+    <li><b>Senarai menunggu (pilihan):</b> jika anda meminta untuk dimaklumkan apabila sesuatu item ada semula, kami menggunakan e-mel anda untuk mesej itu sahaja.</li>
+    <li><b>Keselamatan laman web:</b> halaman pembayaran kami menggunakan Cloudflare Turnstile untuk menyekat bot. Ia memeriksa pelayar anda dan menghantar alamat IP serta butiran pelayar anda kepada Cloudflare.</li>
+  </ul>
+  <p><b>Sumber data.</b> Daripada anda, dan daripada HitPay (status bayaran) serta syarikat kurier kami (status penghantaran).</p>
+  <p><b>Pihak yang menerima data.</b> Hanya penyedia perkhidmatan yang membantu kami menjalankan kedai: Cloudflare (hosting laman web, simpanan pesanan dan pemeriksaan bot), HitPay (bayaran), [kurier] (penghantaran), Google (e-mel perniagaan) dan {tool} (e-mel pemasaran, jika anda bersetuju). Sesetengahnya menyimpan data di luar Malaysia. Kami tidak menjual atau menyewakan data anda. Kami mungkin mendedahkan data jika dikehendaki oleh undang-undang.</p>
+  <p><b>Data yang wajib.</b> Nama, e-mel, nombor telefon dan alamat penghantaran diperlukan untuk memenuhi pesanan; tanpanya kami tidak dapat menghantar pesanan anda. Semua yang ditanda pilihan adalah pilihan.</p>
+  <p><b>Pilihan anda.</b> Anda boleh berhenti menerima pemasaran pada bila-bila masa melalui pautan berhenti melanggan atau dengan menghantar e-mel kepada [e-mel perniagaan]. Anda boleh meminta untuk melihat atau membetulkan data anda, atau membuat aduan, di [e-mel perniagaan].</p>
+  <p><b>Tempoh simpanan.</b> Rekod pesanan dan bayaran balik selama 7 tahun selepas akhir tahun pesanan, seperti yang dikehendaki oleh undang-undang; mesej hadiah selama 90 hari selepas penghantaran; kenalan pemasaran sehingga anda berhenti melanggan atau 24 bulan selepas pesanan atau pendaftaran terakhir anda; e-mel senarai menunggu sehingga kami memaklumkan item ada semula atau 12 bulan; butiran bank untuk bayaran balik dipadamkan dalam tempoh 30 hari selepas bayaran balik.</p>
+  <p><b>Keselamatan.</b> Data anda hanya boleh diakses oleh mereka yang memerlukannya. Jika berlaku pelanggaran data yang mungkin menyebabkan kemudaratan ketara kepada anda, kami akan memaklumkan anda seperti yang dikehendaki oleh undang-undang.</p>
+  <p>Terma privasi Turnstile oleh Cloudflare: <a class="link" href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">https://www.cloudflare.com/turnstile-privacy-policy/</a></p>
+  <p>Notis ini disediakan dalam Bahasa Melayu dan Bahasa Inggeris. Kemas kini terakhir [tarikh].</p>
+  </div>
+</Legal>

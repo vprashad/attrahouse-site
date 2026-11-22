@@ -1,0 +1,25 @@
+---
+import Legal from '../components/Legal.astro';
+import catalogue from '../data/products.json';
+import { rm } from '../lib/site.js';
+// The free item's name and worth are read from products.json, never typed.
+const bundle = catalogue.products.find((p) => p.featured);
+const free = catalogue.products.find((p) => p.sku === bundle.free[0]);
+---
+<Legal title="Returns and Refunds" source="section 7, confirmed by Viveg 22 Nov 2026">
+  <h2>Faulty, damaged or wrong items</h2>
+  <p>If something arrives damaged, faulty or wrong, or a magnet becomes loose or visible, contact us within [30] days of delivery at [email] with your order number and a photo. Stop using the piece. We will replace or repair it, or refund you, and we will pay return postage. This does not limit your rights under the Consumer Protection Act 1999.</p>
+  <h2>Change of mind</h2>
+  <p>You can return unused items within 14 days of delivery. Tell us first at [email] with your order number; we'll reply with the return address. You pay the return postage. When the item arrives we check it and refund you within [7] working days:</p>
+  <ul>
+    <li><b>Unused, complete and in its original, undamaged packaging:</b> full item price.</li>
+    <li><b>Unused and complete, but the packaging is opened, damaged or missing:</b> item price less a restocking fee of 10%.</li>
+    <li><b>Used, damaged or with pieces missing:</b> we can't accept it, and we'll send it back to you at your cost.</li>
+  </ul>
+  <p>If you return a {bundle.name}, please include the free {free.name}; if it's missing, we deduct {rm(free.priceSen)} from your refund. Custom items can't be returned for a change of mind. The original delivery fee is refunded only if the whole order is returned [Viveg to confirm; still open 22 Nov]. None of this applies to faulty items (see above).</p>
+  <h2>Sold out after payment</h2>
+  <p>If an item sells out before your payment reaches us, we refund the full amount you paid and start the refund within 7 working days.</p>
+  <h2>How refunds are paid</h2>
+  <p>Refunds go back to the method you paid with. Card refunds usually take 5–10 working days to appear after we start them; for FPX and e-wallets, the time depends on your bank or e-wallet. <b>DuitNow QR payments can't be refunded automatically,</b> so we refund those by bank transfer: we'll email you from [business email] to ask for the account holder's name, bank and account number. We delete those details within 30 days after the refund. We will never ask for your password, PIN or TAC/OTP.</p>
+  <p>We refund the full amount you paid; we don't deduct payment fees.</p>
+</Legal>

@@ -10,7 +10,7 @@
       "startStock": 10,
       "tile": "orange",
       "art": "orange",
-      "note": "11 fruits · Knife sold separately",
+      "note": "10 fruits · Knife sold separately",
       "knifeSeparate": true
     },
     {
@@ -35,7 +35,7 @@
     },
     {
       "sku": "chefs-knife-block",
-      "name": "Chef's Knife Block",
+      "name": "Chef's Knife Block Set",
       "priceSen": 6900,
       "startStock": 5,
       "tile": "sand",

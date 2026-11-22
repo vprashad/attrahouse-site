@@ -18,14 +18,20 @@
     "ms": "[BM: Marketing]"
   },
   "bundle": {
-    "_source": "Compliance, compliance/website-legal-pages.md section 6, and Design spec section 2 (22 Nov 2026). {sets}, {price}, {free}, {worth}, {missing}, {upgrade}, {bundle} are filled from products.json; no amount is typed. The conditions line must sit next to every 'free', at least half its size. No 'was' price and no 'Save RM' figure anywhere.",
+    "_source": "Compliance, compliance/website-legal-pages.md section 6, and Design spec section 2 (22 Nov 2026). {sets}, {price}, {free}, {worth}, {missing}, {upgrade}, {bundle} are filled from products.json; no amount is typed. The conditions line must sit next to every 'free', at least half its size. No 'was' price and no 'Save RM' figure anywhere. 'switch' (all three sets already in the basket) is Design's draft from Viveg's own line, 22 Nov 2026 evening (design/decisions-2026-11-22-evening.md): offer only, nothing changes unless the buyer says yes. Compliance has not yet read that sentence.",
     "line": "{sets} for {price}, with a free {free} (worth {worth}).",
     "conditions": "With the {bundle} only. While stocks last.",
-    "upgrade": "Add {missing} for {upgrade} and get the {bundle}, with a free {free} (worth {worth})."
+    "upgrade": "Add {missing} for {upgrade} and get the {bundle}, with a free {free} (worth {worth}).",
+    "switch": "Switch to the {bundle} and get a free {free} (worth {worth})? Same price: {price}."
   },
   "deliveryArea": {
     "_source": "Viveg, 22 Nov 2026 (Admin customer info pack v3).",
     "en": "We deliver within Malaysia only.",
     "ms": "[BM: Marketing]"
+  },
+  "checkoutTerms": {
+    "_source": "Compliance, website-legal-pages.md section 4, checkout lines: shown above the Pay button, no tick box needed.",
+    "en": "By placing this order you agree to our {terms} and confirm you have read our {privacy}.",
+    "ms": "Dengan membuat pesanan ini, anda bersetuju dengan {terms} kami dan mengesahkan bahawa anda telah membaca {privacy} kami."
   }
 }

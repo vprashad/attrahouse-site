@@ -32,7 +32,6 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
               {malaysia.states.map((s) => <option value={s.name}>{s.name}</option>)}
             </select>
           </label>
-          <label class="ck" for="co-cs"><input id="co-cs" type="checkbox" required /><span>[Terms of sale and privacy notice wording and links, from Compliance]</span></label>
           <div class="offer" id="bk-offer" hidden>
             <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>
             <p id="bk-offer-t"></p>
@@ -42,9 +41,10 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
               <button class="btn line" type="button" id="bk-offer-no">No thanks</button>
             </div>
           </div>
-          <p class="sm" id="bk-offer-done" role="status" hidden>Upgraded to the Grand Kitchen Bundle. Check your new total, then press Go to payment.</p>
+          <p class="sm" id="bk-offer-done" role="status" hidden>Your basket now has the Grand Kitchen Bundle. Check your new total, then press Go to payment.</p>
           <div class="cf-turnstile" data-sitekey={turnstile.sitekey} data-action={turnstile.action} data-size="flexible" data-theme="light" data-callback="ahBotOk" data-expired-callback="ahBotExpired" data-error-callback="ahBotError"></div>
           <p class="err" id="co-err" role="alert" hidden></p>
+          <p class="sm" set:html={strings.checkoutTerms.en.replace('{terms}', '<a class="link" href="/terms/">Terms of Sale</a>').replace('{privacy}', '<a class="link" href="/privacy/">Privacy Notice</a>')} />
           <button class="btn main" type="submit" id="co-pay">Go to payment</button>
           <p class="sm" id="co-closed" hidden>Checkout opens at launch.</p>
         </form>

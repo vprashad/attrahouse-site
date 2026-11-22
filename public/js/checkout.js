@@ -34,7 +34,8 @@
     box.hidden = !o;
     if (!o) { pendingSubmit = false; return; }
     document.getElementById('bk-offer-t').textContent = window.AHBundle.text(o, cat);
-    document.getElementById('bk-offer-h').textContent = pendingSubmit ? 'Before you pay' : 'Upgrade to the Bundle';
+    document.getElementById('bk-offer-h').textContent = pendingSubmit ? 'Before you pay' : (o.kind === 'switch' ? 'Switch to the Bundle' : 'Upgrade to the Bundle');
+    document.getElementById('bk-offer-yes').textContent = o.kind === 'switch' ? 'Yes, switch to the Bundle' : 'Upgrade to the Bundle';
     document.getElementById('bk-offer-no').textContent = pendingSubmit ? 'No thanks, continue' : 'No thanks';
   }
 
@@ -107,7 +108,6 @@
     var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing'], ['co-postcode', 'postcode_invalid'], ['co-state', 'state_missing']];
     for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]], true); } }
     if (!/^[0-9]{5}$/.test(document.getElementById('co-postcode').value.trim())) { document.getElementById('co-postcode').focus(); return fail(ERR.postcode_invalid, true); }
-    if (!document.getElementById('co-cs').checked) return fail('Tick the box to agree to the terms and privacy notice.', true);
     if (!botToken) return fail('Wait a moment for the security check above the button to finish, then try again.', true);
     if (currentOffer()) {
       pendingSubmit = true; paintOffer();

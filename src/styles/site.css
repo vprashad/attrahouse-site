@@ -250,3 +250,10 @@ textarea:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 /* "Coming soon" cards (Design spec section 6, 22 Nov 2026): name and the words only, not clickable, no colour fill. */
 .card.soon .tile{background:transparent;border:2px dashed var(--line);align-items:center;justify-content:center}
 .card.soon .tile span{background:transparent;color:var(--brown);font-weight:800;padding:0}
+
+/* Legal pages: plain reading column, left-aligned. */
+.legal>*{max-width:720px}
+.legal h2{font-size:var(--t-h3);margin-top:var(--s4)}
+.legal h3{margin:0}
+.legal ul,.legal ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:var(--s3);max-width:60ch}
+.legal .legal-ms{display:flex;flex-direction:column;gap:var(--s5);border-top:2px solid var(--line);padding-top:var(--s6);margin-top:var(--s4)}
