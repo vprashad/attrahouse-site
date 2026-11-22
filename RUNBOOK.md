@@ -45,7 +45,7 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 ## Orders and payment
 
 - Checkout holds stock 20 minutes, writes an order, opens a HitPay payment request (`reference_number` = order id, `redirect_url` = `/order/?id=…`).
-- A sale is recorded only when HitPay's API reports the payment request `completed` for the exact amount. The redirect page and the webhook (`/api/hitpay-webhook`) only trigger that check.
+- A sale is recorded only when HitPay's API reports the payment request `completed` for the exact amount. The redirect page and the webhook (`/api/hitpay-webhook`) only trigger that check. The webhook fails closed (22 Nov 2026): a call with a wrong or missing signature gets 401, and if no webhook salt is set every call gets 503 `webhook_not_configured`, so HitPay's log shows the failure. The buyer's order page still confirms the payment by asking HitPay directly.
 - `needs_refund`: paid after the hold expired and the stock had gone. Refund in HitPay, then Mark refunded (no units to put back). Refunded orders show "refunded" with the date and who marked it.
 - Sandbox test payment that works: DuitNow QR, scanned with a phone's camera app (not a banking app). Sandbox cards need a bank account in the sandbox, which was not added.
 
@@ -65,3 +65,9 @@ How to operate the site day to day. Owner: Deployment/IT team. Viveg holds every
 ## DuitNow QR refunds (Compliance, 20 Nov 2026)
 
 HitPay cannot refund DuitNow QR paid from a banking app. Follow `compliance/website-legal-pages.md` section 2 in the Attra House project: email the address on the order from the business mailbox (EN/BM template there), ask only for order number, account holder's name, bank and account number, never store them in the site or its database, send the transfer from the company account, record the reference, then delete the email and empty Trash within 30 days. Then press Mark refunded on `/admin` with How = By bank transfer.
+
+## Launch range, Bundle and delivery area (22 Nov 2026)
+
+- **Phase 1 only** is on sale: Fruit Basket, Veggie Garden, Meal Time, Chef's Knife Block, Grand Kitchen Bundle, holders. Pasta Set, Pink Cake Set, Chocolate Cake Set and Grocery Playset carry `"status": "coming-soon"` in `src/data/products.json` and have no price or stock there. They show on the home page as a name and "Coming soon" only (Design spec section 6), have no product page (404), are left out of `/api/stock` and `/admin`, and `/api/checkout` refuses them (`not_on_sale`). To put one on sale: Finance confirms the price, Production the stock, Compliance the wording; then remove `status` and add `priceSen`, `startStock`, `tile`.
+- **Bundle**: `priceSen` must equal Fruit Basket + Veggie Garden + Meal Time (a test fails otherwise), with the Chef's Knife Block listed under `free`. Wording is Compliance's, in `src/data/strings.json` (`bundle`), filled with computed amounts. Never show a "was" price or a "Save RM" figure. The Bundle and the Knife Block are separate stock numbers: a Bundle sale lowers only the Bundle's number, so the Knife Blocks packed into Bundles must be set aside from the ones sold on their own.
+- **Delivery is within Malaysia only**: checkout asks for a 5-digit postcode and one of the 16 states and federal territories (`src/data/malaysia.json`); the Worker refuses anything else and works out the delivery region from the state. It does not check that the postcode belongs to the state.

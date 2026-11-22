@@ -1,0 +1,70 @@
+{
+  "_source": "Delivery is within Malaysia only (Viveg, 22 Nov 2026). The state decides the delivery region: 'east' = Sabah, Sarawak, Labuan. Whether East Malaysia is served is for Production to confirm (Compliance, legal pages section 7).",
+  "postcode": "^[0-9]{5}$",
+  "states": [
+    {
+      "name": "Johor",
+      "region": "peninsular"
+    },
+    {
+      "name": "Kedah",
+      "region": "peninsular"
+    },
+    {
+      "name": "Kelantan",
+      "region": "peninsular"
+    },
+    {
+      "name": "Melaka",
+      "region": "peninsular"
+    },
+    {
+      "name": "Negeri Sembilan",
+      "region": "peninsular"
+    },
+    {
+      "name": "Pahang",
+      "region": "peninsular"
+    },
+    {
+      "name": "Perak",
+      "region": "peninsular"
+    },
+    {
+      "name": "Perlis",
+      "region": "peninsular"
+    },
+    {
+      "name": "Pulau Pinang",
+      "region": "peninsular"
+    },
+    {
+      "name": "Selangor",
+      "region": "peninsular"
+    },
+    {
+      "name": "Terengganu",
+      "region": "peninsular"
+    },
+    {
+      "name": "W.P. Kuala Lumpur",
+      "region": "peninsular"
+    },
+    {
+      "name": "W.P. Putrajaya",
+      "region": "peninsular"
+    },
+    {
+      "name": "Sabah",
+      "region": "east"
+    },
+    {
+      "name": "Sarawak",
+      "region": "east"
+    },
+    {
+      "name": "W.P. Labuan",
+      "region": "east"
+    }
+  ]
+}

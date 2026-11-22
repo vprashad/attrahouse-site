@@ -3,7 +3,7 @@
 import catalogue from '../data/products.json';
 import { readStock, seedStock, releaseExpired, validateItems } from './stock.js';
 import { startCheckout, confirmOrder, publicOrder, validateCustomer } from './orders.js';
-import { verifySignature, apiKey, webhookSalt, isLive } from './hitpay.js';
+import { checkWebhook, apiKey, webhookSalt, isLive } from './hitpay.js';
 import { accessUser } from './access.js';
 import { handleAdmin } from './admin.js';
 import { SITE_MODE } from './mode.js';
@@ -47,7 +47,7 @@ export default {
     }
 
     if (url.pathname === '/api/stock' && request.method === 'GET') {
-      return json({ lowStockAt: catalogue.lowStockAt, checkout: env.CHECKOUT_ENABLED === 'true', items: await readStock(env.DB, catalogue.lowStockAt, now) });
+      return json({ lowStockAt: catalogue.lowStockAt, checkout: env.CHECKOUT_ENABLED === 'true', items: await readStock(env.DB, catalogue.lowStockAt, now, catalogue) });
     }
 
     if (url.pathname === '/api/checkout' && request.method === 'POST') {
@@ -76,10 +76,8 @@ export default {
 
     if (url.pathname === '/api/hitpay-webhook' && request.method === 'POST') {
       const raw = await request.text();
-      const salt = webhookSalt(env);
-      if (salt && !(await verifySignature(salt, raw, request.headers.get('Hitpay-Signature') || ''))) {
-        return json({ error: 'bad_signature' }, 401);
-      }
+      const check = await checkWebhook(webhookSalt(env), raw, request.headers.get('Hitpay-Signature') || '');
+      if (check) { if (check.status === 503) console.error('No HitPay webhook salt for', isLive(env) ? 'live' : 'sandbox'); return json({ error: check.error }, check.status); }
       let data = {};
       try { data = JSON.parse(raw); } catch { data = Object.fromEntries(new URLSearchParams(raw)); }
       const ref = data.reference_number || data.payment_request?.reference_number;

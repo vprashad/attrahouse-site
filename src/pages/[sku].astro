@@ -8,12 +8,13 @@ import BuyBox from '../components/BuyBox.astro';
 import ProductCard from '../components/ProductCard.astro';
 import catalogue from '../data/products.json';
 import { rm } from '../lib/site.js';
+import { bundleLine, bundleConditions, onSale } from '../lib/bundle.js';
 
 export function getStaticPaths() {
-  return catalogue.products.filter((p) => !p.group).map((p) => ({ params: { sku: p.sku }, props: { p } }));
+  return catalogue.products.filter((p) => !p.group && onSale(p)).map((p) => ({ params: { sku: p.sku }, props: { p } }));
 }
 const { p } = Astro.props;
-const others = catalogue.products.filter((x) => !x.group && x.sku !== p.sku && (x.sku === 'chefs-knife-block' || x.featured)).slice(0, 2);
+const others = catalogue.products.filter((x) => !x.group && onSale(x) && x.sku !== p.sku && (x.sku === 'chefs-knife-block' || x.featured)).slice(0, 2);
 ---
 <Base title={`${p.name} · Attra House`} description={`${p.name}: magnetic play food, 3D-printed in Malaysia.`} noindex>
   <Header />
@@ -34,6 +35,8 @@ const others = catalogue.products.filter((x) => !x.group && x.sku !== p.sku && (
         <h1>{p.name}</h1>
         <div class="row"><span class="pr big">{rm(p.priceSen)}</span><StockTag sku={p.sku} /></div>
         {p.note && <p>{p.note}.</p>}
+        {p.featured && <p>{bundleLine}</p>}
+        {p.featured && <p class="sm">{bundleConditions}</p>}
         <BuyBox sku={p.sku} name={p.name} />
       </div>
     </div></section>

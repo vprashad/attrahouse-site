@@ -8,10 +8,24 @@
     "en": "View basket",
     "ms": "[BM: Marketing]"
   },
-  "bundlePerk": "[Bundle perk: Viveg / Finance]",
   "refundAfterSoldOut": {
     "_source": "Compliance, compliance/website-legal-pages.md section 3, approved by Viveg 20 Nov 2026. {email} is replaced with the business email from company.json.",
     "en": "Sorry, this item sold out before your payment reached us. We will refund the full amount you paid and start the refund within 7 working days. Card refunds usually take 5–10 working days to appear in your account after that; for FPX and e-wallets, the time depends on your bank or e-wallet. If you paid by DuitNow QR, we'll email you from {email} to ask for your bank details so we can refund you by bank transfer. We will never ask for your password, PIN or TAC/OTP.",
     "ms": "Maaf, item ini telah habis dijual sebelum bayaran anda sampai kepada kami. Kami akan memulangkan jumlah penuh yang anda bayar dan memulakan bayaran balik dalam tempoh 7 hari bekerja. Bayaran balik kad biasanya mengambil masa 5–10 hari bekerja untuk dipaparkan dalam akaun anda selepas itu; bagi FPX dan e-dompet, tempohnya bergantung kepada bank atau e-dompet anda. Jika anda membayar melalui DuitNow QR, kami akan menghantar e-mel daripada {email} untuk meminta butiran bank anda supaya kami boleh membuat bayaran balik melalui pindahan bank. Kami tidak akan sekali-kali meminta kata laluan, PIN atau TAC/OTP anda."
+  },
+  "comingSoon": {
+    "en": "Coming soon",
+    "ms": "[BM: Marketing]"
+  },
+  "bundle": {
+    "_source": "Compliance, compliance/website-legal-pages.md section 6, and Design spec section 2 (22 Nov 2026). {sets}, {price}, {free}, {worth}, {missing}, {upgrade}, {bundle} are filled from products.json; no amount is typed. The conditions line must sit next to every 'free', at least half its size. No 'was' price and no 'Save RM' figure anywhere.",
+    "line": "{sets} for {price}, with a free {free} (worth {worth}).",
+    "conditions": "With the {bundle} only. While stocks last.",
+    "upgrade": "Add {missing} for {upgrade} and get the {bundle}, with a free {free} (worth {worth})."
+  },
+  "deliveryArea": {
+    "_source": "Viveg, 22 Nov 2026 (Admin customer info pack v3).",
+    "en": "We deliver within Malaysia only.",
+    "ms": "[BM: Marketing]"
   }
 }

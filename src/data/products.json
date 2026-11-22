@@ -1,5 +1,5 @@
 {
-  "_source": "Prices: finance/prices.md (Finance, 10 Nov 2026). For-sale quantities: Viveg, 16 Nov 2026. SIRIM units are made separately and are not counted here. Grand Kitchen Bundle is its own stock. Holders: 27 pouch and 27 juice-box holders (Viveg, 17 Nov 2026), sold as any 2 for RM29.",
+  "_source": "Prices: finance/prices.md (Finance; Bundle RM817 from 20 Nov 2026). For-sale quantities: Viveg, 16 Nov 2026. Launch range: Phase 1 only (Viveg, 22 Nov 2026); Phase 2 products carry status coming-soon and no price or stock, so neither can reach a page or the API. SIRIM units are made separately and are not counted here. Grand Kitchen Bundle is its own stock. Holders: 27 pouch and 27 juice-box holders (Viveg, 17 Nov 2026), sold as any 2 for RM29.",
   "lowStockAt": 3,
   "currency": "MYR",
   "products": [
@@ -45,54 +45,40 @@
     {
       "sku": "grand-kitchen-bundle",
       "name": "Grand Kitchen Bundle",
-      "priceSen": 82900,
+      "priceSen": 81700,
       "startStock": 5,
       "tile": "ink",
       "art": null,
-      "note": "Fruit Basket, Veggie Garden, Meal Time and the Chef's Knife Block in one box",
+      "note": "",
       "featured": true,
       "contains": [
         "fruit-basket",
         "veggie-garden",
-        "meal-time",
+        "meal-time"
+      ],
+      "free": [
         "chefs-knife-block"
       ]
     },
     {
       "sku": "pasta-set",
       "name": "Pasta Set",
-      "priceSen": 13900,
-      "startStock": 10,
-      "tile": "yellow",
-      "art": null,
-      "note": ""
+      "status": "coming-soon"
     },
     {
       "sku": "pink-cake-set",
       "name": "Pink Cake Set",
-      "priceSen": 16900,
-      "startStock": 5,
-      "tile": "sand",
-      "art": null,
-      "note": ""
+      "status": "coming-soon"
     },
     {
       "sku": "chocolate-cake-set",
       "name": "Chocolate Cake Set",
-      "priceSen": 16900,
-      "startStock": 5,
-      "tile": "caramel",
-      "art": null,
-      "note": ""
+      "status": "coming-soon"
     },
     {
       "sku": "grocery-playset",
       "name": "Grocery Playset",
-      "priceSen": 65900,
-      "startStock": 5,
-      "tile": "green",
-      "art": null,
-      "note": ""
+      "status": "coming-soon"
     },
     {
       "sku": "pouch-holder",
@@ -129,7 +115,7 @@
     "eastMalaysiaSen": null
   },
   "bundleOffer": {
-    "_source": "Design spec design/spec-quick-add-and-bundle-upgrade.md (19 Nov 2026): offer the Bundle when the basket has 2+ different of these sets and the Bundle is in stock. Amounts are always computed from the prices above.",
+    "_source": "Design spec design/spec-quick-add-and-bundle-upgrade.md section 2 (updated 22 Nov 2026) and Compliance, website-legal-pages.md section 6: the Bundle costs what its three sets cost (a test checks this) and comes with a free Chef's Knife Block. Offer the Bundle when the basket has exactly 2 different of these sets and the Bundle is in stock. Amounts are always computed from the prices above.",
     "bundle": "grand-kitchen-bundle",
     "triggerSkus": [
       "fruit-basket",

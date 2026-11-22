@@ -47,11 +47,11 @@ test('a paid order marked refunded with "put back" returns its units once, even 
 
 test('a paid order marked refunded without "put back" leaves stock alone', async () => {
   const db = await setup();
-  db.raw.prepare("UPDATE stock SET available = 9, sold = 1 WHERE sku = 'pasta-set'").run();
-  addOrder(db, 'o-keep', 'paid', [{ sku: 'pasta-set', qty: 1 }]);
+  db.raw.prepare("UPDATE stock SET available = 9, sold = 1 WHERE sku = 'veggie-garden'").run();
+  addOrder(db, 'o-keep', 'paid', [{ sku: 'veggie-garden', qty: 1 }]);
   const r = await markRefunded(db, 'o-keep', 'owner@example.com', T + 1000, false);
   assert.equal(r.restocked, false);
-  assert.deepEqual(stock(db, 'pasta-set'), { available: 9, sold: 1 });
+  assert.deepEqual(stock(db, 'veggie-garden'), { available: 9, sold: 1 });
   assert.equal(order(db, 'o-keep').refund_restocked, 0);
 });
 

@@ -7,16 +7,18 @@ Nothing here is done until it is ticked and Viveg has said go.
 - [ ] Finance: delivery fees in `src/data/products.json` (`delivery`); prices re-checked
 - [ ] Production: contents, box sizes, dispatch time for every product
 - [ ] HitPay live account approved (needs SSM number and the company bank account)
-- [ ] Hyrule 3D Forge and 3DPmom commercial licences bought (Viveg asked to be reminded)
+- [ ] Hyrule 3D Forge commercial licence bought before checkout opens (Viveg asked to be reminded). 3DPmom is needed only for Phase 2 sets: buy it before any of them goes on sale (Compliance, 22 Nov 2026)
+- [ ] Launch range is Phase 1 only (Viveg, 22 Nov 2026): Pasta, Pink Cake, Chocolate Cake and Grocery stay `"status": "coming-soon"` in `products.json` with no price or stock
+- [ ] Delivery is within Malaysia only (Viveg, 22 Nov 2026); Production confirms whether Sabah, Sarawak and Labuan are served (`src/data/malaysia.json`)
 - [ ] Ask Viveg again: limit per buyer in the first batch? (He said no for now, 16 Nov 2026)
 
 ## Switches (Claude, with Viveg)
-- [ ] Give previews their own D1 database, so a test on a preview can never change real stock
+- [x] Give previews their own D1 database, so a test on a preview can never change real stock (on `preview` 18 Nov 2026; on `main` 22 Nov 2026)
 - [ ] Reset every product to the real for-sale quantity
 - [ ] Production vars: `CHECKOUT_ENABLED=true`, `LIVE_PAYMENTS=true`, `HITPAY_BASE=https://api.hit-pay.com`
 - [ ] Viveg adds `HITPAY_API_KEY_LIVE`, `HITPAY_WEBHOOK_SALT_LIVE` (the live webhook endpoint's own salt) and `TURNSTILE_SECRET_KEY` on the Production settings page, type **Secret** (not Variable), never in this repository
 - [ ] Add `attrahouse.com` to the Turnstile widget's hostnames; register the live HitPay webhook endpoint for the live address and check its first delivery gets 200 in the Worker logs
-- [ ] HitPay live Payment Methods: FPX on (not shown in the sandbox); "Paylater by Grab" off (6.5%, not chosen); DuitNow QR, cards, Touch 'n Go, GrabPay, ShopeePay/SPayLater, Atome on
+- [ ] HitPay live Payment Methods: FPX on (not shown in the sandbox); "Paylater by Grab" off (6.5%, not chosen); Atome off (Viveg, 19 Nov 2026); ShopBack PayLater off until HitPay confirms its fee (Finance, 19 Nov 2026); DuitNow QR, cards, Touch 'n Go, GrabPay, ShopeePay/SPayLater on
 - [ ] Delete the sandbox test orders from the database (17 Nov onwards)
 - [ ] HitPay live webhook endpoint `https://attrahouse.com/api/hitpay-webhook`, event `payment_request.completed`
 - [ ] Turnstile bot check on checkout
@@ -27,6 +29,7 @@ Nothing here is done until it is ticked and Viveg has said go.
 - [ ] One real purchase by Viveg, refunded, before announcing
 
 ## Tests run before launch
-- [ ] Buy each product and the Bundle in sandbox; stock and totals right
+- [ ] Buy each product on sale and the Bundle in sandbox; stock and totals right; a "coming soon" product cannot be bought
+- [ ] A webhook call with no signature, a wrong signature, and (on a copy with no salt) any call are all refused; a real HitPay delivery gets 200
 - [ ] Two buyers for the last unit; payment abandoned; payment failed; late payment
 - [ ] Every page at 375, 768, 1024, 1440 px; real Android and iPhone

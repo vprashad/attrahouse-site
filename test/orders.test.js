@@ -5,12 +5,12 @@ import { readFileSync } from 'node:fs';
 import catalogue from '../src/data/products.json' with { type: 'json' };
 import { seedStock } from '../src/worker/stock.js';
 import { startCheckout, confirmOrder, publicOrder, validateCustomer } from '../src/worker/orders.js';
-import { verifySignature, amountToSen } from '../src/worker/hitpay.js';
+import { verifySignature, checkWebhook, amountToSen } from '../src/worker/hitpay.js';
 
 const T0 = Date.UTC(2026, 11, 1);
 let n = 0;
 const ids = () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`;
-const buyer = { name: 'Mei Ling', email: 'mei@example.com', phone: '012 345 6789', address: '12 Jalan Contoh, 43000 Kajang, Selangor', region: 'peninsular' };
+const buyer = { name: 'Mei Ling', email: 'mei@example.com', phone: '012 345 6789', address: '12 Jalan Contoh, Taman Contoh, Kajang', postcode: '43000', state: 'Selangor' };
 
 // A pretend HitPay: records what it is asked and answers like the real API.
 function fakeHitPay() {
@@ -51,13 +51,13 @@ test('checkout holds the stock, prices it, and opens a HitPay payment page', asy
 
 test('nothing is sold until HitPay says the payment request is completed', async () => {
   const { db, hp, deps } = await setup();
-  const r = await startCheckout(deps, { items: [{ sku: 'pasta-set', qty: 2 }], customer: buyer });
+  const r = await startCheckout(deps, { items: [{ sku: 'veggie-garden', qty: 2 }], customer: buyer });
   assert.equal((await confirmOrder(deps, r.body.orderId)).status, 'awaiting_payment');
-  assert.equal(avail(db, 'pasta-set').sold, 0);
+  assert.equal(avail(db, 'veggie-garden').sold, 0);
   hp.prs.get('pr-1').status = 'completed';
   assert.equal((await confirmOrder(deps, r.body.orderId)).status, 'paid');
   assert.equal((await confirmOrder(deps, r.body.orderId)).status, 'paid'); // repeat is harmless
-  assert.deepEqual(avail(db, 'pasta-set'), { available: 8, sold: 2 });
+  assert.deepEqual(avail(db, 'veggie-garden'), { available: 8, sold: 2 });
   const pub = await publicOrder(db, r.body.orderId);
   assert.equal(pub.status, 'paid');
   assert.equal(pub.email, undefined); // no personal details on the public order view
@@ -71,12 +71,12 @@ test('a completed payment for the wrong amount is not accepted', async () => {
   assert.equal(avail(db, 'meal-time').sold, 0);
 });
 
-test('a completed payment is accepted whatever form HitPay writes the amount in (2,880.00, 2880, 2880.00)', async () => {
-  for (const amount of ['2,880.00', 2880, '2880', '2880.0']) {
+test('a completed payment is accepted whatever form HitPay writes the amount in (1,732.00, 1732, 1732.0)', async () => {
+  for (const amount of ['1,732.00', 1732, '1732', '1732.0']) {
     const { db, hp, deps } = await setup();
-    const items = ['fruit-basket', 'veggie-garden', 'meal-time', 'chefs-knife-block', 'grand-kitchen-bundle', 'pasta-set', 'pink-cake-set', 'chocolate-cake-set', 'grocery-playset', 'pouch-holder', 'juicebox-holder'].map((sku) => ({ sku, qty: 1 }));
+    const items = ['fruit-basket', 'veggie-garden', 'meal-time', 'chefs-knife-block', 'grand-kitchen-bundle', 'pouch-holder', 'juicebox-holder'].map((sku) => ({ sku, qty: 1 }));
     const r = await startCheckout(deps, { items, customer: buyer });
-    assert.equal(r.body.totalSen, 288000);
+    assert.equal(r.body.totalSen, 173200); // above RM1,000, so HitPay may write a thousands comma
     Object.assign(hp.prs.get('pr-1'), { status: 'completed', amount });
     assert.equal((await confirmOrder(deps, r.body.orderId)).status, 'paid', `amount ${JSON.stringify(amount)}`);
     assert.equal(avail(db, 'grand-kitchen-bundle').sold, 1);
@@ -93,20 +93,20 @@ test('amountToSen reads money amounts and rejects anything else', () => {
 
 test('unpaid after 20 minutes: the order shows expired and the stock is back', async () => {
   const { db, deps } = await setup();
-  const r = await startCheckout(deps, { items: [{ sku: 'grocery-playset', qty: 1 }], customer: buyer });
-  assert.equal(avail(db, 'grocery-playset').available, 4);
+  const r = await startCheckout(deps, { items: [{ sku: 'meal-time', qty: 1 }], customer: buyer });
+  assert.equal(avail(db, 'meal-time').available, 4);
   const later = { ...deps, now: T0 + 21 * 60_000 };
-  await startCheckout(later, { items: [{ sku: 'pasta-set', qty: 1 }], customer: buyer }); // any stock action releases expired holds
-  assert.equal(avail(db, 'grocery-playset').available, 5);
+  await startCheckout(later, { items: [{ sku: 'veggie-garden', qty: 1 }], customer: buyer }); // any stock action releases expired holds
+  assert.equal(avail(db, 'meal-time').available, 5);
   assert.equal((await confirmOrder(later, r.body.orderId)).status, 'expired');
 });
 
 test('sold out at checkout: refused, and no payment page is made', async () => {
   const { db, hp, deps } = await setup();
-  db.raw.prepare("UPDATE stock SET available = 0 WHERE sku = 'pink-cake-set'").run();
-  const r = await startCheckout(deps, { items: [{ sku: 'pink-cake-set', qty: 1 }], customer: buyer });
+  db.raw.prepare("UPDATE stock SET available = 0 WHERE sku = 'chefs-knife-block'").run();
+  const r = await startCheckout(deps, { items: [{ sku: 'chefs-knife-block', qty: 1 }], customer: buyer });
   assert.equal(r.status, 409);
-  assert.deepEqual(r.body.skus, ['pink-cake-set']);
+  assert.deepEqual(r.body.skus, ['chefs-knife-block']);
   assert.equal(hp.prs.size, 0);
 });
 
@@ -138,8 +138,28 @@ test('buyer details are checked', () => {
   assert.equal(validateCustomer({ ...buyer, email: 'mei@' }).error, 'email_invalid');
   assert.equal(validateCustomer({ ...buyer, phone: '12' }).error, 'phone_invalid');
   assert.equal(validateCustomer({ ...buyer, address: 'Kajang' }).error, 'address_missing');
-  assert.equal(validateCustomer({ ...buyer, region: 'moon' }).error, 'region_missing');
   assert.equal(validateCustomer(buyer).customer.email, 'mei@example.com');
+});
+
+test('delivery is within Malaysia only: a 5-digit postcode and a Malaysian state are required', () => {
+  for (const postcode of ['', '4300', '430000', 'SW1A 1AA', '4300a']) assert.equal(validateCustomer({ ...buyer, postcode }).error, 'postcode_invalid', postcode);
+  for (const state of ['', 'Singapore', 'selangor', 'Riau']) assert.equal(validateCustomer({ ...buyer, state }).error, 'state_missing', state);
+  const c = validateCustomer({ ...buyer, region: 'east' }).customer; // a region sent by the browser is ignored
+  assert.equal(c.region, 'peninsular');
+  assert.equal(c.address, '12 Jalan Contoh, Taman Contoh, Kajang, 43000 Selangor, Malaysia');
+  for (const state of ['Sabah', 'Sarawak', 'W.P. Labuan']) assert.equal(validateCustomer({ ...buyer, postcode: '88000', state }).customer.region, 'east');
+  assert.equal(validateCustomer({ ...buyer, postcode: '50450', state: 'W.P. Kuala Lumpur' }).customer.region, 'peninsular');
+});
+
+test('a "coming soon" product cannot be ordered and takes no stock', async () => {
+  const { db, deps } = await setup();
+  for (const sku of ['pasta-set', 'pink-cake-set', 'chocolate-cake-set', 'grocery-playset']) {
+    const r = await startCheckout(deps, { items: [{ sku, qty: 1 }, { sku: 'fruit-basket', qty: 1 }], customer: buyer });
+    assert.equal(r.status, 400);
+    assert.equal(r.body.error, 'not_on_sale');
+  }
+  assert.equal(avail(db, 'fruit-basket').available, 10);
+  assert.equal(db.raw.prepare('SELECT COUNT(*) AS n FROM orders').get().n, 0);
 });
 
 test('webhook signature: HMAC-SHA256 of the raw body with the salt', async () => {
@@ -149,6 +169,23 @@ test('webhook signature: HMAC-SHA256 of the raw body with the salt', async () =>
   assert.equal(await verifySignature('salt123', body, sig), true);
   assert.equal(await verifySignature('salt123', body + ' ', sig), false);
   assert.equal(await verifySignature('', body, sig), false);
+});
+
+test('the webhook fails closed: with no salt every call is refused, signed or not', async () => {
+  const { createHmac } = await import('node:crypto');
+  const body = '{"reference_number":"x"}';
+  const sig = createHmac('sha256', 'salt123').update(body).digest('hex');
+  for (const salt of [undefined, '', null]) {
+    assert.deepEqual(await checkWebhook(salt, body, ''), { status: 503, error: 'webhook_not_configured' });
+    assert.deepEqual(await checkWebhook(salt, body, sig), { status: 503, error: 'webhook_not_configured' });
+  }
+  assert.deepEqual(await checkWebhook('salt123', body, ''), { status: 401, error: 'bad_signature' });
+  assert.deepEqual(await checkWebhook('other-salt', body, sig), { status: 401, error: 'bad_signature' });
+  assert.equal(await checkWebhook('salt123', body, sig), null);
+  // The route itself must use this check and nothing looser.
+  const route = readFileSync(new URL('../src/worker/index.js', import.meta.url), 'utf8');
+  assert.match(route, /checkWebhook\(webhookSalt\(env\)/);
+  assert.doesNotMatch(route, /salt &&/);
 });
 
 test('the sandbox key only goes to the sandbox, the live key only to live', async () => {

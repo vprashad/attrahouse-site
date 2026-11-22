@@ -7,62 +7,65 @@ import catalogue from '../src/data/products.json' with { type: 'json' };
 // Load the browser script the same way the page does.
 const ctx = { window: {} };
 vm.runInNewContext(readFileSync(new URL('../public/js/bundle.js', import.meta.url), 'utf8'), ctx);
-const { offer, apply, text, saving } = ctx.window.AHBundle;
+const { offer, apply, text, line, conditions } = ctx.window.AHBundle;
+import strings from '../src/data/strings.json' with { type: 'json' };
+const cat = { ...catalogue, bundleText: strings.bundle };
 
 const price = (sku) => catalogue.products.find((p) => p.sku === sku).priceSen;
 const bundle = catalogue.products.find((p) => p.sku === 'grand-kitchen-bundle');
+const rm = (sen) => `RM${sen / 100}`;
 const inStock = Object.fromEntries(catalogue.products.map((p) => [p.sku, { state: 'in_stock' }]));
 const b = (...skus) => skus.map((sku) => ({ sku, qty: 1 }));
 const FB = 'fruit-basket', VG = 'veggie-garden', MT = 'meal-time', KB = 'chefs-knife-block';
 
-test('the Bundle lists its four items, and the saving is worked out from their prices', () => {
-  assert.deepEqual(bundle.contains, [FB, VG, MT, KB]);
-  assert.equal(bundle.separateTotalSen, undefined, 'no typed total left in products.json');
-  assert.equal(saving(catalogue), price(FB) + price(VG) + price(MT) + price(KB) - bundle.priceSen);
+test('the Bundle is three priced sets plus a free Knife Block, and costs what the three sets cost', () => {
+  assert.deepEqual(bundle.contains, [FB, VG, MT]);
+  assert.deepEqual(bundle.free, [KB]);
+  assert.equal(bundle.priceSen, price(FB) + price(VG) + price(MT));
 });
 
-test("Design's worked table: every row's upgrade price follows from today's prices", () => {
-  const rows = [
-    [[FB, VG], 'add', [MT, KB]], [[FB, MT], 'add', [VG, KB]], [[VG, MT], 'add', [FB, KB]],
-    [[FB, VG, KB], 'add', [MT]], [[FB, VG, MT], 'add', [KB]], [[FB, VG, MT, KB], 'switch', []],
-  ];
-  for (const [skus, kind, missing] of rows) {
-    const o = offer(b(...skus), catalogue, inStock, false);
-    assert.equal(o.kind, kind, skus.join('+'));
+test("Design's worked table (22 Nov): two sets get an offer for the missing one; amounts follow from today's prices", () => {
+  const rows = [[[FB, VG], [MT]], [[FB, MT], [VG]], [[VG, MT], [FB]], [[FB, VG, KB], [MT]]];
+  for (const [skus, missing] of rows) {
+    const o = offer(b(...skus), cat, inStock, false);
+    assert.equal(o.kind, 'add', skus.join('+'));
     assert.deepEqual([...o.missing], missing, skus.join('+'));
-    assert.equal(o.upgradeSen, bundle.priceSen - skus.reduce((t, s) => t + price(s), 0), skus.join('+'));
+    assert.equal(o.upgradeSen, price(missing[0]), 'the upgrade costs what the missing set costs');
   }
-  // At the 17 Nov prices these are Design's figures: RM281, RM261, RM311, RM212, RM12, -RM57.
-  const ups = rows.map(([s]) => offer(b(...s), catalogue, inStock, false).upgradeSen / 100);
-  if (bundle.priceSen === 82900 && price(FB) === 29900) assert.deepEqual(ups, [281, 261, 311, 212, 12, -57]);
+  // At Finance's prices of 21 Nov these are Design's figures: +RM269, +RM249, +RM299.
+  if (bundle.priceSen === 81700) assert.deepEqual(rows.slice(0, 3).map(([s]) => offer(b(...s), cat, inStock, false).upgradeSen / 100), [269, 249, 299]);
 });
 
-test('no offer with fewer than 2 different food sets, two copies of one set, or only the Knife Block', () => {
-  assert.equal(offer(b(FB), catalogue, inStock, false), null);
-  assert.equal(offer([{ sku: FB, qty: 2 }], catalogue, inStock, false), null);
-  assert.equal(offer(b(FB, KB), catalogue, inStock, false), null);
-  assert.equal(offer(b(FB, 'pasta-set'), catalogue, inStock, false), null);
+test('no panel with all three sets in the basket (the automatic switch waits for Compliance wording), fewer than 2 sets, two copies of one set, or other items', () => {
+  assert.equal(offer(b(FB, VG, MT), cat, inStock, false), null);
+  assert.equal(offer(b(FB, VG, MT, KB), cat, inStock, false), null);
+  assert.equal(offer(b(FB), cat, inStock, false), null);
+  assert.equal(offer([{ sku: FB, qty: 2 }], cat, inStock, false), null);
+  assert.equal(offer(b(FB, KB), cat, inStock, false), null);
+  assert.equal(offer(b(FB, 'pouch-holder'), cat, inStock, false), null);
 });
 
 test('no offer when the Bundle is sold out, its last units are already in the basket, stock is unknown, or the buyer said no', () => {
-  assert.equal(offer(b(FB, VG), catalogue, { ...inStock, [bundle.sku]: { state: 'sold_out' } }, false), null);
-  assert.equal(offer([...b(FB, VG), { sku: bundle.sku, qty: 1 }], catalogue, { ...inStock, [bundle.sku]: { state: 'low', left: 1 } }, false), null);
-  assert.ok(offer(b(FB, VG), catalogue, { ...inStock, [bundle.sku]: { state: 'low', left: 1 } }, false));
-  assert.equal(offer(b(FB, VG), catalogue, null, false), null);
-  assert.equal(offer(b(FB, VG), catalogue, inStock, true), null);
+  assert.equal(offer(b(FB, VG), cat, { ...inStock, [bundle.sku]: { state: 'sold_out' } }, false), null);
+  assert.equal(offer([...b(FB, VG), { sku: bundle.sku, qty: 1 }], cat, { ...inStock, [bundle.sku]: { state: 'low', left: 1 } }, false), null);
+  assert.ok(offer(b(FB, VG), cat, { ...inStock, [bundle.sku]: { state: 'low', left: 1 } }, false));
+  assert.equal(offer(b(FB, VG), cat, null, false), null);
+  assert.equal(offer(b(FB, VG), cat, inStock, true), null);
 });
 
-test('taking the upgrade removes one of each matching item, adds one Bundle and keeps extra copies', () => {
-  const basket = [{ sku: FB, qty: 2 }, { sku: VG, qty: 1 }, { sku: 'pasta-set', qty: 1 }];
-  const out = apply(basket, offer(basket, catalogue, inStock, false));
-  assert.deepEqual(out.map((i) => ({ ...i })), [{ sku: FB, qty: 1 }, { sku: 'pasta-set', qty: 1 }, { sku: bundle.sku, qty: 1 }]);
+test('taking the upgrade removes one of each matching set, adds one Bundle and keeps everything else', () => {
+  const basket = [{ sku: FB, qty: 2 }, { sku: VG, qty: 1 }, { sku: KB, qty: 1 }];
+  const out = apply(basket, offer(basket, cat, inStock, false));
+  assert.deepEqual(out.map((i) => ({ ...i })), [{ sku: FB, qty: 1 }, { sku: KB, qty: 1 }, { sku: bundle.sku, qty: 1 }]);
   assert.deepEqual(basket[0], { sku: FB, qty: 2 }, 'the original basket is not changed');
-  const all = b(FB, VG, MT, KB);
-  assert.deepEqual(apply(all, offer(all, catalogue, inStock, false)).map((i) => ({ ...i })), [{ sku: bundle.sku, qty: 1 }]);
 });
 
-test('panel text uses the computed amounts and names', () => {
-  assert.equal(text(offer(b(FB, VG), catalogue, inStock, false)),
-    `Add Meal Time and Chef's Knife Block for RM${(bundle.priceSen - price(FB) - price(VG)) / 100} more and get the Grand Kitchen Bundle. Save RM${saving(catalogue) / 100} on all four.`);
-  assert.equal(text(offer(b(FB, VG, MT, KB), catalogue, inStock, false)), `Switch to the Grand Kitchen Bundle: same four items, RM${saving(catalogue) / 100} less.`);
+test("wording is Compliance's, filled with computed amounts; no saving or 'was' figure anywhere", () => {
+  assert.equal(line(cat), `Fruit Basket, Veggie Garden and Meal Time for ${rm(bundle.priceSen)}, with a free Chef's Knife Block (worth ${rm(price(KB))}).`);
+  assert.equal(conditions(cat), 'With the Grand Kitchen Bundle only. While stocks last.');
+  assert.equal(text(offer(b(FB, VG), cat, inStock, false), cat),
+    `Add Meal Time for ${rm(price(MT))} and get the Grand Kitchen Bundle, with a free Chef's Knife Block (worth ${rm(price(KB))}).`);
+  const shown = ['public/js/bundle.js', 'public/js/checkout.js', 'src/components/Home.astro', 'src/pages/basket.astro', 'src/pages/[sku].astro', 'src/components/ProductCard.astro', 'src/data/strings.json']
+    .map((f) => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8').replace(/^\s*(\/\/|\/\*|\*|"_source").*$/gm, '')).join('\n');
+  assert.doesNotMatch(shown, /Save \{?RM|Save \{rm|\bwas RM|separately\./i);
 });

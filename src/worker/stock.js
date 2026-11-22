@@ -17,6 +17,9 @@ export function stockState(available, lowStockAt) {
   return { state: 'in_stock' }; // exact counts above the low mark stay private
 }
 
+/** Phase 2 products are listed as "coming soon": no price, no stock, not for sale. */
+export const isOnSale = (p) => p.status !== 'coming-soon';
+
 /**
  * Check a basket against the catalogue. Returns a clean list or an error code.
  * @param {{sku:string, qty:number}[]} items
@@ -29,6 +32,7 @@ export function validateItems(items, catalogue) {
   for (const it of items) {
     const p = it && bySku.get(it.sku);
     if (!p) return { error: 'unknown_product' };
+    if (!isOnSale(p)) return { error: 'not_on_sale' }; // "coming soon" products cannot be ordered
     if (!Number.isInteger(it.qty) || it.qty < 1 || it.qty > MAX_QTY_PER_ITEM) return { error: 'bad_quantity' };
     merged.set(it.sku, (merged.get(it.sku) || 0) + it.qty);
   }
@@ -62,7 +66,7 @@ export function priceItems(items, catalogue) {
 export async function seedStock(db, catalogue, now) {
   const stmts = [];
   for (const p of catalogue.products) {
-    if (!Number.isInteger(p.startStock)) continue;
+    if (!isOnSale(p) || !Number.isInteger(p.startStock)) continue;
     stmts.push(db.prepare('INSERT OR IGNORE INTO stock (sku, available, sold, updated_at) VALUES (?, ?, 0, ?)').bind(p.sku, p.startStock, now));
   }
   if (stmts.length) await db.batch(stmts);
@@ -70,11 +74,13 @@ export async function seedStock(db, catalogue, now) {
 }
 
 /** Current state of every product, with expired holds returned first. */
-export async function readStock(db, lowStockAt, now) {
+export async function readStock(db, lowStockAt, now, catalogue) {
   await releaseExpired(db, now);
   const { results } = await db.prepare('SELECT sku, available FROM stock').all();
   const out = {};
-  for (const r of results) out[r.sku] = stockState(r.available, lowStockAt);
+  // Only products on sale are reported; a "coming soon" product never appears, even if an old row exists.
+  const listed = catalogue && new Set(catalogue.products.filter(isOnSale).map((p) => p.sku));
+  for (const r of results) if (!listed || listed.has(r.sku)) out[r.sku] = stockState(r.available, lowStockAt);
   return out;
 }
 

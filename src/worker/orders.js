@@ -4,9 +4,11 @@
 // prompts to go and ask.
 import { createHold, releaseHold, markPaid, validateItems, priceItems } from './stock.js';
 import { createPaymentRequest, getPaymentRequest, amountToSen } from './hitpay.js';
+import malaysia from '../data/malaysia.json' with { type: 'json' };
 
 const clean = (s, max) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const POSTCODE = new RegExp(malaysia.postcode);
 
 export function deliveryFor(catalogue, region) {
   const d = catalogue.delivery || {};
@@ -14,15 +16,22 @@ export function deliveryFor(catalogue, region) {
   return Number.isInteger(v) ? v : null;
 }
 
-/** Check the buyer's details. */
+/**
+ * Check the buyer's details. Delivery is within Malaysia only (Viveg, 22 Nov 2026): the address must
+ * carry a 5-digit postcode and one of Malaysia's states, and the delivery region comes from the state,
+ * never from the browser. The stored address ends "<postcode> <state>, Malaysia".
+ */
 export function validateCustomer(c) {
-  const out = { name: clean(c?.name, 120), email: clean(c?.email, 200).toLowerCase(), phone: clean(c?.phone, 40), address: clean(c?.address, 600), region: c?.region === 'east' ? 'east' : c?.region === 'peninsular' ? 'peninsular' : null };
+  const street = clean(c?.address, 600), postcode = clean(c?.postcode, 10);
+  const state = malaysia.states.find((s) => s.name === clean(c?.state, 40));
+  const out = { name: clean(c?.name, 120), email: clean(c?.email, 200).toLowerCase(), phone: clean(c?.phone, 40) };
   if (!out.name) return { error: 'name_missing' };
   if (!EMAIL.test(out.email)) return { error: 'email_invalid' };
   if (!/^[+0-9 ()-]{8,}$/.test(out.phone)) return { error: 'phone_invalid' };
-  if (out.address.length < 10) return { error: 'address_missing' };
-  if (!out.region) return { error: 'region_missing' };
-  return { customer: out };
+  if (street.length < 10) return { error: 'address_missing' };
+  if (!POSTCODE.test(postcode)) return { error: 'postcode_invalid' };
+  if (!state) return { error: 'state_missing' };
+  return { customer: { ...out, address: `${street}, ${postcode} ${state.name}, Malaysia`, region: state.region } };
 }
 
 /**

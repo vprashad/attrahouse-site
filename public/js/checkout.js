@@ -7,7 +7,7 @@
   var stock = {}, checkoutOpen = false;
   var ERR = {
     name_missing: 'Enter your full name.', email_invalid: 'Check your email address.', phone_invalid: 'Enter a phone number we can reach you on.',
-    address_missing: 'Enter your full delivery address.', region_missing: 'Choose where we are delivering to.', holders_in_pairs: 'Holders come in twos.',
+    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
     empty_basket: 'Your basket is empty.', checkout_not_open: 'Checkout opens at launch.', payment_unavailable: 'Payment is not available right now. Nothing was charged. Please try again in a few minutes, or message us on WhatsApp.',
     payment_not_configured: 'Test payments are not set up on this preview yet: the HitPay sandbox key is missing. Nothing was charged.',
     bot_check_failed: 'The security check did not go through. Nothing was charged. Please try again.',
@@ -33,7 +33,7 @@
     var o = currentOffer(), box = document.getElementById('bk-offer');
     box.hidden = !o;
     if (!o) { pendingSubmit = false; return; }
-    document.getElementById('bk-offer-t').textContent = window.AHBundle.text(o);
+    document.getElementById('bk-offer-t').textContent = window.AHBundle.text(o, cat);
     document.getElementById('bk-offer-h').textContent = pendingSubmit ? 'Before you pay' : 'Upgrade to the Bundle';
     document.getElementById('bk-offer-no').textContent = pendingSubmit ? 'No thanks, continue' : 'No thanks';
   }
@@ -45,7 +45,9 @@
     list.forEach(function (i) { var p = bySku[i.sku]; if (!p.group) t += p.priceSen * i.qty; });
     return t + Math.floor(h / 2) * cat.groups.holders.pairPriceSen;
   }
-  function region() { var r = document.querySelector('input[name=region]:checked'); return r ? r.value : 'peninsular'; }
+  // Delivery is within Malaysia only; the state chosen decides the delivery region.
+  function state() { return document.getElementById('co-state').value; }
+  function region() { var s = (cat.states || []).find(function (x) { return x.name === state(); }); return s ? s.region : 'peninsular'; }
   function delivery() { var d = cat.delivery || {}; var v = region() === 'east' ? d.eastMalaysiaSen : d.peninsularSen; return typeof v === 'number' ? v : null; }
 
   function render() {
@@ -85,7 +87,7 @@
   fetch('/api/stock').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (d) { stock = d.items || {}; checkoutOpen = !!d.checkout; stockKnown = true; } render();
   }).catch(render);
-  document.querySelectorAll('input[name=region]').forEach(function (r) { r.addEventListener('change', render); });
+  document.getElementById('co-state').addEventListener('change', render);
 
   document.getElementById('bk-offer-yes').addEventListener('click', function () {
     var o = currentOffer(); if (!o) return;
@@ -102,8 +104,9 @@
     document.getElementById('bk-offer-done').hidden = true;
     var err = document.getElementById('co-err'), btn = document.getElementById('co-pay');
     function fail(m, keepBot) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; if (!keepBot) botReset(); }
-    var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing']];
+    var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing'], ['co-postcode', 'postcode_invalid'], ['co-state', 'state_missing']];
     for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]], true); } }
+    if (!/^[0-9]{5}$/.test(document.getElementById('co-postcode').value.trim())) { document.getElementById('co-postcode').focus(); return fail(ERR.postcode_invalid, true); }
     if (!document.getElementById('co-cs').checked) return fail('Tick the box to agree to the terms and privacy notice.', true);
     if (!botToken) return fail('Wait a moment for the security check above the button to finish, then try again.', true);
     if (currentOffer()) {
@@ -114,7 +117,7 @@
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
       name: document.getElementById('co-name').value, email: document.getElementById('co-email').value,
-      phone: document.getElementById('co-phone').value, address: document.getElementById('co-address').value, region: region() }, turnstile: botToken };
+      phone: document.getElementById('co-phone').value, address: document.getElementById('co-address').value, postcode: document.getElementById('co-postcode').value, state: state() }, turnstile: botToken };
     fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (x) {

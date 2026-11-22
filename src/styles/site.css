@@ -246,3 +246,7 @@ textarea:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .offer h2{font-size:var(--t-h3)}
 .offer .row .btn{flex:1 1 auto;justify-content:center}
 @media (max-width:560px){.qa .qa-btn{width:100%}}
+
+/* "Coming soon" cards (Design spec section 6, 22 Nov 2026): name and the words only, not clickable, no colour fill. */
+.card.soon .tile{background:transparent;border:2px dashed var(--line);align-items:center;justify-content:center}
+.card.soon .tile span{background:transparent;color:var(--brown);font-weight:800;padding:0}

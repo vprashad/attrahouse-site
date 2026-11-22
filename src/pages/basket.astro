@@ -5,7 +5,9 @@ import Footer from '../components/Footer.astro';
 import catalogue from '../data/products.json';
 import turnstile from '../data/turnstile.json';
 import strings from '../data/strings.json';
-const cat = { products: catalogue.products.map(({ sku, name, priceSen, group, contains }) => ({ sku, name, priceSen, group, contains })), groups: catalogue.groups, delivery: catalogue.delivery, bundleOffer: catalogue.bundleOffer };
+import malaysia from '../data/malaysia.json';
+import { bundleConditions, onSale } from '../lib/bundle.js';
+const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, priceSen, group, contains, free }) => ({ sku, name, priceSen, group, contains, free })), groups: catalogue.groups, delivery: catalogue.delivery, bundleOffer: catalogue.bundleOffer, bundleText: strings.bundle, states: malaysia.states };
 ---
 <Base title="Basket · Attra House" description="Your basket." noindex>
   <Header />
@@ -21,16 +23,20 @@ const cat = { products: catalogue.products.map(({ sku, name, priceSen, group, co
           <label for="co-name">Full name<input id="co-name" type="text" autocomplete="name" required /></label>
           <label for="co-email">Email <i>For your order confirmation.</i><input id="co-email" type="email" autocomplete="email" required /></label>
           <label for="co-phone">Phone <i>The courier may call this number.</i><input id="co-phone" type="tel" autocomplete="tel" required /></label>
-          <label for="co-address">Delivery address<textarea id="co-address" autocomplete="street-address" required></textarea></label>
-          <fieldset class="reg"><legend>Delivering to</legend>
-            <label><input type="radio" name="region" value="peninsular" checked /> Peninsular Malaysia</label>
-            <label><input type="radio" name="region" value="east" /> Sabah, Sarawak or Labuan</label>
-          </fieldset>
+          <p class="sm">{strings.deliveryArea.en}</p>
+          <label for="co-address">Delivery address <i>House or unit number, street, area and town.</i><textarea id="co-address" autocomplete="street-address" required></textarea></label>
+          <label for="co-postcode">Postcode<input id="co-postcode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern={malaysia.postcode.slice(1, -1)} required /></label>
+          <label for="co-state">State
+            <select id="co-state" autocomplete="address-level1" required>
+              <option value="">Choose a state</option>
+              {malaysia.states.map((s) => <option value={s.name}>{s.name}</option>)}
+            </select>
+          </label>
           <label class="ck" for="co-cs"><input id="co-cs" type="checkbox" required /><span>[Terms of sale and privacy notice wording and links, from Compliance]</span></label>
           <div class="offer" id="bk-offer" hidden>
             <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>
             <p id="bk-offer-t"></p>
-            <p class="sm">{strings.bundlePerk}</p>
+            <p class="sm">{bundleConditions}</p>
             <div class="row">
               <button class="btn main" type="button" id="bk-offer-yes">Upgrade to the Bundle</button>
               <button class="btn line" type="button" id="bk-offer-no">No thanks</button>

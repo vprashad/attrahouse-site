@@ -2,6 +2,7 @@
 import StockTag from './StockTag.astro';
 import QuickAdd from './QuickAdd.astro';
 import { rm } from '../lib/site.js';
+import { bundleLine, bundleConditions } from '../lib/bundle.js';
 interface Props { p: any; href?: string }
 const { p, href = `/${p.sku}/` } = Astro.props;
 ---
@@ -12,6 +13,7 @@ const { p, href = `/${p.sku}/` } = Astro.props;
   </a>
   <span class="pr">{rm(p.priceSen)}</span>
   {p.note && <span class="sm">{p.note}</span>}
+  {p.featured && <span class="sm">{bundleLine} {bundleConditions}</span>}
   <span><StockTag sku={p.sku} /></span>
   <QuickAdd sku={p.sku} name={p.name} href={href} />
 </div>

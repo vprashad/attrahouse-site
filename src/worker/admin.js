@@ -1,5 +1,5 @@
 // The private stock and orders page. Server-rendered, no script needed.
-import { setAvailable, stockState } from './stock.js';
+import { setAvailable, stockState, isOnSale } from './stock.js';
 import { runningSettings } from './settings.js';
 import { markRefunded, refundable, REFUND_METHODS } from './refunds.js';
 
@@ -29,7 +29,7 @@ export async function handleAdmin(request, env, catalogue, user, siteMode = 'sho
     const form = await request.formData();
     const sku = String(form.get('sku') || '');
     const n = Number(form.get('available'));
-    if (!catalogue.products.some((p) => p.sku === sku)) notice = 'Unknown product.';
+    if (!catalogue.products.some((p) => p.sku === sku && isOnSale(p))) notice = 'Unknown product.';
     else {
       const r = await setAvailable(env.DB, sku, n, now, `manual by ${user}`);
       notice = r.ok ? `Saved: ${esc(sku)} is now ${n}.` : 'Enter a whole number, 0 or more.';
@@ -39,7 +39,7 @@ export async function handleAdmin(request, env, catalogue, user, siteMode = 'sho
   const bySku = new Map(stock.map((r) => [r.sku, r]));
   const { results: orders } = await env.DB.prepare('SELECT id, created_at, status, name, email, phone, region, items_json, total_sen, test, refunded_at, refunded_by, refund_restocked, refund_method FROM orders ORDER BY created_at DESC LIMIT 50').all();
 
-  const rows = catalogue.products.map((p) => {
+  const rows = catalogue.products.filter(isOnSale).map((p) => {
     const s = bySku.get(p.sku);
     const st = s ? stockState(s.available, catalogue.lowStockAt) : null;
     const label = !s ? 'Not set' : st.state === 'sold_out' ? 'Sold out' : st.state === 'low' ? `Only ${st.left} left` : 'In stock';

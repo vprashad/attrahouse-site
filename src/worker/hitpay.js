@@ -66,3 +66,13 @@ export async function verifySignature(salt, rawBody, signature) {
   for (let i = 0; i < hex.length; i++) diff |= hex.charCodeAt(i) ^ signature.charCodeAt(i);
   return diff === 0;
 }
+
+/**
+ * Is this webhook call really from HitPay? Fails closed: with no salt set, every call is refused,
+ * so an unsigned call can never be accepted by mistake. Returns null when the call is good.
+ */
+export async function checkWebhook(salt, rawBody, signature) {
+  if (!salt) return { status: 503, error: 'webhook_not_configured' };
+  if (!(await verifySignature(salt, rawBody, signature))) return { status: 401, error: 'bad_signature' };
+  return null;
+}
