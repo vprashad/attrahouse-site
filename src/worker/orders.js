@@ -18,20 +18,27 @@ export function deliveryFor(catalogue, region) {
 
 /**
  * Check the buyer's details. Delivery is within Malaysia only (Viveg, 22 Nov 2026): the address must
- * carry a 5-digit postcode and one of Malaysia's states, and the delivery region comes from the state,
- * never from the browser. The stored address ends "<postcode> <state>, Malaysia".
+ * name Malaysia as the country and carry a 5-digit postcode, a city and one of Malaysia's states, and the delivery region comes from the state,
+ * never from the browser. Fields follow the usual shop checkout: first name (optional), last name, address,
+ * apartment (optional), postcode, city, state, phone. Stored as one name and one address line.
  */
 export function validateCustomer(c) {
-  const street = clean(c?.address, 600), postcode = clean(c?.postcode, 10);
+  const first = clean(c?.firstName, 60), last = clean(c?.lastName, 60);
+  const line1 = clean(c?.address, 200), line2 = clean(c?.address2, 200);
+  const postcode = clean(c?.postcode, 10), city = clean(c?.city, 80);
+  const country = malaysia.countries.find((x) => x === clean(c?.country, 40));
   const state = malaysia.states.find((s) => s.name === clean(c?.state, 40));
-  const out = { name: clean(c?.name, 120), email: clean(c?.email, 200).toLowerCase(), phone: clean(c?.phone, 40) };
-  if (!out.name) return { error: 'name_missing' };
+  const out = { name: [first, last].filter(Boolean).join(' '), email: clean(c?.email, 200).toLowerCase(), phone: clean(c?.phone, 40) };
   if (!EMAIL.test(out.email)) return { error: 'email_invalid' };
-  if (!/^[+0-9 ()-]{8,}$/.test(out.phone)) return { error: 'phone_invalid' };
-  if (street.length < 10) return { error: 'address_missing' };
+  if (!country) return { error: 'country_unsupported' };
+  if (!last) return { error: 'name_missing' }; // first name is optional, as on the form
+  if (line1.length < 5) return { error: 'address_missing' };
   if (!POSTCODE.test(postcode)) return { error: 'postcode_invalid' };
+  if (city.length < 2) return { error: 'city_missing' };
   if (!state) return { error: 'state_missing' };
-  return { customer: { ...out, address: `${street}, ${postcode} ${state.name}, Malaysia`, region: state.region } };
+  if (!/^[+0-9 ()-]{8,}$/.test(out.phone)) return { error: 'phone_invalid' };
+  const address = [line1, line2, `${postcode} ${city}`, state.name, country].filter(Boolean).join(', ');
+  return { customer: { ...out, address, region: state.region } };
 }
 
 /**

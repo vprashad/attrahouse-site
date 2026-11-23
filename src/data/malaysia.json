@@ -1,5 +1,8 @@
 {
-  "_source": "Delivery is within Malaysia only (Viveg, 22 Nov 2026). The state decides the delivery region: 'east' = Sabah, Sarawak, Labuan. Whether East Malaysia is served is for Production to confirm (Compliance, legal pages section 7).",
+  "_source": "Delivery is within Malaysia only (Viveg, 22 Nov 2026). The state decides the delivery region: 'east' = Sabah, Sarawak, Labuan. Whether East Malaysia is served is for Production to confirm (Compliance, legal pages section 7). 'countries' is the list the checkout's Country/Region menu shows and the only values the server accepts; add a country here only when Viveg decides to deliver there.",
+  "countries": [
+    "Malaysia"
+  ],
   "postcode": "^[0-9]{5}$",
   "states": [
     {

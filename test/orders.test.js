@@ -10,7 +10,7 @@ import { verifySignature, checkWebhook, amountToSen } from '../src/worker/hitpay
 const T0 = Date.UTC(2026, 11, 1);
 let n = 0;
 const ids = () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`;
-const buyer = { name: 'Mei Ling', email: 'mei@example.com', phone: '012 345 6789', address: '12 Jalan Contoh, Taman Contoh, Kajang', postcode: '43000', state: 'Selangor' };
+const buyer = { email: 'mei@example.com', country: 'Malaysia', firstName: 'Mei', lastName: 'Tan', address: '12 Jalan Contoh', address2: 'Taman Contoh', postcode: '43000', city: 'Kajang', state: 'Selangor', phone: '+60 12-345 6789' };
 
 // A pretend HitPay: records what it is asked and answers like the real API.
 function fakeHitPay() {
@@ -137,7 +137,7 @@ test('live payments refuse to open while delivery fees are not set', async () =>
 test('buyer details are checked', () => {
   assert.equal(validateCustomer({ ...buyer, email: 'mei@' }).error, 'email_invalid');
   assert.equal(validateCustomer({ ...buyer, phone: '12' }).error, 'phone_invalid');
-  assert.equal(validateCustomer({ ...buyer, address: 'Kajang' }).error, 'address_missing');
+  assert.equal(validateCustomer({ ...buyer, address: 'No 1' }).error, 'address_missing');
   assert.equal(validateCustomer(buyer).customer.email, 'mei@example.com');
 });
 
@@ -146,7 +146,14 @@ test('delivery is within Malaysia only: a 5-digit postcode and a Malaysian state
   for (const state of ['', 'Singapore', 'selangor', 'Riau']) assert.equal(validateCustomer({ ...buyer, state }).error, 'state_missing', state);
   const c = validateCustomer({ ...buyer, region: 'east' }).customer; // a region sent by the browser is ignored
   assert.equal(c.region, 'peninsular');
-  assert.equal(c.address, '12 Jalan Contoh, Taman Contoh, Kajang, 43000 Selangor, Malaysia');
+  assert.equal(c.address, '12 Jalan Contoh, Taman Contoh, 43000 Kajang, Selangor, Malaysia');
+  assert.equal(c.name, 'Mei Tan');
+  const bare = validateCustomer({ ...buyer, firstName: '', address2: '' }).customer; // both optional
+  assert.equal(bare.name, 'Tan');
+  assert.equal(bare.address, '12 Jalan Contoh, 43000 Kajang, Selangor, Malaysia');
+  assert.equal(validateCustomer({ ...buyer, lastName: ' ' }).error, 'name_missing');
+  assert.equal(validateCustomer({ ...buyer, city: '' }).error, 'city_missing');
+  for (const country of ['', 'Singapore', 'MY', undefined]) assert.equal(validateCustomer({ ...buyer, country }).error, 'country_unsupported', String(country));
   for (const state of ['Sabah', 'Sarawak', 'W.P. Labuan']) assert.equal(validateCustomer({ ...buyer, postcode: '88000', state }).customer.region, 'east');
   assert.equal(validateCustomer({ ...buyer, postcode: '50450', state: 'W.P. Kuala Lumpur' }).customer.region, 'peninsular');
 });

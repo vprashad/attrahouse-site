@@ -7,7 +7,7 @@
   var stock = {}, checkoutOpen = false;
   var ERR = {
     name_missing: 'Enter your full name.', email_invalid: 'Check your email address.', phone_invalid: 'Enter a phone number we can reach you on.',
-    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
+    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', city_missing: 'Enter your city or town.', country_unsupported: 'We deliver within Malaysia only.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
     empty_basket: 'Your basket is empty.', checkout_not_open: 'Checkout opens at launch.', payment_unavailable: 'Payment is not available right now. Nothing was charged. Please try again in a few minutes, or message us on WhatsApp.',
     payment_not_configured: 'Test payments are not set up on this preview yet: the HitPay sandbox key is missing. Nothing was charged.',
     bot_check_failed: 'The security check did not go through. Nothing was charged. Please try again.',
@@ -47,7 +47,8 @@
     return t + Math.floor(h / 2) * cat.groups.holders.pairPriceSen;
   }
   // Delivery is within Malaysia only; the state chosen decides the delivery region.
-  function state() { return document.getElementById('co-state').value; }
+  function val(id) { return document.getElementById(id).value; }
+  function state() { return val('co-state'); }
   function region() { var s = (cat.states || []).find(function (x) { return x.name === state(); }); return s ? s.region : 'peninsular'; }
   function delivery() { var d = cat.delivery || {}; var v = region() === 'east' ? d.eastMalaysiaSen : d.peninsularSen; return typeof v === 'number' ? v : null; }
 
@@ -105,7 +106,7 @@
     document.getElementById('bk-offer-done').hidden = true;
     var err = document.getElementById('co-err'), btn = document.getElementById('co-pay');
     function fail(m, keepBot) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; if (!keepBot) botReset(); }
-    var need = [['co-name', 'name_missing'], ['co-email', 'email_invalid'], ['co-phone', 'phone_invalid'], ['co-address', 'address_missing'], ['co-postcode', 'postcode_invalid'], ['co-state', 'state_missing']];
+    var need = [['co-email', 'email_invalid'], ['co-last', 'name_missing'], ['co-address', 'address_missing'], ['co-postcode', 'postcode_invalid'], ['co-city', 'city_missing'], ['co-state', 'state_missing'], ['co-phone', 'phone_invalid']];
     for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]], true); } }
     if (!/^[0-9]{5}$/.test(document.getElementById('co-postcode').value.trim())) { document.getElementById('co-postcode').focus(); return fail(ERR.postcode_invalid, true); }
     if (!botToken) return fail('Wait a moment for the security check above the button to finish, then try again.', true);
@@ -116,8 +117,8 @@
     }
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
-      name: document.getElementById('co-name').value, email: document.getElementById('co-email').value,
-      phone: document.getElementById('co-phone').value, address: document.getElementById('co-address').value, postcode: document.getElementById('co-postcode').value, state: state() }, turnstile: botToken };
+      email: val('co-email'), country: val('co-country'), firstName: val('co-first'), lastName: val('co-last'),
+      address: val('co-address'), address2: val('co-address2'), postcode: val('co-postcode'), city: val('co-city'), state: state(), phone: val('co-phone') }, turnstile: botToken };
     fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (x) {

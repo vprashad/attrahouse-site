@@ -19,19 +19,32 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
       <p class="err" id="bk-pairs" hidden>Holders come in twos: add or remove one so you have an even number.</p>
       <div class="two" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s7);align-items:start;margin-top:var(--s6)">
         <form class="wl" id="co" novalidate>
-          <h2>Delivery details</h2>
-          <label for="co-name">Full name<input id="co-name" type="text" autocomplete="name" required /></label>
+          <h2>Contact</h2>
           <label for="co-email">Email <i>For your order confirmation.</i><input id="co-email" type="email" autocomplete="email" required /></label>
-          <label for="co-phone">Phone <i>The courier may call this number.</i><input id="co-phone" type="tel" autocomplete="tel" required /></label>
-          <p class="sm">{strings.deliveryArea.en}</p>
-          <label for="co-address">Delivery address <i>House or unit number, street, area and town.</i><textarea id="co-address" autocomplete="street-address" required></textarea></label>
-          <label for="co-postcode">Postcode<input id="co-postcode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern={malaysia.postcode.slice(1, -1)} required /></label>
-          <label for="co-state">State
-            <select id="co-state" autocomplete="address-level1" required>
-              <option value="">Choose a state</option>
-              {malaysia.states.map((s) => <option value={s.name}>{s.name}</option>)}
+          <h2>Delivery</h2>
+          <label for="co-country">Country/Region
+            <select id="co-country" autocomplete="country-name" required>
+              {malaysia.countries.map((c) => <option value={c}>{c}</option>)}
             </select>
           </label>
+          <p class="sm">{strings.deliveryArea.en}</p>
+          <div class="frow two">
+            <label for="co-first">First name <i>Optional</i><input id="co-first" type="text" autocomplete="given-name" /></label>
+            <label for="co-last">Last name<input id="co-last" type="text" autocomplete="family-name" required /></label>
+          </div>
+          <label for="co-address">Address<input id="co-address" type="text" autocomplete="address-line1" required /></label>
+          <label for="co-address2">Apartment, suite, etc. <i>Optional</i><input id="co-address2" type="text" autocomplete="address-line2" /></label>
+          <div class="frow three">
+            <label for="co-postcode">Postcode<input id="co-postcode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern={malaysia.postcode.slice(1, -1)} required /></label>
+            <label for="co-city">City<input id="co-city" type="text" autocomplete="address-level2" required /></label>
+            <label for="co-state">State/territory
+              <select id="co-state" autocomplete="address-level1" required>
+                <option value="">Choose</option>
+                {malaysia.states.map((s) => <option value={s.name}>{s.name}</option>)}
+              </select>
+            </label>
+          </div>
+          <label for="co-phone">Phone <i>The courier may call this number.</i><input id="co-phone" type="tel" autocomplete="tel" required /></label>
           <div class="offer" id="bk-offer" hidden>
             <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>
             <p id="bk-offer-t"></p>

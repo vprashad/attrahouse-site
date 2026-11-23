@@ -78,3 +78,7 @@ HitPay cannot refund DuitNow QR paid from a banking app. Follow `compliance/webs
 - The checkout tick box is replaced by Compliance's line above the Pay button ("By placing this order you agree to…"), with links.
 - Product name is **Chef's Knife Block Set** (Viveg, 22 Nov). The page address stays `/chefs-knife-block/`.
 - With all three sets in the basket the buyer is **offered** the switch to the Bundle (same price, free Knife Block Set); nothing changes unless they say yes (Viveg, 22 Nov evening, via Design). The sentence is Design's draft; Compliance has not read it yet.
+
+## Checkout form fields (24 Nov 2026)
+
+The delivery form follows the usual shop checkout pattern (Viveg, 24 Nov): Contact (email), then Country/Region, first name (optional), last name, address, apartment (optional), postcode, city, state/territory, phone. The Country/Region menu and the server both take their list from `countries` in `src/data/malaysia.json` (Malaysia only); to deliver elsewhere, add the country there and its states and fees. The order still stores one name and one address line, so the database did not change. Left out on purpose: company name, pickup, saved details, and marketing tick boxes (those need Compliance's wording).

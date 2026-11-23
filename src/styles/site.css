@@ -257,3 +257,10 @@ textarea:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .legal h3{margin:0}
 .legal ul,.legal ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:var(--s3);max-width:60ch}
 .legal .legal-ms{display:flex;flex-direction:column;gap:var(--s5);border-top:2px solid var(--line);padding-top:var(--s6);margin-top:var(--s4)}
+
+/* Checkout form rows (first/last name; postcode/city/state). One column on phones. */
+.frow{display:grid;gap:var(--s4);align-items:end}
+.frow.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.frow.three{grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.2fr)}
+.frow select,.frow input{width:100%}
+@media (max-width:520px){.frow.two,.frow.three{grid-template-columns:minmax(0,1fr)}}
