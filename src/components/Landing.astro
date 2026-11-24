@@ -1,10 +1,11 @@
 ---
-// Pre-launch page (SITE_MODE=landing): logo, one line, Instagram. No shop, no prices, no form.
+// Pre-launch page (SITE_MODE=landing): logo and Instagram link only (Viveg, 23-24 Nov 2026).
+// No line, no tagline, no shop, no prices, no form. The heading is for screen readers only.
 import Logo from './Logo.astro';
 import company from '../data/company.json';
 ---
 <main class="wrap landing">
   <Logo size={96} word={56} />
-  <h1>Magnetic play food, 3D-printed in Malaysia.</h1>
+  <h1 class="sr-only">Attra House</h1>
   <p><a class="link" href={company.instagram} rel="noopener">Follow @attrahouse on Instagram</a></p>
 </main>

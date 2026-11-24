@@ -23,7 +23,7 @@ export function deliveryFor(catalogue, region) {
  * apartment (optional), postcode, city, state, phone. Stored as one name and one address line.
  */
 export function validateCustomer(c) {
-  const first = clean(c?.firstName, 60), last = clean(c?.lastName, 60);
+  const first = clean(c?.firstName, 60), last = clean(c?.lastName, 60), company = clean(c?.company, 100);
   const line1 = clean(c?.address, 200), line2 = clean(c?.address2, 200);
   const postcode = clean(c?.postcode, 10), city = clean(c?.city, 80);
   const country = malaysia.countries.find((x) => x === clean(c?.country, 40));
@@ -37,7 +37,8 @@ export function validateCustomer(c) {
   if (city.length < 2) return { error: 'city_missing' };
   if (!state) return { error: 'state_missing' };
   if (!/^[+0-9 ()-]{8,}$/.test(out.phone)) return { error: 'phone_invalid' };
-  const address = [line1, line2, `${postcode} ${city}`, state.name, country].filter(Boolean).join(', ');
+  // Company (optional, Viveg 24 Nov 2026) goes first in the address, as couriers expect.
+  const address = [company, line1, line2, `${postcode} ${city}`, state.name, country].filter(Boolean).join(', ');
   return { customer: { ...out, address, region: state.region } };
 }
 

@@ -117,7 +117,7 @@
     }
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
-      email: val('co-email'), country: val('co-country'), firstName: val('co-first'), lastName: val('co-last'),
+      email: val('co-email'), country: val('co-country'), firstName: val('co-first'), lastName: val('co-last'), company: val('co-company'),
       address: val('co-address'), address2: val('co-address2'), postcode: val('co-postcode'), city: val('co-city'), state: state(), phone: val('co-phone') }, turnstile: botToken };
     fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })

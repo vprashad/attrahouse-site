@@ -152,6 +152,7 @@ test('delivery is within Malaysia only: a 5-digit postcode and a Malaysian state
   assert.equal(bare.name, 'Tan');
   assert.equal(bare.address, '12 Jalan Contoh, 43000 Kajang, Selangor, Malaysia');
   assert.equal(validateCustomer({ ...buyer, lastName: ' ' }).error, 'name_missing');
+  assert.equal(validateCustomer({ ...buyer, company: 'Tadika Ceria Sdn Bhd' }).customer.address, 'Tadika Ceria Sdn Bhd, 12 Jalan Contoh, Taman Contoh, 43000 Kajang, Selangor, Malaysia');
   assert.equal(validateCustomer({ ...buyer, city: '' }).error, 'city_missing');
   for (const country of ['', 'Singapore', 'MY', undefined]) assert.equal(validateCustomer({ ...buyer, country }).error, 'country_unsupported', String(country));
   for (const state of ['Sabah', 'Sarawak', 'W.P. Labuan']) assert.equal(validateCustomer({ ...buyer, postcode: '88000', state }).customer.region, 'east');

@@ -32,6 +32,7 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
             <label for="co-first">First name <i>Optional</i><input id="co-first" type="text" autocomplete="given-name" /></label>
             <label for="co-last">Last name<input id="co-last" type="text" autocomplete="family-name" required /></label>
           </div>
+          <label for="co-company">Company <i>Optional</i><input id="co-company" type="text" autocomplete="organization" /></label>
           <label for="co-address">Address<input id="co-address" type="text" autocomplete="address-line1" required /></label>
           <label for="co-address2">Apartment, suite, etc. <i>Optional</i><input id="co-address2" type="text" autocomplete="address-line2" /></label>
           <div class="frow three">
