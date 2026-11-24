@@ -264,3 +264,20 @@ textarea:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .frow.three{grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.2fr)}
 .frow select,.frow input{width:100%}
 @media (max-width:520px){.frow.two,.frow.three{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- menu (Viveg, 22-24 Nov 2026): six links + Basket; phone-style menu below 1000 px ---- */
+.hd nav a{padding:12px 6px}
+.nav-basket{display:none}
+footer .fh{font:800 12px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--sand);margin-bottom:6px;display:block}
+footer .col{display:flex;flex-direction:column;gap:4px}
+footer .fx{grid-column:1/-1;border-top:1px solid rgba(247,241,230,.2);padding-top:var(--s4)}
+footer .fx .ig{display:inline;padding:0;text-decoration:underline}
+footer .col a{padding:10px 0}
+@media (max-width:1000px){
+  header.site .hd{position:relative}
+  .menu-btn{display:inline-flex!important}
+  #main-nav{display:none;position:absolute;left:0;right:0;top:100%;background:var(--cream);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px var(--gr) 16px var(--gl);z-index:21}
+  #main-nav.open{display:flex}
+  #main-nav a{padding:14px 0;font-size:18px;border-bottom:1px solid var(--line)}
+}
+@media (max-width:820px){.nav-basket{display:block}}

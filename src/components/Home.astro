@@ -1,80 +1,208 @@
 ---
+// Home page, Orange Story Home version 2 (Design, design/handoff-home-v2-2026-11-23.md; approved by Viveg 23 Nov 2026).
+// Every price and product name is read from products.json; every legal or claim line from Compliance or Admin.
+// Switches for hidden blocks live in features.json.
 import Header from './Header.astro';
 import Footer from './Footer.astro';
-import Art from './Art.astro';
-import ProductCard from './ProductCard.astro';
 import QuickAdd from './QuickAdd.astro';
-import strings from '../data/strings.json';
 import StockTag from './StockTag.astro';
+import strings from '../data/strings.json';
+import features from '../data/features.json';
 import catalogue from '../data/products.json';
 import { rm } from '../lib/site.js';
 import { bundleLine, bundleConditions, onSale } from '../lib/bundle.js';
+import '../styles/home.css';
 const products = catalogue.products.filter((p) => !p.group && onSale(p));
-// Phase 2 (Viveg, 22 Nov 2026): name and "Coming soon" only. Design spec section 6.
 const soon = catalogue.products.filter((p) => !onSale(p));
 const bundle = products.find((p) => p.featured);
 const rest = products.filter((p) => !p.featured);
+const fruit = catalogue.products.find((p) => p.sku === 'fruit-basket');
+const knife = catalogue.products.find((p) => bundle?.free?.includes(p.sku));
 const holders = catalogue.groups.holders;
+const fruitCount = (fruit.note.match(/^(\d+) fruits/) || [])[1];
 ---
+<a class="skip" href="#sets">Skip to the sets</a>
 <Header />
-<main>
-  <section class="snap" id="snap" aria-label="Magnetic watermelon"><div class="stage"><div class="wrap sg">
-    <div class="words">
-      <h1>Play food that snaps apart and back again</h1>
-      <p class="lead">Life-size fruit and vegetables that pull apart along hidden magnets. Made in small batches in Malaysia, for ages 3 and up.</p>
-      <div class="row"><a class="btn main" href="#sets">Shop the sets</a></div>
-      <ul class="clicks" id="snap-marks">
-        <li class="mk" style="--c:var(--red)">Magnets, not velcro</li>
-        <li class="mk" style="--c:var(--orange)">Life-size pieces</li>
-        <li class="mk" style="--c:var(--green)">Colour printed in, nothing to peel</li>
-      </ul>
-    </div>
-    <div class="fw"><Art name="watermelon" /><span class="standin">Stand-in drawing</span></div>
-  </div><div class="cue" id="snap-cue" aria-hidden="true">Scroll ↓</div></div></section>
+<main class="hv2" id="top">
+  <div class="story" id="made">
+    <div class="stage-wrap"><div class="stage"><canvas id="cv" aria-hidden="true"></canvas>
+      <ol class="steps" aria-label="How an orange is made">
+        <li><button type="button" data-go="1"><span>Printed</span></button></li>
+        <li><button type="button" data-go="2"><span>Magnets</span></button></li>
+        <li><button type="button" data-go="3"><span>Sealed</span></button></li>
+        <li><button type="button" data-go="4"><span>Snap</span></button></li>
+        <li><button type="button" data-go="5"><span>Ready</span></button></li>
+        <li class="sk"><a href="#sets">Skip<span> to the sets</span></a></li>
+      </ol></div></div>
 
-  <section class="band" id="sets"><div class="wrap sec">
-    <h2>Four sets, or all of them in one box</h2>
+    <section class="chap c-cream"><div class="wrap"><div class="copy">
+      <span class="eyebrow">Masak-Masak · Little kitchens. Big pretend.</span>
+      <h1>Play food worth giving</h1>
+      <p class="lead">Life-size play food that snaps apart and clicks back together. Printed a few sets at a time in Malaysia.</p>
+      <div class="row"><a class="btn" href="#sets">See the sets</a><a class="btn line" href="#made-1">Watch an orange being made</a></div>
+      <ul class="trust"><li style="--c:var(--red)">Magnets sealed inside</li><li style="--c:var(--orange)">No paint, no velcro</li><li style="--c:var(--green)">Made in small batches in Malaysia</li><li style="--c:var(--yellow)">Ages 3+</li></ul>
+    </div></div></section>
+
+    <section class="chap mid c-sand" id="made-1"><div class="wrap"><div class="copy">
+      <span class="eyebrow">1 · Printed</span>
+      <h2>It starts as one thin line of colour</h2>
+      <p>Our printer builds each half of the orange one thin layer at a time, from the cut face up. The colour is in the plastic itself, so there is no paint to chip or peel.</p>
+    </div></div></section>
+
+    <section class="chap mid c-ink"><div class="wrap"><div class="copy">
+      <span class="eyebrow">2 · Magnets</span>
+      <h2>Partway up, the magnets go in</h2>
+      <p>The printer pauses. We set a magnet into each pocket, then it carries on.</p>
+      <p>Hidden magnets do the job that velcro tabs do on a lot of play food, with nothing to collect hair and fluff or wear out.</p>
+    </div></div></section>
+
+    <section class="chap mid c-yellow"><div class="wrap"><div class="copy">
+      <span class="eyebrow">3 · Sealed</span>
+      <h2>Then they're sealed inside</h2>
+      <p>The next layers close over the magnets, so they sit sealed inside the piece, and the round of the orange rises to the top.</p>
+    </div></div></section>
+
+    <section class="chap mid c-white"><div class="wrap"><div class="copy">
+      <span class="eyebrow">4 · Snap</span>
+      <h2>Two halves. One click. One orange.</h2>
+      <p>Pull it apart to "cut" it. Click it back to start again. Cutting, sharing and serving is pretend play, and paediatricians describe pretend play as a way children practise cooperation and self-control.<sup>1</sup></p>
+      <p class="fn">1. American Academy of Pediatrics, "The Power of Play", <i>Pediatrics</i> 142(3), 2018.</p>
+    </div></div></section>
+
+    <section class="chap c-cream hold"><div class="wrap"><div class="copy">
+      <span class="eyebrow">5 · Ready</span>
+      <h2>And the rest of the {fruit.name} comes apart just like it</h2>
+      <div class="row"><span class="price">{rm(fruit.priceSen)}</span><span class="fn">Ages 3+</span></div>
+      <div class="row ready">
+        <QuickAdd sku={fruit.sku} name={fruit.name} href={`/${fruit.sku}/`} />
+        <a class="btn line" href={`/${fruit.sku}/`}>See what's inside</a>
+        <button class="btn line" type="button" id="pull" aria-pressed="false">Pull it apart</button>
+      </div>
+    </div></div></section>
+  </div>
+
+  <section class="band s-sets" id="sets"><div class="wrap">
+    <div class="copy" style="max-width:640px">
+      <span class="eyebrow">Shop</span>
+      <h2>The sets</h2>
+      <p>Add straight from here, or open a set to see everything inside.</p>
+    </div>
     {bundle && (
-      <div class="bundle">
-        <div class="tile big" style="--t:var(--ink)"><span>Photo: the whole bundle laid out, box open</span></div>
-        <div class="col">
-          <h3 class="lbl">The gift pick</h3><b class="h1">{bundle.name}</b><p>{bundleLine}</p>
-          <p class="sm">{bundleConditions}</p>
-          <div class="row"><span class="pr big">{rm(bundle.priceSen)}</span><StockTag sku={bundle.sku} /></div>
+      <div class="feature" id="bundle">
+        <div class="tiles"><div class="tile">Photo: all the food from the three sets</div><div class="tile">Photo: {knife?.name}, on its own</div></div>
+        <div class="copy">
+          <span class="eyebrow">The whole kitchen</span>
+          <h2>{bundle.name}</h2>
+          <p>{bundleLine} <span class="cond">{bundleConditions}</span></p>
+          <div class="row"><span class="price">{rm(bundle.priceSen)}</span><StockTag sku={bundle.sku} /></div>
           <QuickAdd sku={bundle.sku} name={bundle.name} href={`/${bundle.sku}/`} />
-          <div class="row"><a class="link" href={`/${bundle.sku}/`}>See what's in the Bundle</a></div>
+          <a class="link" href={`/${bundle.sku}/`}>See what's in the Bundle</a>
         </div>
       </div>
     )}
-    <div class="grid cards">{rest.map((p) => <ProductCard p={p} />)}</div>
-    <div class="grid cards">
+    <div class="grid" id="grid">
+      {rest.map((p) => (
+        <div class="card">
+          <a class="tile" href={`/${p.sku}/`} style={`--t:var(--${p.tile})`} tabindex="-1" aria-hidden="true">Photo goes here</a>
+          <a class="nm" href={`/${p.sku}/`}>{p.name}</a>
+          {p.note && <span class="sub">{p.note}</span>}
+          <span class="row prow"><span class="pr">{rm(p.priceSen)}</span><StockTag sku={p.sku} /></span>
+          <QuickAdd sku={p.sku} name={p.name} href={`/${p.sku}/`} />
+        </div>
+      ))}
       <div class="card">
-        <a class="card-link" href="/holders/">
-          <div class="tile" style="--t:var(--yellow)"><span>Photo goes here</span></div>
-          <b>{holders.name}</b>
-        </a>
-        <span class="pr">Any 2 for {rm(holders.pairPriceSen)}</span>
-        <span><StockTag sku="pouch-holder" /> <StockTag sku="juicebox-holder" /></span>
+        <a class="tile" href="/holders/" style="--t:var(--yellow)" tabindex="-1" aria-hidden="true">Photo goes here</a>
+        <a class="nm" href="/holders/">{holders.name}</a>
+        <span class="sub">Any 2 for {rm(holders.pairPriceSen)}</span>
+        <span class="row prow"><span class="pr">2 for {rm(holders.pairPriceSen)}</span><StockTag sku="pouch-holder" /> <StockTag sku="juicebox-holder" /></span>
         <QuickAdd holders name={holders.name} href="/holders/" />
+      </div>
+      <div class="card letters">
+        <div class="tile">[Artwork: Design, from Viveg]</div>
+        <span class="nm">Letters and ornaments</span>
+        <span class="sub">[Styles, sizes and how to order a name: Viveg, R&amp;D, Design]</span>
+        <span class="pr"><span class="ph">[Prices: Finance]</span></span>
       </div>
     </div>
     {soon.length > 0 && (
-      <div class="grid cards">{soon.map((p) => (
-        <div class="card soon"><div class="tile"><span>{strings.comingSoon.en}</span></div><b>{p.name}</b></div>
-      ))}</div>
+      <div class="soonstrip">
+        <span class="eyebrow">{strings.comingSoon.en}</span>
+        <ul>{soon.map((p) => <li>{p.name}</li>)}</ul>
+      </div>
     )}
   </div></section>
 
-  <section><div class="wrap sec two">
-    <div class="col"><h2>What parents should know before play starts</h2>
-      <div class="row"><span class="tag">Ages 3+</span></div>
-      <p>The sets are for children aged 3 and up.</p>
-      <p class="sm">[Plain summary of how the magnets are fixed and what parents should check, from Compliance and R&amp;D]</p></div>
-    <div class="msg safe"><div class="row"><span class="tag warn">Warning</span></div><b>[Magnet warning wording, from Compliance]</b><span>[Material and testing statements, each with its evidence, from Compliance and R&amp;D]</span></div>
+  <section class="band c-white s-why"><div class="wrap split">
+    <div class="copy" style="max-width:none">
+      <span class="eyebrow">What you get</span>
+      <h2>Why it costs more, and what you get</h2>
+      <p>Most play food is felt, wood or moulded plastic. Ours is printed piece by piece, which takes longer and gives more.</p>
+    </div>
+    <ul class="points">
+      <li><svg class="ic" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="#EE8A3C"/><path d="M22 5v34" stroke="#2B2624" stroke-width="2"/></svg><div><b>More in every box</b><p>The {fruit.name} alone has {fruitCount} fruits, and every one comes apart.</p></div></li>
+      <li><svg class="ic" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="18" width="32" height="8" rx="2" fill="#E9C9A3"/><path d="M6 14v16M38 14v16" stroke="#2B2624" stroke-width="2"/></svg><div><b>Life-size</b><p>Each piece is made the size of the real food.</p></div></li>
+      <li><svg class="ic" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 22a9 9 0 0 1 18 0" fill="#C9382E"/><path d="M18 22a9 9 0 0 0 18 0" fill="#9AA1A8"/></svg><div><b>Magnets, not velcro</b><p>Hidden magnets hold the pieces together, so there are no fuzzy tabs to wear out.</p></div></li>
+      <li><svg class="ic" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 34h28M10 28h24M12 22h20M14 16h16M16 10h12" stroke="#5C9A47" stroke-width="4" stroke-linecap="round"/></svg><div><b>Colour and detail</b><p>Seeds, rind and leaves are printed in colour, with no paint to peel.</p></div></li>
+      {features.plantBasedPla && (
+        <li><svg class="ic" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 38V18" stroke="#8A5A2B" stroke-width="3" stroke-linecap="round"/><path d="M22 22C12 22 9 14 9 8c8 0 13 4 13 14zM22 26c9 0 13-6 13-12-8 0-13 4-13 12z" fill="#5C9A47"/></svg><div><b>Made from plant-based PLA</b><p>[Supporting line: Compliance]</p></div></li>
+      )}
+      <li><svg class="ic" viewBox="0 0 44 44" aria-hidden="true"><rect x="7" y="15" width="30" height="22" rx="3" fill="#F3C64A"/><path d="M22 15v22M7 24h30" stroke="#C9382E" stroke-width="3"/></svg><div><b>Made to give</b><p>Small batches in Selangor, boxed and ready to wrap.</p></div></li>
+    </ul>
+  </div></section>
+
+  <section class="band c-sand s-story" id="story"><div class="wrap split">
+    <div class="copy" style="max-width:none">
+      <span class="eyebrow">Our story</span>
+      <h2>Made by parents who gave up on velcro</h2>
+      <div class="sphoto">Photo: our hands with the toy at the kitchen counter (adults only, or children clearly 3 or older)</div>
+    </div>
+    <div class="copy wide">
+      <p class="lead">We became parents in 2025, and we parent by the research. We look for toys that make room for pretend play, give small hands something to feel, and get eyes and hands working together.</p>
+      <p>We also noticed what every parent sees: little children don't split the day into play and work. Copying what we do is the game. Chopping, stirring and serving alongside us is fun for them, and dinner still gets made.</p>
+      <h3>Why no velcro</h3>
+      <ul class="vel">
+        <li>It collects lint, hair, dirt and dust. In our house, pet hair was the worst.</li>
+        <li>It wears out fast and stops holding.</li>
+        <li>It snags on clothes and long hair.</li>
+        <li>It rips loudly, and a lot of little ones don't like the sound.</li>
+      </ul>
+      <p>So we used magnets, sealed inside each piece, and printed the colour into the plastic. Every piece is printed, checked and packed by us in Selangor, a few sets at a time.</p>
+    </div>
+  </div></section>
+
+  <section class="band s-gifts" id="schools"><div class={`wrap ${features.giftWrap ? 'two' : ''}`}>
+    {features.giftWrap && (
+      <div class="panel">
+        <span class="eyebrow">Gifts</span>
+        <h3>Free gift wrapping, with your message on a card</h3>
+        <p>Tick "This is a gift" at checkout. We wrap it, write your message and leave the prices off the packing slip.</p>
+      </div>
+    )}
+    <div class="panel">
+      <span class="eyebrow">For schools</span>
+      <h3>Ordering for a school or centre?</h3>
+      <p>For kindergartens, schools and teachers: order 3 or more sets for your class and ask us for a quote.</p>
+      <div class="row"><a class="btn line sm" href="#contact">Ask for a quote</a></div>
+    </div>
+  </div></section>
+
+  {features.reviews && (
+    <section class="band c-white s-rev"><div class="wrap"><div class="reviews"><h3>What parents say</h3></div></div></section>
+  )}
+
+  <section class="band s-faq" id="faq"><div class="wrap split">
+    <div class="copy" style="max-width:none"><span class="eyebrow">FAQ</span><h2>Questions parents ask</h2></div>
+    <div>
+      <details><summary>What age is it for?</summary><p>Ages 3 and up. [Age line and warning wording: Compliance, after the lab test]</p></details>
+      <details><summary>How are the magnets held in?</summary><p>They are sealed inside each piece during printing. Check pieces now and then, and stop using any piece that cracks or shows a magnet. [Final wording: Compliance, after the lab report]</p></details>
+      <details><summary>How long does delivery take?</summary><p>We deliver within Malaysia only. [Dispatch and courier times: Production] <a class="link" href="/delivery/">Delivery</a></p></details>
+      <details><summary>Can I return it?</summary><p>Yes, within 14 days of delivery if it is unused. You get a full refund of the item price if the packaging is intact; if it has been opened or damaged, a 10% fee is taken off. You pay the return postage, and the original delivery fee is not refunded. A {bundle?.name} must come back with its free {knife?.name}, or {rm(knife?.priceSen)} is taken off the refund. If something arrives damaged, faulty or wrong, tell us and we put it right. <a class="link" href="/returns/">Returns and Refunds</a></p></details>
+      <details><summary>Is the knife included in the food sets?</summary><p>No. The {knife?.name} is sold on its own, and comes free with the {bundle?.name} <span class="cond">({bundleConditions})</span></p></details>
+    </div>
   </div></section>
 </main>
 <Footer />
-<script is:inline src="/js/snap.js" defer></script>
+<div class="toast" id="qa-toast" role="status" aria-live="polite" hidden><span data-toast-msg></span> · <a class="link" href="/basket/">{strings.viewBasket.en}</a></div>
+<script is:inline src="/js/story.js" defer></script>
 <script is:inline src="/js/stock.js" defer></script>
 <script is:inline src="/js/quickadd.js" defer></script>
-<div class="toast" id="qa-toast" role="status" aria-live="polite" hidden><span data-toast-msg></span> · <a class="link" href="/basket/">{strings.viewBasket.en}</a></div>

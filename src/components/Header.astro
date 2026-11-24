@@ -1,10 +1,19 @@
 ---
+// Menu approved by Viveg (Design decisions, 22 Nov 2026; Admin, 24 Nov 2026): Shop, Our story, How it's made,
+// For schools, FAQ, Contact, BM, Basket. Our story, How it's made, For schools and FAQ are sections of the home page
+// until their own pages exist. BM is hidden until BM pages exist (Design spec, section 4).
 import Logo from './Logo.astro';
+const BM_PAGES = false;
+const links = [['Shop', '/#sets'], ['Our story', '/#story'], ['How it\'s made', '/#made'], ['For schools', '/#schools'], ['FAQ', '/#faq'], ['Contact', '#contact']];
 ---
 <header class="site"><div class="wrap hd">
   <Logo href="/" />
-  <nav aria-label="Main" id="main-nav"><a href="/#sets">Shop</a><a href="/holders/">Holders</a><a href="/basket/">Basket <span data-basket-count></span></a></nav>
+  <nav aria-label="Main" id="main-nav">
+    {links.map(([t, h]) => <a href={h}>{t}</a>)}
+    <a class="nav-basket" href="/basket/">Basket <span data-basket-count></span></a>
+  </nav>
   <div class="row hd-actions">
+    {BM_PAGES && <a class="lang" href="/ms/" lang="ms" title="Bahasa Melayu">BM</a>}
     <a class="btn line basket-link" href="/basket/">Basket <span data-basket-count></span></a>
     <button class="btn line menu-btn" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
   </div>

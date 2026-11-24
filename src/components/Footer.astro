@@ -1,12 +1,19 @@
 ---
+// Footer (Design, home page version 2, change 10): delivery area, ways to pay, Instagram. Legal pages in Help.
 import Logo from './Logo.astro';
 import company from '../data/company.json';
+import strings from '../data/strings.json';
 ---
-<footer><div class="ft"><div class="wrap ftg">
-  <div class="col"><Logo size={44} word={26} dark /><span>Magnetic play food, 3D-printed in Malaysia.</span></div>
-  <div class="col"><a href="/#sets">Shop</a><a href="/holders/">Pouch and juice-box holders</a><a href="/terms/">Terms of Sale</a><a href="/returns/">Returns and Refunds</a><a href="/delivery/">Delivery</a><a href="/privacy/">Privacy Notice</a></div>
-  <div class="col"><a href={company.instagram} rel="noopener">Instagram @attrahouse</a><span>{company.email}</span><span>WhatsApp {company.whatsapp}</span></div>
-  <div class="col"><span>{company.registeredName}</span><span>{company.registrationNumber}</span><span>{company.address}</span></div>
+<footer id="contact"><div class="ft"><div class="wrap ftg">
+  <div class="col"><Logo size={44} word={26} dark />
+    <span>Printed in small batches in Selangor, Malaysia.</span>
+    <span>Questions? WhatsApp {company.whatsapp} · {company.email}</span>
+    <span>{company.registeredName} {company.registrationNumber} · {company.address}</span>
+  </div>
+  <div class="col"><b class="fh">Shop</b><a href="/#sets">All sets</a><a href="/grand-kitchen-bundle/">Grand Kitchen Bundle</a><a href="/holders/">Holders</a><a href="/#schools">For schools</a></div>
+  <div class="col"><b class="fh">About</b><a href="/#story">Our story</a><a href="/#made">How it's made</a><a href="/#faq">FAQ</a></div>
+  <div class="col"><b class="fh">Help</b><a href="/delivery/">Delivery</a><a href="/returns/">Returns and refunds</a><a href="/terms/">Terms of sale</a><a href="/privacy/">Privacy notice</a></div>
+  <div class="col fx"><span>{strings.deliveryArea.en}</span><span>Pay with cards, FPX, DuitNow QR, Touch 'n Go eWallet, GrabPay, ShopeePay or SPayLater.</span><span>Instagram: <a class="ig" href={company.instagram} rel="noopener">@attrahouse</a></span></div>
 </div></div></footer>
 <div class="bbar"><a class="btn main" href="/#sets">Shop the sets</a><a class="btn line" href="/basket/">Basket <span data-basket-count></span></a></div>
 <script is:inline src="/js/basket.js" defer></script>
