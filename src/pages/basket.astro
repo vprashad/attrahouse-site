@@ -6,6 +6,7 @@ import catalogue from '../data/products.json';
 import turnstile from '../data/turnstile.json';
 import strings from '../data/strings.json';
 import malaysia from '../data/malaysia.json';
+import features from '../data/features.json';
 import { bundleConditions, onSale } from '../lib/bundle.js';
 const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, priceSen, group, contains, free }) => ({ sku, name, priceSen, group, contains, free })), groups: catalogue.groups, delivery: catalogue.delivery, bundleOffer: catalogue.bundleOffer, bundleText: strings.bundle, states: malaysia.states };
 ---
@@ -45,6 +46,13 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
               </select>
             </label>
           </div>
+          {features.giftWrap && (
+            <fieldset class="gift"><legend>Gift</legend>
+              <label class="ck" for="co-gift"><input id="co-gift" type="checkbox" /><span>This is a gift: wrap it for free</span></label>
+              <label for="co-gmsg">Gift message <i>Optional, up to 200 characters.</i><textarea id="co-gmsg" maxlength="200"></textarea></label>
+              <label class="ck" for="co-hide"><input id="co-hide" type="checkbox" /><span>Leave prices off the packing slip</span></label>
+            </fieldset>
+          )}
           <label for="co-phone">Phone <i>The courier may call this number.</i><input id="co-phone" type="tel" autocomplete="tel" required /></label>
           <div class="offer" id="bk-offer" hidden>
             <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>

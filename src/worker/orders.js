@@ -5,6 +5,7 @@
 import { createHold, releaseHold, markPaid, validateItems, priceItems } from './stock.js';
 import { createPaymentRequest, getPaymentRequest, amountToSen } from './hitpay.js';
 import malaysia from '../data/malaysia.json' with { type: 'json' };
+import features from '../data/features.json' with { type: 'json' };
 
 const clean = (s, max) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -43,6 +44,18 @@ export function validateCustomer(c) {
 }
 
 /**
+ * Gift wrap (Design spec 4.4). While the switch is off (features.giftWrap false) any gift request is refused,
+ * so no gift message can be collected. Message up to 200 characters.
+ */
+export function validateGift(g, on = features.giftWrap) {
+  const wrap = !!g?.wrap, hide = !!g?.hidePrices, message = clean(g?.message, 400);
+  if (!wrap && !hide && !message) return { gift: { wrap: 0, hide: 0, message: null } };
+  if (!on) return { error: 'gift_wrap_off' };
+  if (message.length > 200) return { error: 'gift_message_too_long' };
+  return { gift: { wrap: wrap ? 1 : 0, hide: hide ? 1 : 0, message: message || null } };
+}
+
+/**
  * Basket + buyer -> hold + order + HitPay payment page.
  * deps: { db, env, fetchFn, now, newId, origin, catalogue }
  */
@@ -53,6 +66,8 @@ export async function startCheckout(deps, body) {
   if (v.error) return { status: 400, body: { error: v.error } };
   const c = validateCustomer(body?.customer);
   if (c.error) return { status: 400, body: { error: c.error } };
+  const g = validateGift(body?.gift);
+  if (g.error) return { status: 400, body: { error: g.error } };
   let delivery = deliveryFor(catalogue, c.customer.region);
   if (delivery === null) {
     if (live) return { status: 503, body: { error: 'delivery_fees_not_set' } };
@@ -64,9 +79,9 @@ export async function startCheckout(deps, body) {
   const hold = await createHold(db, v.items, now, newId);
   if (!hold.ok) return { status: 409, body: { error: 'sold_out', skus: hold.skus } };
   const id = hold.holdId;
-  await db.prepare(`INSERT INTO orders (id, created_at, status, name, email, phone, address, region, items_json, subtotal_sen, delivery_sen, total_sen, test)
-                    VALUES (?, ?, 'awaiting_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .bind(id, now, c.customer.name, c.customer.email, c.customer.phone, c.customer.address, c.customer.region, JSON.stringify(v.items), subtotal, delivery, total, live ? 0 : 1).run();
+  await db.prepare(`INSERT INTO orders (id, created_at, status, name, email, phone, address, region, items_json, subtotal_sen, delivery_sen, total_sen, test, gift_wrap, gift_message, hide_prices)
+                    VALUES (?, ?, 'awaiting_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .bind(id, now, c.customer.name, c.customer.email, c.customer.phone, c.customer.address, c.customer.region, JSON.stringify(v.items), subtotal, delivery, total, live ? 0 : 1, g.gift.wrap, g.gift.message, g.gift.hide).run();
   try {
     const pr = await createPaymentRequest(env, fetchFn, {
       totalSen: total, email: c.customer.email, name: c.customer.name, phone: c.customer.phone,

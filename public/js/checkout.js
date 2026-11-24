@@ -7,7 +7,7 @@
   var stock = {}, checkoutOpen = false;
   var ERR = {
     name_missing: 'Enter your full name.', email_invalid: 'Check your email address.', phone_invalid: 'Enter a phone number we can reach you on.',
-    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', city_missing: 'Enter your city or town.', country_unsupported: 'We deliver within Malaysia only.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
+    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', city_missing: 'Enter your city or town.', country_unsupported: 'We deliver within Malaysia only.', gift_wrap_off: 'Gift wrapping is not available yet.', gift_message_too_long: 'Keep the gift message to 200 characters.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
     empty_basket: 'Your basket is empty.', checkout_not_open: 'Checkout opens at launch.', payment_unavailable: 'Payment is not available right now. Nothing was charged. Please try again in a few minutes, or message us on WhatsApp.',
     payment_not_configured: 'Test payments are not set up on this preview yet: the HitPay sandbox key is missing. Nothing was charged.',
     bot_check_failed: 'The security check did not go through. Nothing was charged. Please try again.',
@@ -119,6 +119,8 @@
     var body = { items: items(), customer: {
       email: val('co-email'), country: val('co-country'), firstName: val('co-first'), lastName: val('co-last'), company: val('co-company'),
       address: val('co-address'), address2: val('co-address2'), postcode: val('co-postcode'), city: val('co-city'), state: state(), phone: val('co-phone') }, turnstile: botToken };
+    var gw = document.getElementById('co-gift'); // only on the page while gift wrap is switched on
+    if (gw) body.gift = { wrap: gw.checked, message: val('co-gmsg'), hidePrices: document.getElementById('co-hide').checked };
     fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (x) {

@@ -1,11 +1,13 @@
+import { addColumns } from '../src/worker/refunds.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeD1 } from './d1-shim.js';
 import { readFileSync } from 'node:fs';
 import catalogue from '../src/data/products.json' with { type: 'json' };
 import { seedStock } from '../src/worker/stock.js';
-import { startCheckout, confirmOrder, publicOrder, validateCustomer } from '../src/worker/orders.js';
+import { startCheckout, confirmOrder, publicOrder, validateCustomer, validateGift } from '../src/worker/orders.js';
 import { verifySignature, checkWebhook, amountToSen } from '../src/worker/hitpay.js';
+import features from '../src/data/features.json' with { type: 'json' };
 
 const T0 = Date.UTC(2026, 11, 1);
 let n = 0;
@@ -31,6 +33,7 @@ function fakeHitPay() {
 async function setup() {
   const db = makeD1();
   db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
+  for (const f of ['0003_refunds.sql', '0004_gift.sql']) await addColumns(db, readFileSync(new URL(`../migrations/${f}`, import.meta.url), 'utf8'));
   await seedStock(db, catalogue, T0);
   const hp = fakeHitPay();
   const deps = { db, env: { HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_API_KEY_LIVE: 'live-key', CURRENCY: 'MYR' }, fetchFn: hp.fetchFn, now: T0, newId: ids, origin: 'https://preview.example', catalogue };
@@ -203,4 +206,19 @@ test('the sandbox key only goes to the sandbox, the live key only to live', asyn
   assert.equal(apiKey({ ...keys, HITPAY_BASE: 'https://api.sandbox.hit-pay.com' }), 'sandbox-key');
   assert.equal(apiKey({ ...keys, HITPAY_BASE: 'https://api.hit-pay.com' }), 'live-key');
   assert.equal(apiKey({ HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_BASE: 'https://api.hit-pay.com' }), undefined);
+});
+
+test('gift wrap is built switched off: no gift request or message is accepted while the switch is off', async () => {
+  assert.equal(features.giftWrap, false, 'switch stays off until Viveg confirms and the 90-day message clean-up exists');
+  assert.equal(validateGift({ wrap: true }).error, 'gift_wrap_off');
+  assert.equal(validateGift({ message: 'Happy birthday' }).error, 'gift_wrap_off');
+  assert.equal(validateGift({ hidePrices: true }).error, 'gift_wrap_off');
+  assert.deepEqual(validateGift(undefined).gift, { wrap: 0, hide: 0, message: null });
+  assert.deepEqual(validateGift({ wrap: true, message: ' Happy birthday ' }, true).gift, { wrap: 1, hide: 0, message: 'Happy birthday' });
+  assert.equal(validateGift({ wrap: true, message: 'x'.repeat(201) }, true).error, 'gift_message_too_long');
+  const { db, deps } = await setup();
+  const r = await startCheckout(deps, { items: [{ sku: 'fruit-basket', qty: 1 }], customer: buyer, gift: { wrap: true, message: 'Hi' } });
+  assert.equal(r.status, 400);
+  assert.equal(r.body.error, 'gift_wrap_off');
+  assert.equal(db.raw.prepare('SELECT COUNT(*) AS n FROM orders').get().n, 0);
 });

@@ -37,7 +37,7 @@ export async function handleAdmin(request, env, catalogue, user, siteMode = 'sho
   }
   const { results: stock } = await env.DB.prepare('SELECT sku, available, sold FROM stock').all();
   const bySku = new Map(stock.map((r) => [r.sku, r]));
-  const { results: orders } = await env.DB.prepare('SELECT id, created_at, status, name, email, phone, region, items_json, total_sen, test, refunded_at, refunded_by, refund_restocked, refund_method FROM orders ORDER BY created_at DESC LIMIT 50').all();
+  const { results: orders } = await env.DB.prepare('SELECT id, created_at, status, name, email, phone, region, items_json, total_sen, test, refunded_at, refunded_by, refund_restocked, refund_method, gift_wrap, gift_message, hide_prices FROM orders ORDER BY created_at DESC LIMIT 50').all();
 
   const rows = catalogue.products.filter(isOnSale).map((p) => {
     const s = bySku.get(p.sku);
