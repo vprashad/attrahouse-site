@@ -25,6 +25,8 @@ export function runningSettings(env, siteMode) {
       warn: !has(db) || (db === 'attrahouse-stock-preview' && live),
     },
     { label: 'TURNSTILE_SECRET_KEY (bot check)', value: has(env.TURNSTILE_SECRET_KEY) ? 'Present' : 'Missing', warn: env.CHECKOUT_ENABLED === 'true' && !has(env.TURNSTILE_SECRET_KEY) },
+    // Brevo (order emails); not used by any code yet, so a missing key is not a warning.
+    { label: 'BREVO_API_KEY (order emails)', value: has(env.BREVO_API_KEY) ? 'Present' : 'Missing', warn: false },
     { label: 'Currency', value: env.CURRENCY || 'Not set', warn: env.CURRENCY !== 'MYR' },
   ];
 }

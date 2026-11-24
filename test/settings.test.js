@@ -42,11 +42,12 @@ test('the private page shows the box and never the key or salt values', async ()
   await addColumns(db, readFileSync(new URL('../migrations/0003_refunds.sql', import.meta.url), 'utf8'));
   await addColumns(db, readFileSync(new URL('../migrations/0004_gift.sql', import.meta.url), 'utf8'));
   await seedStock(db, catalogue, Date.UTC(2026, 10, 18));
-  const env = { ...preview, DB: db };
+  const env = { ...preview, DB: db, BREVO_API_KEY: 'xkeysib-test-secret-value' };
   const res = await handleAdmin(new Request('https://x.test/admin/'), env, catalogue, 'owner@example.com', 'shop');
   const html = await res.text();
   assert.match(html, /Settings in use/);
   assert.match(html, /attrahouse-stock-preview \(test stock\)/);
-  assert.ok(!html.includes('sk-test-secret-value') && !html.includes('salt-test-secret-value') && !html.includes('ts-test-secret-value'));
+  assert.ok(!html.includes('sk-test-secret-value') && !html.includes('salt-test-secret-value') && !html.includes('ts-test-secret-value') && !html.includes('xkeysib-test-secret-value'));
+  assert.match(html, /BREVO_API_KEY \(order emails\)[\s\S]{0,80}Present/);
   assert.ok(!html.includes('Something below needs checking'));
 });
