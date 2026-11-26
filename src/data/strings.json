@@ -18,7 +18,7 @@
     "ms": "[BM: Marketing]"
   },
   "bundle": {
-    "_source": "Compliance, compliance/website-legal-pages.md section 6, and Design spec section 2 (22 Nov 2026). {sets}, {price}, {free}, {worth}, {missing}, {upgrade}, {bundle} are filled from products.json; no amount is typed. The conditions line must sit next to every 'free', at least half its size. No 'was' price and no 'Save RM' figure anywhere. 'switch' (all three sets already in the basket) is Design's draft from Viveg's own line, 22 Nov 2026 evening (design/decisions-2026-11-22-evening.md): offer only, nothing changes unless the buyer says yes. Compliance has not yet read that sentence.",
+    "_source": "Compliance, compliance/website-legal-pages.md section 6, and Design spec section 2 (22 Nov 2026). {sets}, {price}, {free}, {worth}, {missing}, {upgrade}, {bundle} are filled from products.json; no amount is typed. The conditions line must sit next to every 'free', at least half its size. No 'was' price and no 'Save RM' figure anywhere. 'switch' (all three sets already in the basket) is Design's draft from Viveg's own line, 22 Nov 2026 evening (design/decisions-2026-11-22-evening.md): offer only, nothing changes unless the buyer says yes. Compliance approved the offer, its conditions and the buttons 'Yes, switch to the Bundle' / 'No thanks' as written (compliance/admin-rulings-2026-11-24.md section 4).",
     "line": "{sets} for {price}, with a free {free} (worth {worth}).",
     "conditions": "With the {bundle} only. While stocks last.",
     "upgrade": "Add {missing} for {upgrade} and get the {bundle}, with a free {free} (worth {worth}).",
@@ -33,5 +33,10 @@
     "_source": "Compliance, website-legal-pages.md section 4, checkout lines: shown above the Pay button, no tick box needed.",
     "en": "By placing this order you agree to our {terms} and confirm you have read our {privacy}.",
     "ms": "Dengan membuat pesanan ini, anda bersetuju dengan {terms} kami dan mengesahkan bahawa anda telah membaca {privacy} kami."
+  },
+  "knifeBlockInBundle": {
+    "_source": "Marketing's version, chosen by Viveg (Admin update, 24 Nov 2026 night). Shown when the basket has the Bundle and a separate Chef's Knife Block Set. {free} is filled from products.json. BM is in Marketing's copy pack; BM pages do not exist yet.",
+    "text": "Your Bundle already includes a free {free}. Remove the one you added?",
+    "button": "Remove it"
   }
 }

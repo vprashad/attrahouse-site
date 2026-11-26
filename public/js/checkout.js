@@ -7,7 +7,7 @@
   var stock = {}, checkoutOpen = false;
   var ERR = {
     name_missing: 'Enter your full name.', email_invalid: 'Check your email address.', phone_invalid: 'Enter a phone number we can reach you on.',
-    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', city_missing: 'Enter your city or town.', country_unsupported: 'We deliver within Malaysia only.', gift_wrap_off: 'Gift wrapping is not available yet.', gift_message_too_long: 'Keep the gift message to 200 characters.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
+    address_missing: 'Enter your full delivery address.', postcode_invalid: 'Enter your 5-digit Malaysian postcode.', city_missing: 'Enter your city or town.', country_unsupported: 'We deliver within Malaysia only.', state_missing: 'Choose your state. We deliver within Malaysia only.', not_on_sale: 'Something in your basket is not on sale yet. Remove it to continue.', holders_in_pairs: 'Holders come in twos.',
     empty_basket: 'Your basket is empty.', checkout_not_open: 'Checkout opens at launch.', payment_unavailable: 'Payment is not available right now. Nothing was charged. Please try again in a few minutes, or message us on WhatsApp.',
     payment_not_configured: 'Test payments are not set up on this preview yet: the HitPay sandbox key is missing. Nothing was charged.',
     bot_check_failed: 'The security check did not go through. Nothing was charged. Please try again.',
@@ -15,6 +15,32 @@
     bot_check_not_configured: 'The security check is not set up on this preview yet. Nothing was charged.',
     delivery_fees_not_set: 'Delivery fees are not set yet, so we cannot take orders right now.', bad_request: 'Something went wrong. Please try again.',
   };
+
+  // Errors (Design fixes 1 and 2): shown under the box at fault as well as above the button, with a red
+  // border and aria-invalid; cleared when a new attempt starts and when that box is changed.
+  var FIELD = { email_invalid: 'co-email', name_missing: 'co-name', address_missing: 'co-address', postcode_invalid: 'co-postcode',
+    city_missing: 'co-city', state_missing: 'co-state', phone_invalid: 'co-phone' };
+  function clearField(f) {
+    f.removeAttribute('aria-invalid'); f.removeAttribute('aria-describedby');
+    var m = document.getElementById(f.id + '-err'); if (m) m.remove();
+  }
+  function clearErrors() {
+    document.getElementById('co-err').hidden = true;
+    Object.keys(FIELD).forEach(function (k) { var f = document.getElementById(FIELD[k]); if (f) clearField(f); });
+  }
+  function markField(code, msg) {
+    var f = FIELD[code] && document.getElementById(FIELD[code]); if (!f) return null;
+    clearField(f);
+    var m = document.createElement('p'); m.className = 'ferr'; m.id = f.id + '-err'; m.textContent = msg;
+    f.insertAdjacentElement('afterend', m);
+    f.setAttribute('aria-invalid', 'true'); f.setAttribute('aria-describedby', m.id);
+    return f;
+  }
+  Object.keys(FIELD).forEach(function (k) {
+    var f = document.getElementById(FIELD[k]); if (!f) return;
+    var off = function () { if (f.getAttribute('aria-invalid')) { clearField(f); var e = document.getElementById('co-err'); if (e.dataset.field === f.id) e.hidden = true; } };
+    f.addEventListener('input', off); f.addEventListener('change', off);
+  });
 
   // Cloudflare Turnstile writes a one-time token into the form; each token works once, so reset after every try.
   var botToken = '';
@@ -36,7 +62,7 @@
     document.getElementById('bk-offer-t').textContent = window.AHBundle.text(o, cat);
     document.getElementById('bk-offer-h').textContent = pendingSubmit ? 'Before you pay' : (o.kind === 'switch' ? 'Switch to the Bundle' : 'Upgrade to the Bundle');
     document.getElementById('bk-offer-yes').textContent = o.kind === 'switch' ? 'Yes, switch to the Bundle' : 'Upgrade to the Bundle';
-    document.getElementById('bk-offer-no').textContent = pendingSubmit ? 'No thanks, continue' : 'No thanks';
+    document.getElementById('bk-offer-no').textContent = 'No thanks'; // Compliance-approved button words
   }
 
   function items() { return B.read().filter(function (i) { return bySku[i.sku]; }); }
@@ -64,6 +90,12 @@
       row.innerHTML = '<div class="col" style="gap:2px;align-items:flex-start"><b></b><button class="rm" type="button">Remove</button></div>' +
         '<div class="step"><button type="button" aria-label="One fewer">−</button><span aria-live="polite"></span><button type="button" aria-label="One more">+</button></div><span class="pr"></span>';
       row.querySelector('b').textContent = p.name; row.querySelector('b').insertAdjacentHTML('beforeend', warn);
+      if (p.contains && window.AHBundle) { // Design fix 4: say what the Bundle comes with, conditions beside "free"
+        var col = row.querySelector('.col');
+        [window.AHBundle.line(cat), window.AHBundle.conditions(cat)].forEach(function (t) {
+          if (!t) return; var q = document.createElement('p'); q.className = 'bl'; q.textContent = t; col.insertBefore(q, col.querySelector('.rm'));
+        });
+      }
       row.querySelector('.step span').textContent = i.qty; row.querySelector('.pr').textContent = price;
       var bs = row.querySelectorAll('.step button');
       bs[0].onclick = function () { change(i.sku, -1); }; bs[1].onclick = function () { change(i.sku, 1); };
@@ -75,12 +107,23 @@
     var sub = subtotal(list), d = delivery(), test = d === null;
     document.getElementById('bk-sum').innerHTML =
       '<span>Items</span><span>' + rm(sub) + '</span><span>Delivery</span><span>' + (test ? 'RM0 (test)' : rm(d)) + '</span>' +
-      '<span class="tot">You pay</span><span class="tot">' + rm(sub + (d || 0)) + '</span>';
+      '<span class="sep" aria-hidden="true"></span><span class="tot">You pay</span><span class="tot">' + rm(sub + (d || 0)) + '</span>';
     document.getElementById('bk-test').hidden = !test;
     document.getElementById('co-pay').disabled = odd || !checkoutOpen;
     document.getElementById('co-closed').hidden = checkoutOpen;
+    paintKnifeBlock(list);
     paintOffer();
   }
+  // Marketing's line (Viveg, 24 Nov 2026 night): the Bundle already comes with a free Knife Block Set.
+  var KB = cat.bundleOffer && (bySku[cat.bundleOffer.bundle] || {}).free;
+  KB = KB && KB[0];
+  function paintKnifeBlock(list) {
+    var box = document.getElementById('bk-kb'), b = cat.bundleOffer && cat.bundleOffer.bundle;
+    var show = !!(KB && b && list.some(function (i) { return i.sku === b; }) && list.some(function (i) { return i.sku === KB; }));
+    box.hidden = !show;
+    if (show) document.getElementById('bk-kb-t').textContent = cat.kbText.text.replace('{free}', bySku[KB] ? bySku[KB].name : '');
+  }
+  document.getElementById('bk-kb-yes').addEventListener('click', function () { change(KB, -1); });
   function change(sku, by) {
     var b = B.read(); b.forEach(function (i) { if (i.sku === sku) i.qty = Math.max(0, Math.min(20, i.qty + by)); });
     B.write(b.filter(function (i) { return i.qty > 0; })); render();
@@ -93,7 +136,7 @@
 
   document.getElementById('bk-offer-yes').addEventListener('click', function () {
     var o = currentOffer(); if (!o) return;
-    B.write(window.AHBundle.apply(items(), o)); setAnswered(); pendingSubmit = false; render();
+    B.write(window.AHBundle.apply(items(), o)); setAnswered(); pendingSubmit = false; clearErrors(); render();
     var done = document.getElementById('bk-offer-done'); done.hidden = false; done.scrollIntoView({ block: 'center' });
   });
   document.getElementById('bk-offer-no').addEventListener('click', function () {
@@ -105,10 +148,14 @@
     e.preventDefault();
     document.getElementById('bk-offer-done').hidden = true;
     var err = document.getElementById('co-err'), btn = document.getElementById('co-pay');
-    function fail(m, keepBot) { err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; if (!keepBot) botReset(); }
-    var need = [['co-email', 'email_invalid'], ['co-last', 'name_missing'], ['co-address', 'address_missing'], ['co-postcode', 'postcode_invalid'], ['co-city', 'city_missing'], ['co-state', 'state_missing'], ['co-phone', 'phone_invalid']];
-    for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { f.focus(); return fail(ERR[need[k][1]], true); } }
-    if (!/^[0-9]{5}$/.test(document.getElementById('co-postcode').value.trim())) { document.getElementById('co-postcode').focus(); return fail(ERR.postcode_invalid, true); }
+    clearErrors();
+    function fail(m, keepBot, code) {
+      err.textContent = m; err.hidden = false; btn.disabled = false; btn.textContent = 'Go to payment'; if (!keepBot) botReset();
+      var f = code && markField(code, m); err.dataset.field = f ? f.id : '';
+    }
+    var need = [['co-email', 'email_invalid'], ['co-name', 'name_missing'], ['co-address', 'address_missing'], ['co-postcode', 'postcode_invalid'], ['co-city', 'city_missing'], ['co-state', 'state_missing'], ['co-phone', 'phone_invalid']];
+    for (var k = 0; k < need.length; k++) { var f = document.getElementById(need[k][0]); if (!f.value.trim()) { fail(ERR[need[k][1]], true, need[k][1]); f.focus(); return; } }
+    if (!/^[0-9]{5}$/.test(document.getElementById('co-postcode').value.trim())) { fail(ERR.postcode_invalid, true, 'postcode_invalid'); document.getElementById('co-postcode').focus(); return; }
     if (!botToken) return fail('Wait a moment for the security check above the button to finish, then try again.', true);
     if (currentOffer()) {
       pendingSubmit = true; paintOffer();
@@ -117,10 +164,8 @@
     }
     err.hidden = true; btn.disabled = true; btn.textContent = 'Opening payment…';
     var body = { items: items(), customer: {
-      email: val('co-email'), country: val('co-country'), firstName: val('co-first'), lastName: val('co-last'), company: val('co-company'),
+      email: val('co-email'), country: val('co-country'), name: val('co-name'), company: val('co-company'),
       address: val('co-address'), address2: val('co-address2'), postcode: val('co-postcode'), city: val('co-city'), state: state(), phone: val('co-phone') }, turnstile: botToken };
-    var gw = document.getElementById('co-gift'); // only on the page while gift wrap is switched on
-    if (gw) body.gift = { wrap: gw.checked, message: val('co-gmsg'), hidePrices: document.getElementById('co-hide').checked };
     fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (x) {
@@ -129,7 +174,7 @@
           var names = (x.d.skus || []).map(function (s) { return bySku[s] ? bySku[s].name : s; }).join(', ');
           return fetch('/api/stock').then(function (r) { return r.json(); }).then(function (d) { stock = d.items || {}; render(); fail('Sold out while you were checking out: ' + names + '. Remove it to continue.'); });
         }
-        fail(ERR[x.d.error] || ERR.bad_request);
+        fail(ERR[x.d.error] || ERR.bad_request, false, x.d.error);
       })
       .catch(function () { fail('No connection. Nothing was charged. Please try again.'); });
   });

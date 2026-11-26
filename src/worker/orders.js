@@ -5,7 +5,6 @@
 import { createHold, releaseHold, markPaid, validateItems, priceItems } from './stock.js';
 import { createPaymentRequest, getPaymentRequest, amountToSen } from './hitpay.js';
 import malaysia from '../data/malaysia.json' with { type: 'json' };
-import features from '../data/features.json' with { type: 'json' };
 
 const clean = (s, max) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -20,19 +19,20 @@ export function deliveryFor(catalogue, region) {
 /**
  * Check the buyer's details. Delivery is within Malaysia only (Viveg, 22 Nov 2026): the address must
  * name Malaysia as the country and carry a 5-digit postcode, a city and one of Malaysia's states, and the delivery region comes from the state,
- * never from the browser. Fields follow the usual shop checkout: first name (optional), last name, address,
- * apartment (optional), postcode, city, state, phone. Stored as one name and one address line.
+ * never from the browser. Fields: one required full name (Viveg, 24 Nov 2026 night: many Malaysian names have
+ * no family name), company (optional), address, apartment (optional), postcode, city, state, phone.
+ * Stored as one name and one address line.
  */
 export function validateCustomer(c) {
-  const first = clean(c?.firstName, 60), last = clean(c?.lastName, 60), company = clean(c?.company, 100);
+  const name = clean(c?.name, 120), company = clean(c?.company, 100);
   const line1 = clean(c?.address, 200), line2 = clean(c?.address2, 200);
   const postcode = clean(c?.postcode, 10), city = clean(c?.city, 80);
   const country = malaysia.countries.find((x) => x === clean(c?.country, 40));
   const state = malaysia.states.find((s) => s.name === clean(c?.state, 40));
-  const out = { name: [first, last].filter(Boolean).join(' '), email: clean(c?.email, 200).toLowerCase(), phone: clean(c?.phone, 40) };
+  const out = { name, email: clean(c?.email, 200).toLowerCase(), phone: clean(c?.phone, 40) };
   if (!EMAIL.test(out.email)) return { error: 'email_invalid' };
   if (!country) return { error: 'country_unsupported' };
-  if (!last) return { error: 'name_missing' }; // first name is optional, as on the form
+  if (name.length < 2) return { error: 'name_missing' };
   if (line1.length < 5) return { error: 'address_missing' };
   if (!POSTCODE.test(postcode)) return { error: 'postcode_invalid' };
   if (city.length < 2) return { error: 'city_missing' };
@@ -41,18 +41,6 @@ export function validateCustomer(c) {
   // Company (optional, Viveg 24 Nov 2026) goes first in the address, as couriers expect.
   const address = [company, line1, line2, `${postcode} ${city}`, state.name, country].filter(Boolean).join(', ');
   return { customer: { ...out, address, region: state.region } };
-}
-
-/**
- * Gift wrap (Design spec 4.4). While the switch is off (features.giftWrap false) any gift request is refused,
- * so no gift message can be collected. Message up to 200 characters.
- */
-export function validateGift(g, on = features.giftWrap) {
-  const wrap = !!g?.wrap, hide = !!g?.hidePrices, message = clean(g?.message, 400);
-  if (!wrap && !hide && !message) return { gift: { wrap: 0, hide: 0, message: null } };
-  if (!on) return { error: 'gift_wrap_off' };
-  if (message.length > 200) return { error: 'gift_message_too_long' };
-  return { gift: { wrap: wrap ? 1 : 0, hide: hide ? 1 : 0, message: message || null } };
 }
 
 /**
@@ -66,8 +54,6 @@ export async function startCheckout(deps, body) {
   if (v.error) return { status: 400, body: { error: v.error } };
   const c = validateCustomer(body?.customer);
   if (c.error) return { status: 400, body: { error: c.error } };
-  const g = validateGift(body?.gift);
-  if (g.error) return { status: 400, body: { error: g.error } };
   let delivery = deliveryFor(catalogue, c.customer.region);
   if (delivery === null) {
     if (live) return { status: 503, body: { error: 'delivery_fees_not_set' } };
@@ -79,9 +65,9 @@ export async function startCheckout(deps, body) {
   const hold = await createHold(db, v.items, now, newId);
   if (!hold.ok) return { status: 409, body: { error: 'sold_out', skus: hold.skus } };
   const id = hold.holdId;
-  await db.prepare(`INSERT INTO orders (id, created_at, status, name, email, phone, address, region, items_json, subtotal_sen, delivery_sen, total_sen, test, gift_wrap, gift_message, hide_prices)
-                    VALUES (?, ?, 'awaiting_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .bind(id, now, c.customer.name, c.customer.email, c.customer.phone, c.customer.address, c.customer.region, JSON.stringify(v.items), subtotal, delivery, total, live ? 0 : 1, g.gift.wrap, g.gift.message, g.gift.hide).run();
+  await db.prepare(`INSERT INTO orders (id, created_at, status, name, email, phone, address, region, items_json, subtotal_sen, delivery_sen, total_sen, test)
+                    VALUES (?, ?, 'awaiting_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .bind(id, now, c.customer.name, c.customer.email, c.customer.phone, c.customer.address, c.customer.region, JSON.stringify(v.items), subtotal, delivery, total, live ? 0 : 1).run();
   try {
     const pr = await createPaymentRequest(env, fetchFn, {
       totalSen: total, email: c.customer.email, name: c.customer.name, phone: c.customer.phone,

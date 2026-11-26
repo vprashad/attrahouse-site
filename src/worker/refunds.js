@@ -6,7 +6,7 @@ export async function addColumns(db, sql) {
   const stmts = sql.split(';').map((s) => s.replace(/--.*$/gm, '').trim()).filter(Boolean);
   for (const s of stmts) {
     try { await db.prepare(s).run(); }
-    catch (e) { if (!/duplicate column/i.test(String(e && e.message))) throw e; }
+    catch (e) { if (!/duplicate column|no such column/i.test(String(e && e.message))) throw e; }
   }
 }
 

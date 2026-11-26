@@ -1,25 +1,46 @@
 ---
 import Legal from '../components/Legal.astro';
 import catalogue from '../data/products.json';
+import company from '../data/company.json';
 import { rm } from '../lib/site.js';
+// Compliance, compliance/website-legal-pages.md section 7 (Returns and Refunds, EN and BM), as of 26 Nov 2026.
 // The free item's name and worth are read from products.json, never typed.
 const bundle = catalogue.products.find((p) => p.featured);
 const free = catalogue.products.find((p) => p.sku === bundle.free[0]);
 ---
-<Legal title="Returns and Refunds" source="section 7, confirmed by Viveg 22 Nov 2026">
+<Legal title="Returns and Refunds" source="section 7, 26 Nov 2026">
   <h2>Faulty, damaged or wrong items</h2>
-  <p>If something arrives damaged, faulty or wrong, or a magnet becomes loose or visible, contact us within [30] days of delivery at [email] with your order number and a photo. Stop using the piece. We will replace or repair it, or refund you, and we will pay return postage. This does not limit your rights under the Consumer Protection Act 1999.</p>
+  <p>If something arrives damaged, faulty or wrong, or a magnet becomes loose or visible, contact us within [30] days of delivery at {company.email} with your order number and a photo. Stop using the piece. We will replace or repair it, or refund you, and we will pay return postage. This does not limit your rights under the Consumer Protection Act 1999.</p>
   <h2>Change of mind</h2>
-  <p>You can return unused items within 14 days of delivery. Tell us first at [email] with your order number; we'll reply with the return address. You pay the return postage. When the item arrives we check it and refund you within [7] working days:</p>
+  <p>You can return unused items within 14 days of delivery. Tell us first at {company.email} with your order number; we'll reply with the return address. You pay the return postage. When the item arrives we check it and refund you within [7] working days:</p>
   <ul>
     <li><b>Unused, complete and in its original, undamaged packaging:</b> full item price.</li>
     <li><b>Unused and complete, but the packaging is opened, damaged or missing:</b> item price less a restocking fee of 10%.</li>
     <li><b>Used, damaged or with pieces missing:</b> we can't accept it, and we'll send it back to you at your cost.</li>
   </ul>
-  <p>If you return a {bundle.name}, please include the free {free.name}; if it's missing, we deduct {rm(free.priceSen)} from your refund. Custom items can't be returned for a change of mind. The original delivery fee is refunded only if the whole order is returned [Viveg to confirm; still open 22 Nov]. None of this applies to faulty items (see above).</p>
+  <p>If you return a {bundle.name}, please include the free {free.name}; if it's missing, we deduct {rm(free.priceSen)} from your refund. Made-to-order items, such as name sets, can't be returned for a change of mind. The original delivery fee is not refunded on a change-of-mind return. None of this applies to faulty items (see above).</p>
   <h2>Sold out after payment</h2>
   <p>If an item sells out before your payment reaches us, we refund the full amount you paid and start the refund within 7 working days.</p>
   <h2>How refunds are paid</h2>
-  <p>Refunds go back to the method you paid with. Card refunds usually take 5–10 working days to appear after we start them; for FPX and e-wallets, the time depends on your bank or e-wallet. <b>DuitNow QR payments can't be refunded automatically,</b> so we refund those by bank transfer: we'll email you from [business email] to ask for the account holder's name, bank and account number. We delete those details within 30 days after the refund. We will never ask for your password, PIN or TAC/OTP.</p>
-  <p>We refund the full amount you paid; we don't deduct payment fees.</p>
+  <p>Refunds go back to the method you paid with. Card refunds usually take 5–10 working days to appear after we start them; for FPX and e-wallets, the time depends on your bank or e-wallet. <b>DuitNow QR payments can't be refunded automatically,</b> so we refund those by bank transfer: we'll email you from {company.email} to ask for the account holder's name, bank and account number. We delete those details within 30 days after the refund. We will never ask for your password, PIN or TAC/OTP.</p>
+  <p>We never deduct payment-processing fees from a refund. For faulty, wrong or sold-out items we refund everything you paid, including the delivery fee.</p>
+
+  <div lang="ms-MY" class="legal-ms">
+  <h2>Pemulangan dan Bayaran Balik</h2>
+  <h3>Item rosak atau salah</h3>
+  <p>Jika sesuatu item tiba dalam keadaan rosak atau salah, atau magnet menjadi longgar atau kelihatan, hubungi kami dalam tempoh [30] hari selepas penghantaran di {company.email} dengan nombor pesanan dan gambar. Berhenti menggunakan kepingan itu. Kami akan menggantikan atau membaikinya, atau memulangkan bayaran anda, dan kami akan menanggung kos pos pemulangan. Ini tidak mengehadkan hak anda di bawah Akta Pelindungan Pengguna 1999.</p>
+  <h3>Berubah fikiran</h3>
+  <p>Anda boleh memulangkan item yang belum digunakan dalam tempoh 14 hari selepas penghantaran. Maklumkan kami dahulu di {company.email} dengan nombor pesanan anda; kami akan membalas dengan alamat pemulangan. Kos pos pemulangan ditanggung oleh anda. Apabila item sampai, kami akan memeriksanya dan memulangkan bayaran dalam tempoh [7] hari bekerja:</p>
+  <ul>
+    <li><b>Belum digunakan, lengkap dan dalam bungkusan asal yang tidak rosak:</b> harga penuh item.</li>
+    <li><b>Belum digunakan dan lengkap, tetapi bungkusan telah dibuka, rosak atau tiada:</b> harga item ditolak fi penyimpanan semula sebanyak 10%.</li>
+    <li><b>Telah digunakan, rosak atau ada kepingan yang hilang:</b> kami tidak dapat menerimanya, dan kami akan menghantarnya semula kepada anda atas kos anda.</li>
+  </ul>
+  <p>Jika anda memulangkan {bundle.name}, sila sertakan {free.name} percuma; jika ia tiada, kami akan menolak {rm(free.priceSen)} daripada bayaran balik anda. Item tempahan khas, seperti set nama, tidak boleh dipulangkan atas sebab berubah fikiran. Caj penghantaran asal tidak dipulangkan bagi pemulangan atas sebab berubah fikiran. Semua ini tidak terpakai kepada item rosak (lihat di atas).</p>
+  <h3>Habis dijual selepas bayaran</h3>
+  <p>Jika sesuatu item habis dijual sebelum bayaran anda sampai kepada kami, kami akan memulangkan jumlah penuh yang anda bayar dan memulakan bayaran balik dalam tempoh 7 hari bekerja.</p>
+  <h3>Cara bayaran balik dibuat</h3>
+  <p>Bayaran balik dibuat melalui kaedah bayaran yang anda gunakan. Bayaran balik kad biasanya mengambil masa 5–10 hari bekerja untuk dipaparkan selepas kami memulakannya; bagi FPX dan e-dompet, tempohnya bergantung kepada bank atau e-dompet anda. <b>Bayaran DuitNow QR tidak dapat dipulangkan secara automatik,</b> jadi kami memulangkannya melalui pindahan bank: kami akan menghantar e-mel daripada {company.email} untuk meminta nama pemegang akaun, nama bank dan nombor akaun. Kami memadamkan butiran itu dalam tempoh 30 hari selepas bayaran balik. Kami tidak akan sekali-kali meminta kata laluan, PIN atau TAC/OTP anda.</p>
+  <p>Kami tidak sekali-kali menolak fi pemprosesan bayaran daripada bayaran balik. Bagi item rosak, salah atau habis dijual, kami memulangkan semua yang anda bayar, termasuk caj penghantaran.</p>
+  </div>
 </Legal>

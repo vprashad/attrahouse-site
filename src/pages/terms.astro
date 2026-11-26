@@ -1,18 +1,38 @@
 ---
 import Legal from '../components/Legal.astro';
+import company from '../data/company.json';
+// Compliance, compliance/website-legal-pages.md section 7 (Terms of Sale, EN and BM), as of 26 Nov 2026.
+const co = `${company.registeredName} (${company.registrationNumber})`;
 ---
-<Legal title="Terms of Sale" source="section 7, 22 Nov 2026">
+<Legal title="Terms of Sale" source="section 7, 26 Nov 2026">
   <ol>
-    <li><b>Who you're buying from.</b> Attra House Sdn. Bhd. ([company number]), [address], [email], [phone].</li>
+    <li><b>Who you're buying from.</b> {co}, {company.address}, {company.email}, WhatsApp {company.whatsapp}.</li>
     <li><b>Your order.</b> Your order is accepted when we email your order confirmation. If an item sells out before your payment reaches us, we cancel that item and refund you in full (see <a class="link" href="/returns/">Returns and Refunds</a>).</li>
     <li><b>Prices.</b> In Ringgit Malaysia. The total shown before you pay includes delivery and any other charges. A price on the site that is clearly a mistake may be corrected before we accept your order; if so, we will contact you and you may cancel for a full refund.</li>
     <li><b>Payment.</b> Processed by HitPay. We do not see or store your full card details.</li>
     <li><b>Delivery.</b> See our <a class="link" href="/delivery/">Delivery</a> policy. Risk passes to you when the parcel is delivered to the address you gave.</li>
     <li><b>Age and safety.</b> Our toys are for children aged 3 and over. They contain magnets sealed inside each piece. Please read the warnings on the product page and packaging, supervise young children, and stop using any piece that cracks or shows a magnet.</li>
     <li><b>Faulty or wrong items.</b> Your rights under the Consumer Protection Act 1999 are not affected by these terms. See <a class="link" href="/returns/">Returns and Refunds</a>.</li>
-    <li><b>Custom items.</b> Items made to your personal design (for example name letters) can't be returned for a change of mind, but your rights for faulty items still apply.</li>
+    <li><b>Made-to-order items.</b> Name sets and other items made to your choice of letters, wording or colours are made for you. Please check the spelling and colours before you pay. They can't be returned or exchanged for a change of mind. If we make a mistake, or the item arrives faulty or damaged, clause 7 applies. We may decline a name or wording we are not able to make. If you have already paid, we refund you in full.</li>
     <li><b>Licensed designs.</b> Some products are made from designs licensed from independent designers, who are credited on the product page.</li>
-    <li><b>Complaints.</b> Contact us first at [email]. You may also go to the Tribunal for Consumer Claims Malaysia.</li>
+    <li><b>Complaints.</b> Contact us first at {company.email}. You may also go to the Tribunal for Consumer Claims Malaysia.</li>
     <li><b>Law.</b> These terms are governed by the laws of Malaysia.</li>
   </ol>
+
+  <div lang="ms-MY" class="legal-ms">
+  <h2>Terma Jualan</h2>
+  <ol>
+    <li><b>Penjual.</b> {co}, {company.addressMs}, {company.email}, WhatsApp {company.whatsapp}.</li>
+    <li><b>Pesanan anda.</b> Pesanan anda diterima apabila kami menghantar e-mel pengesahan pesanan. Jika sesuatu item habis dijual sebelum bayaran anda sampai kepada kami, kami akan membatalkan item itu dan memulangkan bayaran anda sepenuhnya (lihat Pemulangan dan Bayaran Balik).</li>
+    <li><b>Harga.</b> Dalam Ringgit Malaysia. Jumlah yang dipaparkan sebelum anda membayar termasuk caj penghantaran dan sebarang caj lain. Harga di laman web yang jelas tersilap boleh dibetulkan sebelum kami menerima pesanan anda; jika begitu, kami akan menghubungi anda dan anda boleh membatalkan pesanan untuk bayaran balik penuh.</li>
+    <li><b>Bayaran.</b> Diproses oleh HitPay. Kami tidak melihat atau menyimpan butiran penuh kad anda.</li>
+    <li><b>Penghantaran.</b> Lihat polisi Penghantaran kami. Risiko berpindah kepada anda apabila bungkusan dihantar ke alamat yang anda berikan.</li>
+    <li><b>Umur dan keselamatan.</b> Mainan kami adalah untuk kanak-kanak berumur 3 tahun ke atas. Ia mengandungi magnet yang tertutup di dalam setiap kepingan. Sila baca amaran pada halaman produk dan bungkusan, awasi kanak-kanak kecil, dan berhenti menggunakan mana-mana kepingan yang retak atau menampakkan magnet.</li>
+    <li><b>Item rosak atau salah.</b> Hak anda di bawah Akta Pelindungan Pengguna 1999 tidak terjejas oleh terma ini. Lihat Pemulangan dan Bayaran Balik.</li>
+    <li><b>Item tempahan khas.</b> Set nama dan item lain yang dibuat mengikut pilihan huruf, perkataan atau warna anda dibuat khas untuk anda. Sila semak ejaan dan warna sebelum membayar. Item ini tidak boleh dipulangkan atau ditukar atas sebab berubah fikiran. Jika kami tersilap, atau item tiba dalam keadaan rosak, klausa 7 terpakai. Kami boleh menolak nama atau perkataan yang tidak dapat kami hasilkan. Jika anda telah membayar, kami akan memulangkan bayaran anda sepenuhnya.</li>
+    <li><b>Reka bentuk berlesen.</b> Sesetengah produk dibuat daripada reka bentuk yang dilesenkan daripada pereka bebas, yang dikreditkan pada halaman produk.</li>
+    <li><b>Aduan.</b> Hubungi kami dahulu di {company.email}. Anda juga boleh membuat tuntutan di Tribunal Tuntutan Pengguna Malaysia.</li>
+    <li><b>Undang-undang.</b> Terma ini tertakluk kepada undang-undang Malaysia.</li>
+  </ol>
+  </div>
 </Legal>

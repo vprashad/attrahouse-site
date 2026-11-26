@@ -1,7 +1,6 @@
 {
-  "_source": "Switches for things that are built but must not show yet. Each stays false until its owner says so. giftWrap: free gift wrap is on hold (Viveg 22 Nov 2026; Admin 24 Nov: build switched off). plantBasedPla: the line 'Made from plant-based PLA' is decided (Viveg 24 Nov) but hidden until Compliance confirms the evidence for every filament line. reviews: the reviews box shows only once real buyers have reviewed. tellMeWhen: the coming-soon sign-up waits for Brevo and Compliance's line.",
-  "giftWrap": false,
-  "plantBasedPla": false,
+  "_source": "Switches for things that are built but must not show yet. Each stays false until its owner says so. plantBasedPla: 'Made from plant-based PLA' cleared for all products by Viveg (24 Nov 2026 evening, Compliance delta 24 Nov); on. reviews: the reviews box shows only once real buyers have reviewed. tellMeWhen: the coming-soon sign-up waits for Brevo and Compliance's line. Gift wrap was dropped by Viveg (24 Nov 2026 night) and removed from the code.",
+  "plantBasedPla": true,
   "reviews": false,
   "tellMeWhen": false
 }

@@ -5,14 +5,14 @@ import { makeD1 } from './d1-shim.js';
 import { readFileSync } from 'node:fs';
 import catalogue from '../src/data/products.json' with { type: 'json' };
 import { seedStock } from '../src/worker/stock.js';
-import { startCheckout, confirmOrder, publicOrder, validateCustomer, validateGift } from '../src/worker/orders.js';
+import { startCheckout, confirmOrder, publicOrder, validateCustomer } from '../src/worker/orders.js';
 import { verifySignature, checkWebhook, amountToSen } from '../src/worker/hitpay.js';
 import features from '../src/data/features.json' with { type: 'json' };
 
 const T0 = Date.UTC(2026, 11, 1);
 let n = 0;
 const ids = () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`;
-const buyer = { email: 'mei@example.com', country: 'Malaysia', firstName: 'Mei', lastName: 'Tan', address: '12 Jalan Contoh', address2: 'Taman Contoh', postcode: '43000', city: 'Kajang', state: 'Selangor', phone: '+60 12-345 6789' };
+const buyer = { email: 'mei@example.com', country: 'Malaysia', name: 'Mei Tan', address: '12 Jalan Contoh', address2: 'Taman Contoh', postcode: '43000', city: 'Kajang', state: 'Selangor', phone: '+60 12-345 6789' };
 
 // A pretend HitPay: records what it is asked and answers like the real API.
 function fakeHitPay() {
@@ -33,7 +33,7 @@ function fakeHitPay() {
 async function setup() {
   const db = makeD1();
   db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
-  for (const f of ['0003_refunds.sql', '0004_gift.sql']) await addColumns(db, readFileSync(new URL(`../migrations/${f}`, import.meta.url), 'utf8'));
+  for (const f of ['0003_refunds.sql', '0005_drop_gift.sql']) await addColumns(db, readFileSync(new URL(`../migrations/${f}`, import.meta.url), 'utf8'));
   await seedStock(db, catalogue, T0);
   const hp = fakeHitPay();
   const deps = { db, env: { HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_API_KEY_LIVE: 'live-key', CURRENCY: 'MYR' }, fetchFn: hp.fetchFn, now: T0, newId: ids, origin: 'https://preview.example', catalogue };
@@ -151,10 +151,12 @@ test('delivery is within Malaysia only: a 5-digit postcode and a Malaysian state
   assert.equal(c.region, 'peninsular');
   assert.equal(c.address, '12 Jalan Contoh, Taman Contoh, 43000 Kajang, Selangor, Malaysia');
   assert.equal(c.name, 'Mei Tan');
-  const bare = validateCustomer({ ...buyer, firstName: '', address2: '' }).customer; // both optional
-  assert.equal(bare.name, 'Tan');
+  const bare = validateCustomer({ ...buyer, address2: '' }).customer; // apartment is optional
   assert.equal(bare.address, '12 Jalan Contoh, 43000 Kajang, Selangor, Malaysia');
-  assert.equal(validateCustomer({ ...buyer, lastName: ' ' }).error, 'name_missing');
+  // One Full name box (Viveg, 24 Nov 2026 night): names with no family name are accepted as typed
+  assert.equal(validateCustomer({ ...buyer, name: '  Siti Nurhaliza   binti Tarudin ' }).customer.name, 'Siti Nurhaliza binti Tarudin');
+  assert.equal(validateCustomer({ ...buyer, name: 'Arjun a/l Kumar' }).customer.name, 'Arjun a/l Kumar');
+  for (const name of ['', ' ', 'A', undefined]) assert.equal(validateCustomer({ ...buyer, name }).error, 'name_missing', String(name));
   assert.equal(validateCustomer({ ...buyer, company: 'Tadika Ceria Sdn Bhd' }).customer.address, 'Tadika Ceria Sdn Bhd, 12 Jalan Contoh, Taman Contoh, 43000 Kajang, Selangor, Malaysia');
   assert.equal(validateCustomer({ ...buyer, city: '' }).error, 'city_missing');
   for (const country of ['', 'Singapore', 'MY', undefined]) assert.equal(validateCustomer({ ...buyer, country }).error, 'country_unsupported', String(country));
@@ -208,17 +210,21 @@ test('the sandbox key only goes to the sandbox, the live key only to live', asyn
   assert.equal(apiKey({ HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_BASE: 'https://api.hit-pay.com' }), undefined);
 });
 
-test('gift wrap is built switched off: no gift request or message is accepted while the switch is off', async () => {
-  assert.equal(features.giftWrap, false, 'switch stays off until Viveg confirms and the 90-day message clean-up exists');
-  assert.equal(validateGift({ wrap: true }).error, 'gift_wrap_off');
-  assert.equal(validateGift({ message: 'Happy birthday' }).error, 'gift_wrap_off');
-  assert.equal(validateGift({ hidePrices: true }).error, 'gift_wrap_off');
-  assert.deepEqual(validateGift(undefined).gift, { wrap: 0, hide: 0, message: null });
-  assert.deepEqual(validateGift({ wrap: true, message: ' Happy birthday ' }, true).gift, { wrap: 1, hide: 0, message: 'Happy birthday' });
-  assert.equal(validateGift({ wrap: true, message: 'x'.repeat(201) }, true).error, 'gift_message_too_long');
+test('gift wrap is gone: a gift request in the body is ignored and nothing about it is stored', async () => {
   const { db, deps } = await setup();
   const r = await startCheckout(deps, { items: [{ sku: 'fruit-basket', qty: 1 }], customer: buyer, gift: { wrap: true, message: 'Hi' } });
-  assert.equal(r.status, 400);
-  assert.equal(r.body.error, 'gift_wrap_off');
-  assert.equal(db.raw.prepare('SELECT COUNT(*) AS n FROM orders').get().n, 0);
+  assert.equal(r.status, 200);
+  const cols = db.raw.prepare('PRAGMA table_info(orders)').all().map((c) => c.name);
+  for (const c of ['gift_wrap', 'gift_message', 'hide_prices']) assert.ok(!cols.includes(c), c);
+});
+
+test('the gift columns are dropped from a database that had them, and the clean-up is safe to repeat', async () => {
+  const db = makeD1();
+  db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
+  db.raw.exec('ALTER TABLE orders ADD COLUMN gift_wrap INTEGER NOT NULL DEFAULT 0; ALTER TABLE orders ADD COLUMN gift_message TEXT; ALTER TABLE orders ADD COLUMN hide_prices INTEGER NOT NULL DEFAULT 0');
+  const drop = readFileSync(new URL('../migrations/0005_drop_gift.sql', import.meta.url), 'utf8');
+  await addColumns(db, drop);
+  await addColumns(db, drop); // second start: nothing left to drop, no error
+  const cols = db.raw.prepare('PRAGMA table_info(orders)').all().map((c) => c.name);
+  for (const c of ['gift_wrap', 'gift_message', 'hide_prices']) assert.ok(!cols.includes(c), c);
 });

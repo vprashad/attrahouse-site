@@ -3,17 +3,20 @@
 import Logo from './Logo.astro';
 import company from '../data/company.json';
 import strings from '../data/strings.json';
+// The bottom bar is not shown on the basket page: it covered the form and opened the page already open (Design fix 6).
+const onBasket = Astro.url.pathname.startsWith('/basket');
 ---
 <footer id="contact"><div class="ft"><div class="wrap ftg">
   <div class="col"><Logo size={44} word={26} dark />
     <span>Printed in small batches in Selangor, Malaysia.</span>
-    <span>Questions? WhatsApp {company.whatsapp} · {company.email}</span>
-    <span>{company.registeredName} {company.registrationNumber} · {company.address}</span>
+    {/* Compliance's footer text (compliance/website-legal-pages.md section 7, 26 Nov 2026); Companies Act 2016 s.30 */}
+    <span>© 2026 {company.registeredName} ({company.registrationNumber}). {company.town}.</span>
+    <span>{company.email} · WhatsApp {company.whatsapp} (messages only)</span>
   </div>
   <div class="col"><b class="fh">Shop</b><a href="/#sets">All sets</a><a href="/grand-kitchen-bundle/">Grand Kitchen Bundle</a><a href="/holders/">Holders</a><a href="/#schools">For schools</a></div>
   <div class="col"><b class="fh">About</b><a href="/#story">Our story</a><a href="/#made">How it's made</a><a href="/#faq">FAQ</a></div>
   <div class="col"><b class="fh">Help</b><a href="/delivery/">Delivery</a><a href="/returns/">Returns and refunds</a><a href="/terms/">Terms of sale</a><a href="/privacy/">Privacy notice</a></div>
   <div class="col fx"><span>{strings.deliveryArea.en}</span><span>Pay with cards, FPX, DuitNow QR, Touch 'n Go eWallet, GrabPay, ShopeePay or SPayLater.</span><span>Instagram: <a class="ig" href={company.instagram} rel="noopener">@attrahouse</a></span></div>
 </div></div></footer>
-<div class="bbar"><a class="btn main" href="/#sets">Shop the sets</a><a class="btn line" href="/basket/">Basket <span data-basket-count></span></a></div>
+{!onBasket && <div class="bbar"><a class="btn main" href="/#sets">Shop the sets</a><a class="btn line" href="/basket/">Basket <span data-basket-count></span></a></div>}
 <script is:inline src="/js/basket.js" defer></script>

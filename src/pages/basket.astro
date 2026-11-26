@@ -6,9 +6,8 @@ import catalogue from '../data/products.json';
 import turnstile from '../data/turnstile.json';
 import strings from '../data/strings.json';
 import malaysia from '../data/malaysia.json';
-import features from '../data/features.json';
 import { bundleConditions, onSale } from '../lib/bundle.js';
-const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, priceSen, group, contains, free }) => ({ sku, name, priceSen, group, contains, free })), groups: catalogue.groups, delivery: catalogue.delivery, bundleOffer: catalogue.bundleOffer, bundleText: strings.bundle, states: malaysia.states };
+const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, priceSen, group, contains, free }) => ({ sku, name, priceSen, group, contains, free })), groups: catalogue.groups, delivery: catalogue.delivery, bundleOffer: catalogue.bundleOffer, bundleText: strings.bundle, kbText: strings.knifeBlockInBundle, states: malaysia.states };
 ---
 <Base title="Basket · Attra House" description="Your basket." noindex>
   <Header />
@@ -18,59 +17,49 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
     <div id="bk-full" hidden>
       <div class="bk-list" id="bk-list"></div>
       <p class="err" id="bk-pairs" hidden>Holders come in twos: add or remove one so you have an even number.</p>
-      <div class="two" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s7);align-items:start;margin-top:var(--s6)">
+      <div class="kbline" id="bk-kb" hidden>
+        <p id="bk-kb-t"></p>
+        <button class="btn line sm" type="button" id="bk-kb-yes">{strings.knifeBlockInBundle.button}</button>
+      </div>
+      <div class="offer" id="bk-offer" hidden>
+        <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>
+        <p id="bk-offer-t"></p>
+        <p class="sm">{bundleConditions}</p>
+        <div class="row">
+          <button class="btn main" type="button" id="bk-offer-yes">Upgrade to the Bundle</button>
+          <button class="btn line" type="button" id="bk-offer-no">No thanks</button>
+        </div>
+      </div>
+      <p class="sm" id="bk-offer-done" role="status" hidden>Your basket now has the Grand Kitchen Bundle. Check your new total, then press Go to payment.</p>
+      <div class="bk-grid">
         <form class="wl" id="co" novalidate>
           <h2>Contact</h2>
-          <label for="co-email">Email <i>For your order confirmation.</i><input id="co-email" type="email" autocomplete="email" required /></label>
+          <label for="co-email"><span class="lt">Email <i>For your order confirmation.</i></span><input id="co-email" type="email" autocomplete="email" required /></label>
           <h2>Delivery</h2>
-          <label for="co-country">Country/Region
-            <select id="co-country" autocomplete="country-name" required>
-              {malaysia.countries.map((c) => <option value={c}>{c}</option>)}
-            </select>
-          </label>
-          <p class="sm">{strings.deliveryArea.en}</p>
-          <div class="frow two">
-            <label for="co-first">First name <i>Optional</i><input id="co-first" type="text" autocomplete="given-name" /></label>
-            <label for="co-last">Last name<input id="co-last" type="text" autocomplete="family-name" required /></label>
-          </div>
-          <label for="co-company">Company <i>Optional</i><input id="co-company" type="text" autocomplete="organization" /></label>
-          <label for="co-address">Address<input id="co-address" type="text" autocomplete="address-line1" required /></label>
-          <label for="co-address2">Apartment, suite, etc. <i>Optional</i><input id="co-address2" type="text" autocomplete="address-line2" /></label>
+          <div class="fixed"><span class="lt">Country/Region</span><b>Malaysia</b><span class="sm">{strings.deliveryArea.en}</span></div>
+          <input id="co-country" type="hidden" value={malaysia.countries[0]} />
+          <label for="co-name"><span class="lt">Full name</span><input id="co-name" type="text" autocomplete="name" required /></label>
+          <label for="co-company"><span class="lt">Company <i>(optional)</i></span><input id="co-company" type="text" autocomplete="organization" /></label>
+          <label for="co-address"><span class="lt">Address</span><input id="co-address" type="text" autocomplete="address-line1" required /></label>
+          <label for="co-address2"><span class="lt">Apartment, suite, etc. <i>(optional)</i></span><input id="co-address2" type="text" autocomplete="address-line2" /></label>
           <div class="frow three">
-            <label for="co-postcode">Postcode<input id="co-postcode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern={malaysia.postcode.slice(1, -1)} required /></label>
-            <label for="co-city">City<input id="co-city" type="text" autocomplete="address-level2" required /></label>
-            <label for="co-state">State/territory
+            <label for="co-postcode"><span class="lt">Postcode</span><input id="co-postcode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern={malaysia.postcode.slice(1, -1)} required /></label>
+            <label for="co-city"><span class="lt">City</span><input id="co-city" type="text" autocomplete="address-level2" required /></label>
+            <label for="co-state"><span class="lt">State/territory</span>
               <select id="co-state" autocomplete="address-level1" required>
                 <option value="">Choose</option>
                 {malaysia.states.map((s) => <option value={s.name}>{s.name}</option>)}
               </select>
             </label>
           </div>
-          {features.giftWrap && (
-            <fieldset class="gift"><legend>Gift</legend>
-              <label class="ck" for="co-gift"><input id="co-gift" type="checkbox" /><span>This is a gift: wrap it for free</span></label>
-              <label for="co-gmsg">Gift message <i>Optional, up to 200 characters.</i><textarea id="co-gmsg" maxlength="200"></textarea></label>
-              <label class="ck" for="co-hide"><input id="co-hide" type="checkbox" /><span>Leave prices off the packing slip</span></label>
-            </fieldset>
-          )}
-          <label for="co-phone">Phone <i>The courier may call this number.</i><input id="co-phone" type="tel" autocomplete="tel" required /></label>
-          <div class="offer" id="bk-offer" hidden>
-            <h2 id="bk-offer-h" tabindex="-1">Upgrade to the Bundle</h2>
-            <p id="bk-offer-t"></p>
-            <p class="sm">{bundleConditions}</p>
-            <div class="row">
-              <button class="btn main" type="button" id="bk-offer-yes">Upgrade to the Bundle</button>
-              <button class="btn line" type="button" id="bk-offer-no">No thanks</button>
-            </div>
-          </div>
-          <p class="sm" id="bk-offer-done" role="status" hidden>Your basket now has the Grand Kitchen Bundle. Check your new total, then press Go to payment.</p>
+          <label for="co-phone"><span class="lt">Phone <i>The courier may call this number, e.g. 012-345 6789</i></span><input id="co-phone" type="tel" autocomplete="tel" required /></label>
           <div class="cf-turnstile" data-sitekey={turnstile.sitekey} data-action={turnstile.action} data-size="flexible" data-theme="light" data-callback="ahBotOk" data-expired-callback="ahBotExpired" data-error-callback="ahBotError"></div>
           <p class="err" id="co-err" role="alert" hidden></p>
           <p class="sm" set:html={strings.checkoutTerms.en.replace('{terms}', '<a class="link" href="/terms/">Terms of Sale</a>').replace('{privacy}', '<a class="link" href="/privacy/">Privacy Notice</a>')} />
-          <button class="btn main" type="submit" id="co-pay">Go to payment</button>
+          <button class="btn main pay" type="submit" id="co-pay">Go to payment</button>
           <p class="sm" id="co-closed" hidden>Checkout opens at launch.</p>
         </form>
-        <div class="col">
+        <div class="col bk-side">
           <h2>Summary</h2>
           <div class="bk-sum" id="bk-sum"></div>
           <p class="testnote" id="bk-test" hidden>Test checkout: payments go to the HitPay sandbox and no real money moves. Delivery fees are not set yet, so delivery shows RM0.</p>

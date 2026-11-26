@@ -86,7 +86,7 @@ th{font:800 var(--t-label) var(--body);letter-spacing:.08em;text-transform:upper
 form{display:flex;flex-direction:column;gap:var(--s4);max-width:440px}
 label{font-weight:800;display:flex;flex-direction:column;gap:6px}
 label i{font-style:normal;font-weight:600;color:var(--brown);font-size:var(--t-small)}
-input[type=text],input[type=email],input[type=tel],select{font:600 17px var(--body);color:var(--ink);background:var(--white);border:1.5px solid var(--brown);border-radius:var(--r-field);padding:12px 14px;min-height:48px;width:100%}
+input[type=text],input[type=email],input[type=tel],select{font:600 17px var(--body);color:var(--ink);background:var(--white);border:1.5px solid var(--brown);border-radius:var(--r-field);padding:12px 14px;height:50px;min-height:48px;width:100%;box-sizing:border-box}
 .bad input{border-color:var(--red);border-width:2px}
 .err{color:var(--red);font-weight:800;font-size:16px}
 .ck{flex-direction:row;align-items:flex-start;gap:12px;font-weight:600}
@@ -217,9 +217,26 @@ footer .col span{color:var(--sand)} footer .lock span,footer .wm b{color:var(--c
 .step button:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:999px}
 .step span{min-width:28px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}
 .bk-row .pr{font-weight:800;font-variant-numeric:tabular-nums;text-align:right;min-width:80px}
-.bk-row .rm{appearance:none;border:0;background:none;color:var(--brown);font:700 14px var(--body);text-decoration:underline;cursor:pointer;padding:6px 0;justify-self:start}
+.bk-row .rm{appearance:none;border:0;background:none;color:var(--brown);font:700 14px var(--body);text-decoration:underline;cursor:pointer;padding:12px 0;min-height:44px;justify-self:start}
+.bk-row .step{justify-self:start}
+.bk-row .bl{font-size:var(--t-small);font-weight:600;margin:2px 0 0;max-width:46ch}
 .bk-sum{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;max-width:420px;font-variant-numeric:tabular-nums}
-.bk-sum .tot{font-weight:800;border-top:1.5px solid var(--ink);padding-top:8px}
+.bk-sum .tot{font-weight:800}
+.bk-sum .sep{grid-column:1/-1;border-top:1.5px solid var(--ink);margin-top:2px}
+/* Checkout (Design fix list, 24 Nov 2026) */
+.bk-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s7);align-items:start;margin-top:var(--s6)}
+.bk-side{order:-1}
+@media (min-width:900px){.bk-grid{grid-template-columns:minmax(0,1.25fr) minmax(280px,1fr)}.bk-side{order:0;position:sticky;top:96px}}
+label .lt{display:block}
+label .lt i{display:inline;margin-left:4px}
+.fixed{display:flex;flex-direction:column;gap:4px}
+.fixed .lt{font-weight:800}
+.ferr{color:var(--red);font-weight:800;font-size:var(--t-small);margin:0}
+input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--red);border-width:2px}
+#co-pay{justify-content:center;text-align:center}
+.kbline{border:1.5px solid var(--ink);border-radius:var(--r-tile);padding:var(--s4) var(--s5);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center;justify-content:space-between;margin-top:var(--s5)}
+.kbline p{margin:0;max-width:52ch}
+#bk-offer,#bk-offer-done{margin-top:var(--s5)}
 fieldset.reg{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
 fieldset.reg legend{font-weight:800;margin-bottom:6px}
 fieldset.reg label{flex-direction:row;align-items:center;gap:10px;font-weight:600}

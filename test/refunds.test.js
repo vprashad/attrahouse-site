@@ -14,7 +14,7 @@ async function setup() {
   const db = makeD1();
   db.raw.exec(sql('0002_orders.sql'));
   await addColumns(db, sql('0003_refunds.sql'));
-  await addColumns(db, sql('0004_gift.sql'));
+  await addColumns(db, sql('0005_drop_gift.sql'));
   await seedStock(db, catalogue, T);
   return db;
 }
