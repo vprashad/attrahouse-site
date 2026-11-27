@@ -1,11 +1,15 @@
 ---
 // Pre-launch page (SITE_MODE=landing): logo and Instagram link only (Viveg, 23-24 Nov 2026).
 // No line, no tagline, no shop, no prices, no form. The heading is for screen readers only.
+// 27 Nov 2026 (Viveg via Admin): add the company line (Companies Act 2016 s.30) and the WhatsApp button (off until set up).
 import Logo from './Logo.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
 import company from '../data/company.json';
 ---
 <main class="wrap landing">
   <Logo size={96} word={56} />
   <h1 class="sr-only">Attra House</h1>
   <p><a class="link" href={company.instagram} rel="noopener">Follow @attrahouse on Instagram</a></p>
+  <p class="coline-l">© 2026 {company.registeredName} {company.registrationNumber}</p>
 </main>
+<WhatsAppButton />

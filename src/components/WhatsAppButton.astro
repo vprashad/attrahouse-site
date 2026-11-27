@@ -1,0 +1,13 @@
+---
+// WhatsApp button (Design, 26 Nov 2026; words "Chat on WhatsApp", Viveg 27 Nov). Used on the shop pages and the
+// pre-launch landing page. Shown only when features.whatsappButton is on AND Meta's official WhatsApp logo file,
+// unaltered, is at public/img/whatsapp-logo.svg. Meta's rules: never "WhatsApp" as a verb, logo not redrawn.
+import company from '../data/company.json';
+import strings from '../data/strings.json';
+import features from '../data/features.json';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+const waLogo = '/img/whatsapp-logo.svg';
+const show = features.whatsappButton && existsSync(join(process.cwd(), 'public', waLogo));
+---
+{show && <a class="wa" href={company.whatsappLink} target="_blank" rel="noopener" aria-label={strings.whatsappButton.aria}><img src={waLogo} alt="" width="30" height="30" /><span class="wa-t" aria-hidden="true">{strings.whatsappButton.label}</span></a>}

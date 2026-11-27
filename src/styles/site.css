@@ -189,6 +189,7 @@ footer .col span{color:var(--sand)} footer .lock span,footer .wm b{color:var(--c
 .landing .lock{gap:16px}
 .landing h1{font:600 var(--t-h1)/1.1 var(--display);max-width:18ch}
 .landing p{color:var(--brown);font-weight:600}
+.landing .coline-l{font-size:var(--t-small);font-weight:700;color:var(--ink)}
 .landing .fruit{max-width:520px}
 /* ---- shop status tags ---- */
 .tag[data-stock]:empty{display:none}

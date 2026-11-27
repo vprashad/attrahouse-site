@@ -40,8 +40,8 @@
     "button": "Remove it"
   },
   "whatsappButton": {
-    "_source": "Design, design/for-deployment-whatsapp-footer-2026-11-26.md section 1. NOTE: Meta's WhatsApp brand rules say not to use WhatsApp as a verb, so 'WhatsApp us' must be reworded (Design/Marketing) before the button is switched on.",
-    "label": "WhatsApp us",
+    "_source": "Design, design/for-deployment-whatsapp-footer-2026-11-26.md section 1; words 'Chat on WhatsApp' (Viveg via Admin, 27 Nov 2026 night), in line with Meta's rule not to use WhatsApp as a verb.",
+    "label": "Chat on WhatsApp",
     "aria": "Chat with Attra House on WhatsApp, 017-368 6197. Messages only. Opens WhatsApp."
   },
   "marketingTick": {

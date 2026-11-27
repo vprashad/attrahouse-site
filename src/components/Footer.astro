@@ -4,12 +4,9 @@ import Logo from './Logo.astro';
 import company from '../data/company.json';
 import strings from '../data/strings.json';
 import features from '../data/features.json';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-// WhatsApp button (Design, 26 Nov 2026): off until WhatsApp Business is set up. The logo must be Meta's own file,
-// unaltered, placed at public/img/whatsapp-logo.svg; without it the button is not shown at all.
-const waLogo = '/img/whatsapp-logo.svg';
-const showWa = features.whatsappButton && existsSync(join(process.cwd(), 'public', waLogo));
+import WhatsAppButton from './WhatsAppButton.astro';
+// Footer bottom padding is raised only when the WhatsApp button can show (see WhatsAppButton.astro).
+const showWa = features.whatsappButton;
 // The bottom bar is not shown on the basket page: it covered the form and opened the page already open (Design fix 6).
 const onBasket = Astro.url.pathname.startsWith('/basket');
 ---
@@ -18,7 +15,7 @@ const onBasket = Astro.url.pathname.startsWith('/basket');
     <span>Printed in small batches in Selangor, Malaysia.</span>
     {/* Design's footer lines approved by Viveg (26 Nov 2026); company name and number per Companies Act 2016 s.30 */}
     <span>Email <a href={`mailto:${company.email}`}>{company.email}</a> · WhatsApp (messages only): <a href={company.whatsappLink} target="_blank" rel="noopener">{company.whatsappLocal}</a></span>
-    <span class="coline">{company.registeredName} {company.registrationNumber}</span>
+    <span class="coline">© 2026 {company.registeredName} {company.registrationNumber}</span>
     <span>{company.town}</span>
   </div>
   <div class="col"><b class="fh">Shop</b><a href="/#sets">All sets</a><a href="/grand-kitchen-bundle/">Grand Kitchen Bundle</a><a href="/holders/">Holders</a><a href="/#schools">For schools</a></div>
@@ -27,5 +24,5 @@ const onBasket = Astro.url.pathname.startsWith('/basket');
   <div class="col fx"><span>{strings.deliveryArea.en}</span><span>Pay with cards, FPX, DuitNow QR, Touch 'n Go eWallet, GrabPay, ShopeePay or SPayLater.</span><span>Instagram: <a class="ig" href={company.instagram} rel="noopener">@attrahouse</a></span></div>
 </div></div></footer>
 {!onBasket && <div class="bbar"><a class="btn main" href="/#sets">Shop the sets</a><a class="btn line" href="/basket/">Basket <span data-basket-count></span></a></div>}
-{showWa && <a class="wa" href={company.whatsappLink} target="_blank" rel="noopener" aria-label={strings.whatsappButton.aria}><img src={waLogo} alt="" width="30" height="30" /><span class="wa-t" aria-hidden="true">{strings.whatsappButton.label}</span></a>}
+<WhatsAppButton />
 <script is:inline src="/js/basket.js" defer></script>
