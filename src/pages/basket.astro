@@ -53,6 +53,7 @@ const cat = { products: catalogue.products.filter(onSale).map(({ sku, name, pric
             </label>
           </div>
           <label for="co-phone"><span class="lt">Phone <i>The courier may call this number, e.g. 012-345 6789</i></span><input id="co-phone" type="tel" autocomplete="tel" required /></label>
+          <label class="tick" for="co-news"><input id="co-news" type="checkbox" /><span>{strings.marketingTick.en}</span></label>
           <div class="cf-turnstile" data-sitekey={turnstile.sitekey} data-action={turnstile.action} data-size="flexible" data-theme="light" data-callback="ahBotOk" data-expired-callback="ahBotExpired" data-error-callback="ahBotError"></div>
           <p class="err" id="co-err" role="alert" hidden></p>
           <p class="sm" set:html={strings.checkoutTerms.en.replace('{terms}', '<a class="link" href="/terms/">Terms of Sale</a>').replace('{privacy}', '<a class="link" href="/privacy/">Privacy Notice</a>')} />

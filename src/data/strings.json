@@ -38,5 +38,15 @@
     "_source": "Marketing's version, chosen by Viveg (Admin update, 24 Nov 2026 night). Shown when the basket has the Bundle and a separate Chef's Knife Block Set. {free} is filled from products.json. BM is in Marketing's copy pack; BM pages do not exist yet.",
     "text": "Your Bundle already includes a free {free}. Remove the one you added?",
     "button": "Remove it"
+  },
+  "whatsappButton": {
+    "_source": "Design, design/for-deployment-whatsapp-footer-2026-11-26.md section 1. NOTE: Meta's WhatsApp brand rules say not to use WhatsApp as a verb, so 'WhatsApp us' must be reworded (Design/Marketing) before the button is switched on.",
+    "label": "WhatsApp us",
+    "aria": "Chat with Attra House on WhatsApp, 017-368 6197. Messages only. Opens WhatsApp."
+  },
+  "marketingTick": {
+    "_source": "Compliance, compliance/website-legal-pages.md section 4 'Checkout lines' (Viveg, 26 Nov 2026: email and WhatsApp). Optional and unticked; the date and time of each tick is stored with the order.",
+    "en": "Send me news and offers from Attra House by email and WhatsApp. You can unsubscribe at any time.",
+    "ms": "Hantar berita dan tawaran daripada Attra House kepada saya melalui e-mel dan WhatsApp. Anda boleh berhenti melanggan pada bila-bila masa."
   }
 }

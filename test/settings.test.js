@@ -41,6 +41,7 @@ test('the private page shows the box and never the key or salt values', async ()
   db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
   await addColumns(db, readFileSync(new URL('../migrations/0003_refunds.sql', import.meta.url), 'utf8'));
   await addColumns(db, readFileSync(new URL('../migrations/0005_drop_gift.sql', import.meta.url), 'utf8'));
+  await addColumns(db, readFileSync(new URL('../migrations/0006_marketing.sql', import.meta.url), 'utf8'));
   await seedStock(db, catalogue, Date.UTC(2026, 10, 18));
   const env = { ...preview, DB: db, BREVO_API_KEY: 'xkeysib-test-secret-value' };
   const res = await handleAdmin(new Request('https://x.test/admin/'), env, catalogue, 'owner@example.com', 'shop');

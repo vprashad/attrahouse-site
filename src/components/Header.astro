@@ -20,7 +20,7 @@ const links = [['Shop', '/#sets'], ['Our story', '/#story'], ['How it\'s made', 
 </div></header>
 <script is:inline>
 (function(){var b=document.querySelector('.menu-btn'),n=document.getElementById('main-nav');if(!b||!n)return;
-function set(o){b.setAttribute('aria-expanded',o);n.classList.toggle('open',o);}
+function set(o){b.setAttribute('aria-expanded',o);n.classList.toggle('open',o);document.documentElement.classList.toggle('menu-open',o);}
 b.addEventListener('click',function(){set(b.getAttribute('aria-expanded')!=='true');});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&n.classList.contains('open')){set(false);b.focus();}});
 n.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});})();

@@ -65,9 +65,11 @@ export async function startCheckout(deps, body) {
   const hold = await createHold(db, v.items, now, newId);
   if (!hold.ok) return { status: 409, body: { error: 'sold_out', skus: hold.skus } };
   const id = hold.holdId;
-  await db.prepare(`INSERT INTO orders (id, created_at, status, name, email, phone, address, region, items_json, subtotal_sen, delivery_sen, total_sen, test)
-                    VALUES (?, ?, 'awaiting_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .bind(id, now, c.customer.name, c.customer.email, c.customer.phone, c.customer.address, c.customer.region, JSON.stringify(v.items), subtotal, delivery, total, live ? 0 : 1).run();
+  // Marketing tick (Compliance, 26 Nov 2026): optional; stored with the date and time it was ticked.
+  const news = body?.marketing === true;
+  await db.prepare(`INSERT INTO orders (id, created_at, status, name, email, phone, address, region, items_json, subtotal_sen, delivery_sen, total_sen, test, marketing_consent, marketing_consent_at)
+                    VALUES (?, ?, 'awaiting_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .bind(id, now, c.customer.name, c.customer.email, c.customer.phone, c.customer.address, c.customer.region, JSON.stringify(v.items), subtotal, delivery, total, live ? 0 : 1, news ? 1 : 0, news ? now : null).run();
   try {
     const pr = await createPaymentRequest(env, fetchFn, {
       totalSen: total, email: c.customer.email, name: c.customer.name, phone: c.customer.phone,

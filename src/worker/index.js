@@ -11,6 +11,7 @@ import schema1 from '../../migrations/0001_stock.sql';
 import schema2 from '../../migrations/0002_orders.sql';
 import schema3 from '../../migrations/0003_refunds.sql';
 import schema5 from '../../migrations/0005_drop_gift.sql';
+import schema6 from '../../migrations/0006_marketing.sql';
 import { addColumns } from './refunds.js';
 import { checkBot } from './turnstile.js';
 import turnstile from '../data/turnstile.json';
@@ -20,7 +21,7 @@ let ready = null;
 function ensureReady(db) {
   if (!ready) {
     const stmts = (schema1 + ';' + schema2).split(';').map((s) => s.replace(/--.*$/gm, '').trim()).filter(Boolean);
-    ready = db.batch(stmts.map((s) => db.prepare(s))).then(() => addColumns(db, schema3)).then(() => addColumns(db, schema5)).then(() => seedStock(db, catalogue, Date.now())).catch((e) => { ready = null; throw e; });
+    ready = db.batch(stmts.map((s) => db.prepare(s))).then(() => addColumns(db, schema3)).then(() => addColumns(db, schema5)).then(() => addColumns(db, schema6)).then(() => seedStock(db, catalogue, Date.now())).catch((e) => { ready = null; throw e; });
   }
   return ready;
 }

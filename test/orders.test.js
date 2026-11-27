@@ -33,7 +33,7 @@ function fakeHitPay() {
 async function setup() {
   const db = makeD1();
   db.raw.exec(readFileSync(new URL('../migrations/0002_orders.sql', import.meta.url), 'utf8'));
-  for (const f of ['0003_refunds.sql', '0005_drop_gift.sql']) await addColumns(db, readFileSync(new URL(`../migrations/${f}`, import.meta.url), 'utf8'));
+  for (const f of ['0003_refunds.sql', '0005_drop_gift.sql', '0006_marketing.sql']) await addColumns(db, readFileSync(new URL(`../migrations/${f}`, import.meta.url), 'utf8'));
   await seedStock(db, catalogue, T0);
   const hp = fakeHitPay();
   const deps = { db, env: { HITPAY_API_KEY_SANDBOX: 'sandbox-key', HITPAY_API_KEY_LIVE: 'live-key', CURRENCY: 'MYR' }, fetchFn: hp.fetchFn, now: T0, newId: ids, origin: 'https://preview.example', catalogue };
@@ -227,4 +227,16 @@ test('the gift columns are dropped from a database that had them, and the clean-
   await addColumns(db, drop); // second start: nothing left to drop, no error
   const cols = db.raw.prepare('PRAGMA table_info(orders)').all().map((c) => c.name);
   for (const c of ['gift_wrap', 'gift_message', 'hide_prices']) assert.ok(!cols.includes(c), c);
+});
+
+test('the marketing tick is stored only when ticked, with the time it was given', async () => {
+  const { db, deps } = await setup();
+  await startCheckout(deps, { items: [{ sku: 'fruit-basket', qty: 1 }], customer: buyer, marketing: true });
+  await startCheckout(deps, { items: [{ sku: 'veggie-garden', qty: 1 }], customer: buyer });
+  await startCheckout(deps, { items: [{ sku: 'meal-time', qty: 1 }], customer: buyer, marketing: 'yes' }); // only a real tick counts
+  const rows = db.raw.prepare('SELECT items_json, created_at, marketing_consent, marketing_consent_at FROM orders ORDER BY rowid').all();
+  assert.equal(rows.length, 3);
+  assert.equal(rows[0].marketing_consent, 1);
+  assert.equal(rows[0].marketing_consent_at, rows[0].created_at);
+  for (const r of rows.slice(1)) { assert.equal(r.marketing_consent, 0); assert.equal(r.marketing_consent_at, null); }
 });

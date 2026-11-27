@@ -298,3 +298,19 @@ footer .col a{padding:10px 0}
   #main-nav a{padding:14px 0;font-size:18px;border-bottom:1px solid var(--line)}
 }
 @media (max-width:820px){.nav-basket{display:block}}
+
+/* Footer company line (Design, 26 Nov 2026) */
+footer .coline{color:var(--cream);font-weight:800}
+/* WhatsApp button (Design, 26 Nov 2026): no motion; never over the pay button, the open menu or the last footer line */
+.wa{position:fixed;z-index:24;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 20px 0 14px;border-radius:999px;background:#2B2624;color:var(--cream);border:2px solid var(--cream);box-shadow:0 4px 14px rgba(43,38,36,.28);font:800 15px var(--body);text-decoration:none}
+.wa img{width:30px;height:30px;display:block}
+@media (max-width:560px){.wa{width:56px;padding:0;justify-content:center}.wa-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
+@media (max-width:820px){body:has(.bbar) .wa{bottom:calc(83px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:767px){footer.has-wa{padding-bottom:104px}}
+@media (max-width:820px){body:has(.bbar) footer.has-wa{padding-bottom:176px}}
+html.menu-open .wa{display:none}
+body:has(#co) .wa{display:none}
+@media print{.wa{display:none}}
+/* Marketing tick */
+.tick{display:flex;gap:10px;align-items:flex-start;font-weight:600}
+.tick input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--ink)}

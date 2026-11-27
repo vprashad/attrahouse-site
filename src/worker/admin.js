@@ -37,7 +37,7 @@ export async function handleAdmin(request, env, catalogue, user, siteMode = 'sho
   }
   const { results: stock } = await env.DB.prepare('SELECT sku, available, sold FROM stock').all();
   const bySku = new Map(stock.map((r) => [r.sku, r]));
-  const { results: orders } = await env.DB.prepare('SELECT id, created_at, status, name, email, phone, region, items_json, total_sen, test, refunded_at, refunded_by, refund_restocked, refund_method FROM orders ORDER BY created_at DESC LIMIT 50').all();
+  const { results: orders } = await env.DB.prepare('SELECT id, created_at, status, name, email, phone, region, items_json, total_sen, test, refunded_at, refunded_by, refund_restocked, refund_method, marketing_consent, marketing_consent_at FROM orders ORDER BY created_at DESC LIMIT 50').all();
 
   const rows = catalogue.products.filter(isOnSale).map((p) => {
     const s = bySku.get(p.sku);
@@ -56,7 +56,7 @@ export async function handleAdmin(request, env, catalogue, user, siteMode = 'sho
       <label class="ck"><input type="checkbox" name="confirm" value="yes" required> I have refunded this buyer</label>
       <label class="sel">How <select name="method" required><option value="">Choose…</option>${Object.entries(REFUND_METHODS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></label>${restock}<button>Mark refunded</button></form>`;
   };
-  const orows = orders.map((o) => `<tr><td>${when(o.created_at)}</td><td>${o.refunded_at ? 'refunded' : esc(o.status)}${o.test ? ' (test)' : ''}${refundCell(o)}</td><td>${esc(o.name)}<br><small>${esc(o.email)} · ${esc(o.phone)}</small></td><td>${JSON.parse(o.items_json).map((i) => `${i.qty} × ${esc(i.sku)}`).join('<br>')}</td><td class="n">${rm(o.total_sen)}</td></tr>`).join('') || '<tr><td colspan="5">No orders yet.</td></tr>';
+  const orows = orders.map((o) => `<tr><td>${when(o.created_at)}</td><td>${o.refunded_at ? 'refunded' : esc(o.status)}${o.test ? ' (test)' : ''}${refundCell(o)}</td><td>${esc(o.name)}<br><small>${esc(o.email)} · ${esc(o.phone)}${o.marketing_consent ? `<br>News and offers: yes, ticked ${when(o.marketing_consent_at)}` : ''}</small></td><td>${JSON.parse(o.items_json).map((i) => `${i.qty} × ${esc(i.sku)}`).join('<br>')}</td><td class="n">${rm(o.total_sen)}</td></tr>`).join('') || '<tr><td colspan="5">No orders yet.</td></tr>';
 
   const settings = runningSettings(env, siteMode);
   const srows = settings.map((r) => `<tr${r.warn ? ' class="warn"' : ''}><th scope="row">${esc(r.label)}</th><td>${esc(r.value)}${r.warn ? ' <strong>Check this</strong>' : ''}</td></tr>`).join('');
